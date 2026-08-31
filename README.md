@@ -29,6 +29,10 @@ uploads the runtime secrets, so the repository needs these set:
 | `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME` | The store files are written to |
 | `S3_PUBLIC_BASE` | Where readers fetch those files from |
 
+Their values live in `.prod.vars`, which is the production counterpart to
+`.dev.vars` and is not committed. The two differ in `OIDC_REDIRECT`: locally it
+is the dev server's origin, in production the site's own.
+
 Deploys do not touch the database. Schema changes are applied by hand:
 
 ```sh
