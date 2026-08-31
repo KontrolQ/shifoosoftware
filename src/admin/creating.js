@@ -45,9 +45,11 @@ export async function newSoftware(environment, root, manager, categorySlug) {
   }
 
   const database = environment.CATALOGUE;
-  const held = await database.prepare("SELECT slug, name FROM categories WHERE slug = ?").bind(categorySlug).first();
+  const held = categorySlug
+    ? await database.prepare("SELECT slug, name FROM categories WHERE slug = ?").bind(categorySlug).first()
+    : null;
 
-  if (!held) {
+  if (categorySlug && !held) {
     return goTo(`${root}/categories`);
   }
 
@@ -55,11 +57,11 @@ export async function newSoftware(environment, root, manager, categorySlug) {
     root,
     manager,
     title: "New title",
-    heading: `New Title In ${held.name}`,
+    heading: held ? `New Title In ${held.name}` : "New Title",
     atSoftware: true,
     action: `${root}/software`,
-    backHref: `${root}/categories/${held.slug}`,
-    backLabel: held.name,
+    backHref: held ? `${root}/categories/${held.slug}` : `${root}/software`,
+    backLabel: held ? held.name : "Software",
     button: "Create Title",
     hidden: [],
     picks: [
@@ -71,13 +73,13 @@ export async function newSoftware(environment, root, manager, categorySlug) {
           objectValue: "",
           hotlinkValue: "",
           opener: "Choose an icon",
-          prefix: `icons/${held.slug}`,
+          prefix: held ? `icons/${held.slug}` : "icons",
           labels: "{}",
           root,
         },
       },
-      { kind: "category", name: "category", label: "Category", value: held.slug,
-        labels: JSON.stringify({ [held.slug]: held.name }), opener: "Choose a category" },
+      { kind: "category", name: "category", label: "Category", value: held?.slug ?? "",
+        labels: JSON.stringify(held ? { [held.slug]: held.name } : {}), opener: "Choose a category" },
       { kind: "publisher", name: "publishers", label: "Publishers", many: true, mayMake: true,
         opener: "Add a publisher" },
       { kind: "platform", name: "platforms", label: "Platforms", many: true, mayMake: true,
@@ -113,9 +115,11 @@ export async function newVersion(environment, root, manager, softwareSlug) {
   }
 
   const database = environment.CATALOGUE;
-  const held = await database.prepare("SELECT slug, name FROM software WHERE slug = ?").bind(softwareSlug).first();
+  const held = softwareSlug
+    ? await database.prepare("SELECT slug, name FROM software WHERE slug = ?").bind(softwareSlug).first()
+    : null;
 
-  if (!held) {
+  if (softwareSlug && !held) {
     return goTo(`${root}/categories`);
   }
 
@@ -123,24 +127,33 @@ export async function newVersion(environment, root, manager, softwareSlug) {
     root,
     manager,
     title: "New version",
-    heading: `New Version Of ${held.name}`,
+    heading: held ? `New Version Of ${held.name}` : "New Version",
     atVersions: true,
     action: `${root}/versions`,
-    backHref: `${root}/software/${held.slug}`,
-    backLabel: held.name,
+    backHref: held ? `${root}/software/${held.slug}` : `${root}/versions`,
+    backLabel: held ? held.name : "Versions",
     button: "Create Version",
-    hidden: [{ name: "software_slug", value: held.slug }],
+    hidden: [],
     picks: [
+      { kind: "software", name: "software_slug", label: "Title", value: held?.slug ?? "",
+        labels: JSON.stringify(held ? { [held.slug]: held.name } : {}), opener: "Choose a title" },
       { kind: "platform", name: "platform_slug", label: "Platform", mayMake: true,
         opener: "Choose a platform" },
       { kind: "architecture", name: "architecture_slug", label: "Architecture", mayMake: true,
         opener: "Choose an architecture" },
+      { kind: "processor", name: "minimum_cpu_slug", label: "Minimum processor", mayMake: true,
+        opener: "Choose a processor" },
     ],
     fields: [
       { name: "version", label: "Version", hint: "6.0 SP1", required: true },
       { name: "slug", label: "Slug", hint: "worked out from the version if blank" },
     ],
     dates: [dateFieldFor("released_on", "Released on", null)],
+    measures: [
+      measureFieldFor("minimum_cpu_speed", "Minimum clock speed", null, null, SPEED_UNITS),
+      measureFieldFor("minimum_ram", "Minimum RAM", null, null, SIZE_UNITS),
+      measureFieldFor("minimum_disk", "Free disk space", null, null, SIZE_UNITS),
+    ],
     prose: [{ name: "notes", label: "Notes" }],
   });
 }
@@ -175,6 +188,28 @@ export async function newTaxonomy(environment, root, manager, kind) {
   });
 }
 
+export async function newKey(environment, root, manager) {
+  if (!can(manager, "keys.create")) {
+    return refuse("create keys");
+  }
+
+  return page(environment.CATALOGUE, {
+    root,
+    manager,
+    title: "New key",
+    heading: "New Key",
+    atKeys: true,
+    action: `${root}/keys`,
+    backHref: `${root}/keys`,
+    backLabel: "Keys",
+    button: "Create Key",
+    hidden: [],
+    fields: [
+      { name: "name", label: "Name", hint: "winworld-mirrorer", required: true },
+    ],
+  });
+}
+
 export async function newRole(environment, root, manager) {
   if (!can(manager, "roles.create")) {
     return refuse("create roles");
@@ -202,18 +237,21 @@ export async function newFile(environment, root, manager, versionId) {
 
   const database = environment.CATALOGUE;
 
-  const version = await database
-    .prepare(`
-      SELECT v.id, v.slug, v.version, v.software_slug, s.name AS software_name, s.category AS category_slug
-      FROM versions v JOIN software s ON s.slug = v.software_slug WHERE v.id = ?`)
-    .bind(Number(versionId) || 0)
-    .first();
+  const version = versionId
+    ? await database
+        .prepare(`
+          SELECT v.id, v.slug, v.version, v.software_slug, s.name AS software_name, s.category AS category_slug
+          FROM versions v JOIN software s ON s.slug = v.software_slug WHERE v.id = ?`)
+        .bind(Number(versionId) || 0)
+        .first()
+    : null;
 
-  if (!version) {
+  if (versionId && !version) {
     return goTo(`${root}/categories`);
   }
 
   const languages = await rowsOf(database.prepare("SELECT slug, name FROM languages ORDER BY sort_order, name"));
+  const versionPath = version ? `${version.software_slug}/${version.slug}` : "";
 
   return htmlPage(database, "create-file", {
     root,
@@ -222,13 +260,21 @@ export async function newFile(environment, root, manager, versionId) {
     heading: "Add A File",
     atFiles: true,
     version,
+    versionPath,
+    versionLabels: JSON.stringify(
+      version ? { [versionPath]: `${version.software_name} ${version.version}` } : {}
+    ),
+    backHref: version
+      ? `${root}/browse/${version.category_slug}/${version.software_slug}/${version.slug}`
+      : `${root}/files`,
+    backLabel: version ? `${version.software_name} ${version.version}` : "Files",
     filePick: {
       objectField: "object_key",
       hotlinkField: "hotlink_slug",
       objectValue: "",
       hotlinkValue: "",
       opener: "Choose a file",
-      prefix: `${version.category_slug}/${version.software_slug}/${version.slug}`,
+      prefix: version ? `${version.category_slug}/${version.software_slug}/${version.slug}` : "loose",
       labels: "{}",
     },
     languageLabels: JSON.stringify(Object.fromEntries(languages.map((one) => [one.slug, one.name]))),

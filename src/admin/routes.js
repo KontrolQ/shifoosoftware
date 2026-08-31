@@ -27,7 +27,8 @@ import {
 import { beginSignIn, doorway, finishSignIn, managerFor, signOut } from "./openid.js";
 import { browse, dropObject, fetchObject, putObject } from "./bucket.js";
 import { can, refuse } from "./permissions.js";
-import { newCategory, newFile, newRole, newSoftware, newTaxonomy, newVersion } from "./creating.js";
+import { newCategory, newFile, newKey, newRole, newSoftware, newTaxonomy, newVersion } from "./creating.js";
+import { keyCreate, keyRevoke, keyView } from "./keys.js";
 import { COLLECTIONS, dropView, listing, saveView } from "./listing.js";
 import { makeEntry } from "./making.js";
 import { askForUploadUrl } from "./presign.js";
@@ -80,12 +81,29 @@ async function readOnly(environment, root, manager, parts, url, saved) {
     return newFile(environment, root, manager, parts[1]);
   }
 
+  // The same pages answer without a parent, which is how a list reaches them.
+  if (parts[0] === "software" && parts[1] === "new") {
+    return newSoftware(environment, root, manager, null);
+  }
+
+  if (parts[0] === "versions" && parts[1] === "new") {
+    return newVersion(environment, root, manager, null);
+  }
+
+  if (parts[0] === "files" && parts[1] === "new") {
+    return newFile(environment, root, manager, null);
+  }
+
   if (isKind(parts[0]) && parts[1] === "new") {
     return newTaxonomy(environment, root, manager, parts[0]);
   }
 
   if (parts[0] === "roles" && parts[1] === "new") {
     return newRole(environment, root, manager);
+  }
+
+  if (parts[0] === "keys" && parts[1] === "new") {
+    return newKey(environment, root, manager);
   }
 
   if (parts[0] === "categories" && parts[2] === "edit") {
@@ -190,6 +208,10 @@ async function readOnly(environment, root, manager, parts, url, saved) {
 
   if (parts[0] === "people" && parts[1]) {
     return personView(environment, root, manager, parts[1], null, saved);
+  }
+
+  if (parts[0] === "keys" && parts[1]) {
+    return keyView(environment, root, manager, parts[1], null, saved);
   }
 
   return null;
@@ -324,6 +346,14 @@ async function acting(environment, root, manager, parts, form) {
 
   if (parts[0] === "people" && parts[1]) {
     return personSave(environment, root, manager, parts[1], form);
+  }
+
+  if (parts[0] === "keys" && parts[2] === "revoke") {
+    return keyRevoke(environment, root, manager, parts[1]);
+  }
+
+  if (parts[0] === "keys") {
+    return keyCreate(environment, root, manager, form);
   }
 
   return null;

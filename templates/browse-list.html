@@ -1,5 +1,6 @@
 {{> adminshell}}
-<div class="bar">{{heading}} <small>{{subheading}}</small></div>
+<div class="bar">{{heading}} <small>{{subheading}}</small>
+  {{#newHref}}<a class="barmake" href="{{newHref}}">New</a>{{/newHref}}</div>
 
 <nav class="viewtabs">
   <a href="{{listPath}}" class="{{#onDefault}}on{{/onDefault}}">All</a>

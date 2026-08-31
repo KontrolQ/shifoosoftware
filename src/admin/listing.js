@@ -369,6 +369,7 @@ export async function listing(environment, root, manager, kind, url, saved) {
     subheading: `${total} shown`,
     [shape.flag]: true,
     listPath,
+    newHref: shape.makes && can(manager, `${shape.permission}.create`) ? `${listPath}/new` : null,
     kind,
     query,
     facets: [

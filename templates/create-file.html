@@ -1,11 +1,9 @@
 {{> adminshell}}
-<div class="crumbs"><a href="{{root}}/browse/{{version.category_slug}}/{{version.software_slug}}/{{version.slug}}">{{version.software_name}} {{version.version}}</a>
-  &rsaquo; new file</div>
+<div class="crumbs"><a href="{{backHref}}">{{backLabel}}</a> &rsaquo; new file</div>
 
 <div class="bar">Add A File</div>
 {{#message}}<div class="empty warn">{{message}}</div>{{/message}}
 <form class="search-panel" method="post" action="{{root}}/files" enctype="multipart/form-data">
-  <input type="hidden" name="version_id" value="{{version.id}}">
   <div class="search-grid">
     <label>Display name<input name="display_name" required></label>
     <label>Slug <span class="hintmark">leave blank to name it after the display name</span>
@@ -15,8 +13,43 @@
 
   <div class="pickpair">
     <div>
+      <label>Version</label>
+      <div class="linkpick" data-pick="version" data-many="0" data-verb="Use"
+           data-labels="{{versionLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="version_path" value="{{versionPath}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose a version</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search versions" aria-label="Search versions" autocomplete="off">
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
       <label>The file itself</label>
       {{#filePick}}{{> storagepick}}{{/filePick}}
+    </div>
+    <div>
+      <label>Architecture</label>
+      <div class="linkpick" data-pick="architecture" data-many="0" data-verb="Use"
+           data-labels="{}" data-make-url="{{root}}/make">
+        <input type="hidden" name="architecture_slug" value="" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose an architecture</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search architectures" aria-label="Search architectures" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
     </div>
     <div>
       <label>File type</label>
@@ -60,7 +93,7 @@
     <textarea name="notes" rows="4"></textarea></label>
   <div class="search-row">
     <button type="submit">Add</button>
-    <a class="clear" href="{{root}}/browse/{{version.category_slug}}/{{version.software_slug}}/{{version.slug}}">Cancel</a>
+    <a class="clear" href="{{backHref}}">Cancel</a>
   </div>
 </form>
 {{> adminfoot}}
