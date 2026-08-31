@@ -3,6 +3,7 @@ import { downloadName } from "./rendering.js";
 import { adminRoute } from "./admin/routes.js";
 import { takeRequest } from "./admin/requests.js";
 import { graphRoute } from "./api/graph.js";
+import { ingestRoute } from "./ingest/route.js";
 import { managerFor } from "./admin/openid.js";
 import {
   advancedSearch,
@@ -125,6 +126,10 @@ async function route(request, environment, url) {
 
   if (parts[0] === "graphql") {
     return graphRoute(request, environment, url, await managerFor(request, environment.CATALOGUE));
+  }
+
+  if (parts[0] === "ingest") {
+    return ingestRoute(request, environment, await managerFor(request, environment.CATALOGUE));
   }
 
 

@@ -44,6 +44,33 @@ async function freeSlug(database, stem) {
   }
 }
 
+// Two links are the same thing only when they point at the same place, so a
+// target already on file is handed back rather than recorded twice.
+export async function linkedTo(database, manager, name, target, prefix) {
+  const standing = await database
+    .prepare("SELECT slug, name FROM hotlinks WHERE target_url = ?")
+    .bind(target)
+    .first();
+
+  if (standing) {
+    return { ...standing, made: false };
+  }
+
+  // a hotlink is addressed like the object it stands in for, under the same prefix
+  const cleaned = String(prefix ?? "").replace(/^\/+|\/+$/g, "");
+  const stem = cleaned ? `${cleaned}/${namedPath(name)}` : namedPath(name);
+  const wanted = await freeSlug(database, stem);
+
+  await database
+    .prepare("INSERT INTO hotlinks (slug, name, target_url, added_at, sort_order) VALUES (?, ?, ?, ?, 9999)")
+    .bind(wanted, name, target, new Date().toISOString())
+    .run();
+
+  await noteChange(database, manager, `hotlink:${wanted}`, "created", target);
+
+  return { slug: wanted, name, made: true };
+}
+
 export async function makeEntry(environment, manager, form) {
   const kind = String(form.get("kind") ?? "");
   const shape = MAKEABLE[kind];
@@ -87,29 +114,9 @@ export async function makeEntry(environment, manager, form) {
       return answer({ error: "A full http or https address is required." }, 400);
     }
 
-    // two links are the same thing only when they point at the same place
-    const standing = await database
-      .prepare("SELECT slug, name FROM hotlinks WHERE target_url = ?")
-      .bind(target)
-      .first();
+    const linked = await linkedTo(database, manager, name, target, String(form.get("prefix") ?? ""));
 
-    if (standing) {
-      return answer(standing);
-    }
-
-    // a hotlink is addressed like the object it stands in for, under the same prefix
-    const prefix = String(form.get("prefix") ?? "").replace(/^\/+|\/+$/g, "");
-    const stem = prefix ? `${prefix}/${namedPath(name)}` : namedPath(name);
-    const wanted = await freeSlug(database, stem);
-
-    await database
-      .prepare("INSERT INTO hotlinks (slug, name, target_url, added_at, sort_order) VALUES (?, ?, ?, ?, 9999)")
-      .bind(wanted, name, target, new Date().toISOString())
-      .run();
-
-    await noteChange(database, manager, `hotlink:${wanted}`, "created", target);
-
-    return answer({ slug: wanted, name });
+    return answer({ slug: linked.slug, name: linked.name });
   }
 
   if (shape.table === "file_types") {
