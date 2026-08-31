@@ -177,7 +177,13 @@ export function resolversFor(environment, manager) {
   };
 
   const softwareVisible = () => (sees(manager, "software") ? "" : " AND s.published = 1");
-  const filesVisible = () => (sees(manager, "files") ? "" : " AND f.published = 1");
+  // A file is only public when its own title is, or hiding a title would leave
+  // its downloads on show.
+  const filesVisible = () =>
+    sees(manager, "files")
+      ? ""
+      : " AND f.published = 1 AND EXISTS (SELECT 1 FROM software owner" +
+        " WHERE owner.slug = f.software_slug AND owner.published = 1)";
 
   return {
     PageInfo: {},
@@ -402,7 +408,7 @@ export function resolversFor(environment, manager) {
 
       Software: (_root, { slug }) =>
         database
-          .prepare(`SELECT * FROM software WHERE slug = ?${softwareVisible()}`)
+          .prepare(`SELECT s.* FROM software s WHERE s.slug = ?${softwareVisible()}`)
           .bind(slug)
           .first(),
 
@@ -410,7 +416,11 @@ export function resolversFor(environment, manager) {
         database.prepare("SELECT * FROM categories WHERE slug = ?").bind(slug).first(),
 
       Version: (_root, { id }) =>
-        database.prepare("SELECT * FROM versions WHERE id = ?").bind(id).first(),
+        database
+          .prepare(`SELECT v.* FROM versions v JOIN software s ON s.slug = v.software_slug
+                    WHERE v.id = ?${softwareVisible()}`)
+          .bind(id)
+          .first(),
 
       File: (_root, { id }) =>
         database
@@ -525,7 +535,11 @@ export function resolversFor(environment, manager) {
     Version: {
       releasedOn: (row) => datePartsOf(row.released_on),
       notesHtml: (row) => rendered(row.notes),
-      software: (row, { limit, offset } = {}) => database.prepare("SELECT * FROM software WHERE slug = ?").bind(row.software_slug).first(),
+      software: (row) =>
+        database
+          .prepare(`SELECT s.* FROM software s WHERE s.slug = ?${softwareVisible()}`)
+          .bind(row.software_slug)
+          .first(),
       files: (row, { limit, offset } = {}) =>
         rowsOf(
           database
@@ -534,7 +548,8 @@ export function resolversFor(environment, manager) {
         ),
       fileCount: async (row) => {
         const held = await database
-          .prepare(`SELECT COUNT(*) AS held FROM files f WHERE f.version_id = ?${filesVisible()}`)
+          .prepare(`SELECT COUNT(*) AS held FROM catalogue_files f
+                    WHERE f.version_id = ?${filesVisible()}`)
           .bind(row.id)
           .first();
 
