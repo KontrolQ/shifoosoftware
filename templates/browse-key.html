@@ -1,0 +1,28 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/keys">Keys</a> &rsaquo; {{key.name}}</div>
+
+<div class="bar">{{heading}} <small>{{subheading}}</small></div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+{{#saved}}<div class="empty">{{saved}}</div>{{/saved}}
+
+<dl class="facts">
+  <dt>Begins</dt><dd class="key">{{key.opening}}&hellip;</dd>
+  <dt>Acts as</dt><dd>{{key.manager_email}}</dd>
+  <dt>Role</dt><dd>{{key.role_name}}</dd>
+  <dt>Created</dt><dd>{{made}}</dd>
+  <dt>Last used</dt><dd>{{lastUsed}}</dd>
+  {{^live}}<dt>Revoked</dt><dd>{{key.revoked_at}}</dd>{{/live}}
+</dl>
+
+{{#mayRevoke}}
+<form method="post" action="{{root}}/keys/{{key.id}}/revoke">
+  <div class="search-row">
+    <button type="submit" class="wipe">Revoke this key</button>
+    <a class="clear" href="{{root}}/keys">Back</a>
+  </div>
+</form>
+{{/mayRevoke}}
+{{^mayRevoke}}
+<div class="search-row"><a class="clear" href="{{root}}/keys">Back</a></div>
+{{/mayRevoke}}
+{{> adminfoot}}

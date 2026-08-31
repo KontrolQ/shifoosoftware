@@ -1,3 +1,4 @@
+import { managerForKey } from "./keys.js";
 import { render } from "../rendering.js";
 
 const COOKIE = "management";
@@ -218,7 +219,7 @@ export async function managerFor(request, database) {
   const token = cookieFrom(request, COOKIE);
 
   if (!token) {
-    return null;
+    return managerForKey(request, database);
   }
 
   const held = await database

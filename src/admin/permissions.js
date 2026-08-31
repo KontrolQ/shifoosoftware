@@ -16,6 +16,7 @@ export const SUBJECTS = [
   { key: "history", label: "History" },
   { key: "people", label: "People" },
   { key: "roles", label: "Roles" },
+  { key: "keys", label: "Keys" },
 ];
 
 export const ACTIONS = [

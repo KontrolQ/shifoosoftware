@@ -1,0 +1,20 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/keys">Keys</a> &rsaquo; created</div>
+
+<div class="bar">{{heading}} <small>{{subheading}}</small></div>
+
+<div class="empty warn">This is the only time the key is shown. Copy it now &mdash; nothing here can
+  read it back, only the hash is kept.</div>
+
+<div class="answer">{{secret}}</div>
+
+<dl class="facts">
+  <dt>Acts as</dt><dd>{{actingAs}}</dd>
+  <dt>Role</dt><dd>{{roleName}}</dd>
+  <dt>Sent as</dt><dd class="key">Authorization: Bearer &lt;the key above&gt;</dd>
+</dl>
+
+<div class="search-row">
+  <a class="clear" href="{{keyHref}}">Done</a>
+</div>
+{{> adminfoot}}

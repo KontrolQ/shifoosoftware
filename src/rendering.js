@@ -49,6 +49,8 @@ import browseAudit from "../templates/browse-audit.html";
 import browseList from "../templates/browse-list.html";
 import confirmRemoval from "../templates/confirm-removal.html";
 import editPerson from "../templates/edit-person.html";
+import browseKey from "../templates/browse-key.html";
+import madeKey from "../templates/made-key.html";
 import pick from "../templates/partials/pick.html";
 
 const PARTIALS = { head, foot, adminshell, adminfoot, pick, storagepick, datefield, measurefield };
@@ -66,6 +68,8 @@ const TEMPLATES = {
   "browse-list": browseList,
   "confirm-removal": confirmRemoval,
   "edit-person": editPerson,
+  "browse-key": browseKey,
+  "made-key": madeKey,
   "admin-storage": adminStorage,
   "browse-categories": browseCategories,
   "browse-category": browseCategory,
