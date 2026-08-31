@@ -157,7 +157,7 @@ async function readOnly(environment, root, manager, parts, url, saved) {
   }
 
   if (parts[0] === "bucket" && parts[1] === "fetch") {
-    return fetchObject(environment, url);
+    return fetchObject(environment, manager, url);
   }
 
   if (parts[0] === "bucket") {

@@ -1,4 +1,5 @@
 import { describedSize } from "../rendering.js";
+import { can, refuse } from "./permissions.js";
 import { goTo, htmlPage, noteChange, rowsOf } from "./shared.js";
 import { filesFor } from "../storage/bucket.js";
 
@@ -72,7 +73,11 @@ export async function browse(environment, root, manager, url, message, saved) {
   });
 }
 
-export async function fetchObject(environment, url) {
+export async function fetchObject(environment, manager, url) {
+  if (!can(manager, "bucket.view")) {
+    return refuse("read from the bucket");
+  }
+
   const key = url.searchParams.get("key");
 
   if (!key) {
