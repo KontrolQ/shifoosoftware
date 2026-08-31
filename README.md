@@ -33,11 +33,29 @@ Their values live in `.prod.vars`, which is the production counterpart to
 `.dev.vars` and is not committed. The two differ in `OIDC_REDIRECT`: locally it
 is the dev server's origin, in production the site's own.
 
-Deploys do not touch the database. Schema changes are applied by hand:
+The deploy brings the database up to date before publishing the worker, so the
+code never meets a schema it predates. Schema changes are therefore written as
+numbered files in `migrations/` rather than applied by hand, and `schema.sql` is
+kept in step for building a database from nothing.
 
 ```sh
-npx wrangler d1 execute shifoosoftware --remote --file=schema.sql
+npx wrangler d1 migrations apply shifoosoftware --local
 ```
+
+## Ingest
+
+`POST /ingest` takes one JSON document describing a title, its versions and
+their files, and writes them idempotently — running the same document twice
+updates in place rather than duplicating. Vocabulary is named rather than
+addressed, so categories, publishers, platforms, languages, architectures,
+processors and file types are created when the catalogue has not met them yet.
+Hotlinks are matched on their target address.
+
+It is authenticated by a key, sent as `Authorization: Bearer`. Keys are minted
+under the management interface at `/keys`, shown once, and stored only as a
+hash. A key acts as whoever minted it, so it can never reach further than they
+can. D1 offers no transaction across statements: a document that fails part way
+leaves what it already wrote, and the reply says what landed.
 
 ## Files
 
