@@ -1,0 +1,21 @@
+# Copy to .dev.vars and fill in. Any *.vars file is ignored by git and must stay
+# that way — they hold live credentials. The same names are set as repository
+# secrets for the deploy workflow.
+
+# Where the management interface answers, kept off the obvious path
+ADMIN_PATH=
+
+# The identity provider that signs managers in
+OIDC_DISCOVERY=
+OIDC_CLIENT_ID=
+OIDC_CLIENT_SECRET=
+OIDC_REDIRECT=
+
+# The object store. Writes are signed against S3_ENDPOINT; readers are sent to
+# S3_PUBLIC_BASE, which is the same store behind a CDN.
+S3_ENDPOINT=
+S3_PUBLIC_BASE=
+S3_REGION=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_BUCKET_NAME=
