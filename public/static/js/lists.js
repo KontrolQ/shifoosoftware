@@ -63,18 +63,39 @@ for (const button of document.querySelectorAll("[data-columns-toggle]")) {
   fold(button, [...document.querySelectorAll("[data-columns]")], ["Choose", "Close"]);
 }
 
-// A panel is done with when you look somewhere else.
-document.addEventListener("click", (event) => {
-  for (const panel of document.querySelectorAll("[data-narrow], [data-columns]")) {
-    const opener = document.querySelector(
-      panel.hasAttribute("data-narrow") ? "[data-narrow-toggle]" : "[data-columns-toggle]"
-    );
+function panels() {
+  return document.querySelectorAll("[data-narrow], [data-columns]");
+}
 
-    if (panel.hidden || panel.contains(event.target) || opener?.contains(event.target)) {
+function openerFor(panel) {
+  return document.querySelector(
+    panel.hasAttribute("data-narrow") ? "[data-narrow-toggle]" : "[data-columns-toggle]"
+  );
+}
+
+// Where a click landed is settled as it starts, because a panel that rebuilds
+// its own contents leaves the clicked node detached, and a detached node is
+// inside nothing.
+let landedIn = new Set();
+
+document.addEventListener("click", (event) => {
+  landedIn = new Set();
+
+  for (const panel of panels()) {
+    if (panel.contains(event.target) || openerFor(panel)?.contains(event.target)) {
+      landedIn.add(panel);
+    }
+  }
+}, true);
+
+// A panel is done with when you look somewhere else.
+document.addEventListener("click", () => {
+  for (const panel of panels()) {
+    if (panel.hidden || landedIn.has(panel)) {
       continue;
     }
 
-    opener?.click();
+    openerFor(panel)?.click();
   }
 });
 
