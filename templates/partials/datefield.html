@@ -1,0 +1,10 @@
+<label class="datefield">{{label}}
+  <span class="parts">
+    <input name="{{name}}_day" value="{{day}}" placeholder="DD" inputmode="numeric" maxlength="2" size="2">
+    <select name="{{name}}_month">
+      <option value="">Month</option>
+      {{#months}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/months}}
+    </select>
+    <input name="{{name}}_year" value="{{year}}" placeholder="YYYY" inputmode="numeric" maxlength="4" size="4">
+  </span>
+</label>

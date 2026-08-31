@@ -1,0 +1,26 @@
+<div class="linkpick storage" data-pick="bucket" data-many="0" data-verb="Use"
+     data-labels="{{labels}}" data-upload-url="{{root}}/upload-url"
+     data-put-url="{{root}}/bucket/put" data-prefix="{{prefix}}"
+     data-make-url="{{root}}/make">
+  <input type="hidden" name="{{objectField}}" value="{{objectValue}}" data-pick-value>
+  <input type="hidden" name="{{hotlinkField}}" value="{{hotlinkValue}}" data-pick-hotlink-value>
+  <div class="chosenrow">
+    <span data-pick-chosen class="tags"></span>
+    <button type="button" data-pick-open>{{opener}}</button>
+  </div>
+  <div data-pick-drawer hidden>
+    <div class="picktabs">
+      <button type="button" data-pick-tab="bucket" class="on">In the bucket</button>
+      <button type="button" data-pick-tab="hotlink">Hotlinks</button>
+      <button type="button" data-pick-tab="upload">Upload</button>
+    </div>
+    <div class="pickhead">
+      <input type="search" data-pick-search placeholder="Search" aria-label="Search" autocomplete="off">
+      <button type="button" data-pick-newlink>Add this link</button>
+      <button type="button" data-pick-upload>Send a file</button>
+      <input type="file" data-pick-file hidden>
+    </div>
+    <div class="progress" data-pick-bar hidden><span></span></div>
+    <ul data-pick-list></ul>
+  </div>
+</div>

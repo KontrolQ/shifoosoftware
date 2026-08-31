@@ -1,0 +1,15 @@
+<div class="linkpick" data-pick="{{kind}}" data-many="{{#many}}1{{/many}}{{^many}}0{{/many}}"
+     data-labels="{{labelsJson}}" data-make-url="{{root}}/make">
+  <input type="hidden" name="{{name}}" value="{{value}}" data-pick-value>
+  <div class="chosenrow">
+    <span data-pick-chosen class="tags"></span>
+    <button type="button" data-pick-open>Link something</button>
+  </div>
+  <div data-pick-drawer hidden>
+    <div class="pickhead">
+      <input type="search" data-pick-search placeholder="Search {{kind}}" aria-label="Search {{kind}}" autocomplete="off">
+      {{#mayMake}}<button type="button" data-pick-make>Add new</button>{{/mayMake}}
+    </div>
+    <ul data-pick-list></ul>
+  </div>
+</div>

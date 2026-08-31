@@ -1,0 +1,32 @@
+    </div>
+  </div>
+
+  <form id="leave" method="post" action="{{root}}/signout"></form>
+
+  <div class="foot">Managing Shifoo's Software Archive.</div>
+</div>
+<script>
+document.querySelectorAll("[data-move]").forEach(function (button) {
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    var row = button.closest("li");
+    var other = button.dataset.move === "up" ? row.previousElementSibling : row.nextElementSibling;
+    if (other) {
+      button.dataset.move === "up" ? row.parentNode.insertBefore(row, other)
+                                   : row.parentNode.insertBefore(other, row);
+    }
+  });
+});
+
+document.querySelectorAll("[data-picker]").forEach(function (box) {
+  box.addEventListener("input", function () {
+    var wanted = box.value.toLowerCase();
+    document.querySelectorAll("[data-pick]").forEach(function (row) {
+      row.hidden = wanted !== "" && row.dataset.pick.toLowerCase().indexOf(wanted) === -1;
+    });
+  });
+});
+
+</script>
+</body>
+</html>

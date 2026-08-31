@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{title}}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="/static/js/pick.js" defer></script>
+</head>
+<body>
+<div class="page">
+
+  <div class="shell">
+    <div class="rail">
+      <div class="brand">
+        <a href="/"><b>ソフトウェア アーカイブ</b></a>
+        <span>Shifoo's Software Archive</span>
+      </div>
+
+      <div class="group">
+        <b>Search</b>
+        <form class="quick" action="/search" method="get">
+          <input type="search" name="q" placeholder="Keyword">
+          <select name="category">
+            <option value="">Any category</option>
+            {{#railCategories}}<option value="{{slug}}">{{name}}</option>{{/railCategories}}
+          </select>
+          <button type="submit">Go</button>
+        </form>
+      </div>
+
+      <div class="group">
+        <b>Menu</b>
+        <a href="/">Index</a>
+        <a href="/recent">Recently Added</a>
+        <a href="/search">Advanced Search</a>
+        <a href="/requests">Request Something</a>
+        <a href="/api">API</a>
+      </div>
+
+      <div class="group">
+        <b>Categories</b>
+        {{#railCategories}}<a href="/{{slug}}/">{{name}}</a>{{/railCategories}}
+      </div>
+
+      <div class="group">
+        <b>Statistics</b>
+        <dl class="stats">
+          <dt>Titles</dt><dd>{{count}}</dd>
+          <dt>Files</dt><dd>{{filesHeld}}</dd>
+          <dt>Downloads</dt><dd>{{downloads}}</dd>
+          <dt>Visitors</dt><dd>{{visitors}}</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="body">

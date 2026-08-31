@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{title}}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="/static/js/pick.js" defer></script>
+</head>
+<body>
+<div class="page wide">
+
+  <div class="shell">
+    <div class="rail">
+      <div class="brand">
+        <a href="{{root}}"><b>ソフトウェア アーカイブ</b></a>
+        <span>Shifoo's Software Archive</span>
+        <em>Management</em>
+      </div>
+
+      <div class="group">
+        <b>Search</b>
+        <form class="quick" action="{{root}}/find" method="get">
+          <label class="sr" for="quicksearch">Search everything</label>
+          <input id="quicksearch" type="search" name="q" placeholder="Search everything">
+          <button type="submit">Go</button>
+        </form>
+      </div>
+
+      <div class="group">
+        <b>Catalogue</b>
+        <a href="{{root}}/categories" class="{{#atCategories}}on{{/atCategories}}">Categories</a>
+        <a href="{{root}}/software" class="{{#atSoftware}}on{{/atSoftware}}">Software</a>
+        <a href="{{root}}/versions" class="{{#atVersions}}on{{/atVersions}}">Versions</a>
+        <a href="{{root}}/files" class="{{#atFiles}}on{{/atFiles}}">Files</a>
+      </div>
+
+      <div class="group">
+        <b>Vocabulary</b>
+        <a href="{{root}}/platforms" class="{{#atPlatforms}}on{{/atPlatforms}}">Platforms</a>
+        <a href="{{root}}/languages" class="{{#atLanguages}}on{{/atLanguages}}">Languages</a>
+        <a href="{{root}}/interfaces" class="{{#atInterfaces}}on{{/atInterfaces}}">Interfaces</a>
+        <a href="{{root}}/architectures" class="{{#atArchitectures}}on{{/atArchitectures}}">Architectures</a>
+        <a href="{{root}}/filetypes" class="{{#atFileTypes}}on{{/atFileTypes}}">File types</a>
+        <a href="{{root}}/processors" class="{{#atProcessors}}on{{/atProcessors}}">Processors</a>
+        <a href="{{root}}/publishers" class="{{#atPublishers}}on{{/atPublishers}}">Publishers</a>
+      </div>
+
+      <div class="group">
+        <b>Storage</b>
+        <a href="{{root}}/bucket" class="{{#atBucket}}on{{/atBucket}}">Bucket objects</a>
+        <a href="{{root}}/hotlinks" class="{{#atHotlinks}}on{{/atHotlinks}}">Hotlinks</a>
+        <a href="{{root}}/storage" class="{{#atStorage}}on{{/atStorage}}">Storage check</a>
+      </div>
+
+      <div class="group">
+        <b>People</b>
+        <a href="{{root}}/requests" class="{{#atRequests}}on{{/atRequests}}">Requests</a>
+        <a href="{{root}}/people" class="{{#atPeople}}on{{/atPeople}}">People</a>
+        <a href="{{root}}/roles" class="{{#atRoles}}on{{/atRoles}}">Roles</a>
+        <a href="{{root}}/audit" class="{{#atAudit}}on{{/atAudit}}">Audit log</a>
+      </div>
+
+      <div class="group">
+        <b>{{manager.name}}</b>
+        <span class="who">{{manager.roleName}}</span>
+        <a href="/">View the site</a>
+        <a href="#" onclick="document.getElementById('leave').submit();return false">Sign out</a>
+      </div>
+    </div>
+
+    <div class="body">
+      {{#saved}}<div class="done">{{saved}}</div>{{/saved}}
+      {{#message}}<div class="notice">{{message}}</div>{{/message}}
