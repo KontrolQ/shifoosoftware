@@ -25,6 +25,15 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      # The schema goes first, so the worker never meets a database it predates.
+      - name: Bring the database up to date
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply shifoosoftware --remote
+
       - name: Publish the worker
         uses: cloudflare/wrangler-action@v3
         with:
