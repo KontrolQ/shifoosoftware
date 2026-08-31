@@ -338,15 +338,17 @@ export async function adminRoute(request, environment, root, parts, url) {
   const saved = url.searchParams.get("saved");
   const manager = await managerFor(request, environment.CATALOGUE);
 
+  // Signing in is answered whether or not somebody is already signed in, or
+  // coming back from the identity provider with a session in hand lands nowhere.
+  if (parts[0] === "callback") {
+    return finishSignIn(request, environment, root, url);
+  }
+
+  if (parts[0] === "signin") {
+    return beginSignIn(environment, root, url);
+  }
+
   if (!manager) {
-    if (parts[0] === "callback") {
-      return finishSignIn(request, environment, root, url);
-    }
-
-    if (parts[0] === "signin") {
-      return beginSignIn(environment, root, url);
-    }
-
     return doorway(root, null, url.pathname);
   }
 
