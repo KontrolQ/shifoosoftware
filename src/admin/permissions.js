@@ -33,6 +33,10 @@ export function grantsOf(manager) {
   return new Set(String(manager.permissions ?? "").split(",").map((one) => one.trim()).filter(Boolean));
 }
 
+export function holdsEverything(manager) {
+  return grantsOf(manager).has("*");
+}
+
 export function can(manager, permission) {
   const held = grantsOf(manager);
 

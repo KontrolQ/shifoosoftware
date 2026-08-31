@@ -55,6 +55,11 @@ export async function roleSave(environment, root, manager, identifier, form) {
   const chosen = form.getAll("permission").map(String).filter(Boolean);
   const permissions = everything ? "*" : chosen.join(",");
 
+  if (permissions === "*" && held?.permissions !== "*" && !holdsEverything(manager)) {
+    return roleView(environment, root, manager, identifier,
+      "Only someone who already has every permission can give a role every permission.", null);
+  }
+
   if (held?.permissions === "*" && permissions !== "*") {
     const others = await database
       .prepare("SELECT COUNT(*) AS held FROM roles WHERE permissions = '*' AND id <> ?")
@@ -209,6 +214,11 @@ export async function personSave(environment, root, manager, identifier, form) {
   if (losing && !gaining && (holders?.held ?? 0) === 0) {
     return personView(environment, root, manager, identifier,
       "That is the last account with every permission. Give someone else that role first.", null);
+  }
+
+  if (gaining && !holdsEverything(manager)) {
+    return personView(environment, root, manager, identifier,
+      "Only someone who already has every permission can give it to someone else.", null);
   }
 
   await database.prepare("UPDATE managers SET role_id = ? WHERE id = ?").bind(roleId, person).run();
