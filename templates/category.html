@@ -1,0 +1,28 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; {{category.name}}</div>
+<h1>{{category.name}}</h1>
+<div class="prose">{{{summaryHtml}}}</div>
+
+{{#hasSoftware}}
+<div class="bar">Titles <small>{{softwareCount}} held</small></div>
+<ul class="entries">
+{{#software}}
+  <li class="withicon">
+    {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
+    {{^icon}}<span class="icon blank"></span>{{/icon}}
+    <span>
+    <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
+    <span class="note">{{blurb}}
+      {{#publisher}}<a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a>{{/publisher}}
+      <span class="when">({{versions}} versions, latest {{latest}})</span>
+    </span>
+    </span>
+  </li>
+{{/software}}
+</ul>
+{{/hasSoftware}}
+
+{{^hasSoftware}}
+<div class="empty">Nothing in this category yet.</div>
+{{/hasSoftware}}
+{{> foot}}

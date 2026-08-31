@@ -1,0 +1,66 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; Search</div>
+<h1>Search</h1>
+
+<form class="search-panel" action="/search" method="get">
+  <div class="askrow">
+    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}">
+    <select name="sort">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
+    <button type="submit">Search</button>
+  </div>
+
+  <div class="search-row radios">
+    <span>Show</span>
+    <label><input type="radio" name="show" value="software"{{#showSoftware}} checked{{/showSoftware}}> Software</label>
+    <label><input type="radio" name="show" value="files"{{#showFiles}} checked{{/showFiles}}> Files</label>
+    <label><input type="radio" name="show" value="both"{{#showBoth}} checked{{/showBoth}}> Both</label>
+    <a class="atend" href="{{advancedHref}}">Advanced search</a>
+  </div>
+</form>
+
+{{#narrowed}}
+<p class="pagedesc">Narrowed by filters set in <a href="{{advancedHref}}">advanced search</a>.</p>
+{{/narrowed}}
+
+{{#searched}}
+  {{#hasResults}}
+  <div class="bar">Software <small>{{resultCount}} found</small></div>
+  <ul class="entries">
+  {{#results}}
+    <li>
+      <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
+      <span class="note">{{blurb}}
+        {{#publisher}}<a class="pill" href="/search?mode=advanced&amp;publisher={{publisher}}">{{publisher}}</a>{{/publisher}}
+        <span class="when">({{versions}} versions, latest {{latest}})</span>
+      </span>
+    </li>
+  {{/results}}
+  </ul>
+  {{/hasResults}}
+
+  {{#hasMatchedFiles}}
+  <div class="bar red">Files <small>{{fileCount}} found</small></div>
+  <table>
+    <thead><tr><th>File</th><th>Title</th><th>Platform</th><th class="right">Size</th></tr></thead>
+    <tbody>
+    {{#matchedFiles}}
+      <tr>
+        <td><a href="{{href}}">{{display_name}}</a></td>
+        <td class="muted">{{softwareName}} {{version}}</td>
+        <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
+        <td class="right muted">{{size}}</td>
+      </tr>
+    {{/matchedFiles}}
+    </tbody>
+  </table>
+  {{/hasMatchedFiles}}
+
+  {{^anyFound}}
+  <div class="empty">Nothing matched. Try <a href="{{advancedHref}}">advanced search</a>.</div>
+  {{/anyFound}}
+{{/searched}}
+{{^searched}}
+<div class="empty">Type something above, or open <a href="{{advancedHref}}">advanced search</a>
+  to narrow by category, platform, publisher, requirements and more.</div>
+{{/searched}}
+{{> foot}}

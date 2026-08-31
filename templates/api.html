@@ -1,0 +1,58 @@
+{{> head}}
+<div class="bar">API <small>GraphQL at /graphql</small></div>
+<p class="welcome">Everything on this site is readable through one GraphQL endpoint. It takes GET or
+POST, needs no key, and allows requests from any origin. It serves published titles and files.</p>
+
+<div class="bar magenta">Try It</div>
+<form class="search-panel" id="playground" onsubmit="return false">
+  <label class="wide">Query
+    <textarea id="askbox" rows="10" spellcheck="false">{{sample}}</textarea>
+  </label>
+  <div class="search-row">
+    <button type="button" id="runit">Run</button>
+    <span class="note" id="timing"></span>
+  </div>
+</form>
+<pre class="answer" id="answer">Press Run.</pre>
+
+<div class="bar">Types</div>
+<table class="apidocs">
+  <thead><tr><th>Type</th><th>Field</th><th>Arguments</th><th>Returns</th><th>Notes</th></tr></thead>
+  <tbody>
+  {{#types}}
+    {{#fields}}
+    <tr>
+      <td class="typecell">{{#first}}<b>{{typeName}}</b>{{/first}}</td>
+      <td class="key">{{name}}</td>
+      <td class="key quiet">{{argText}}</td>
+      <td class="key quiet">{{type}}</td>
+      <td class="quiet">{{description}}</td>
+    </tr>
+    {{/fields}}
+  {{/types}}
+  </tbody>
+</table>
+<script>
+document.getElementById("runit").addEventListener("click", async function () {
+  const answer = document.getElementById("answer");
+  const timing = document.getElementById("timing");
+  const started = performance.now();
+
+  answer.textContent = "Asking…";
+
+  try {
+    const response = await fetch("/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ query: document.getElementById("askbox").value }),
+    });
+
+    answer.textContent = JSON.stringify(await response.json(), null, 2);
+    timing.textContent = Math.round(performance.now() - started) + " ms";
+  } catch (problem) {
+    answer.textContent = String(problem);
+    timing.textContent = "";
+  }
+});
+</script>
+{{> foot}}

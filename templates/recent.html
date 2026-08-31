@@ -1,0 +1,24 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; Recent</div>
+<h1>Recently Added</h1>
+<p class="pagedesc">The most recent additions to the archive, newest first.</p>
+
+{{#hasSoftware}}
+<div class="bar red">New Arrivals</div>
+<ul class="entries">
+{{#software}}
+  <li>
+    <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
+    <span class="note">{{blurb}}
+      <span class="when">({{added}})</span>
+      <span class="pill">{{categoryName}}</span>
+    </span>
+  </li>
+{{/software}}
+</ul>
+{{/hasSoftware}}
+
+{{^hasSoftware}}
+<div class="empty">Nothing here yet.</div>
+{{/hasSoftware}}
+{{> foot}}

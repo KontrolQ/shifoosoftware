@@ -1,0 +1,50 @@
+{{> head}}
+<div class="intro">
+  <div class="intro-text">
+    <p class="welcome">Welcome to Shifoo's Software Archive. Here you will find software for
+    personal computers, from system components and drivers through to applications, utilities
+    and games.</p>
+    <p class="welcome">Titles sit under the category they belong to. Open a title to see the
+    versions it has, and open a version to see the files that shipped with it. Every file records
+    the platform and the language it was built for, its size, and a SHA-256 checksum to check the
+    download against.</p>
+    <p class="welcome">Search filters on category, platform, language, publisher, file type,
+    release year and size, and will look through titles, files, or both at once.</p>
+  </div>
+  <img class="mascot" src="/static/images/mascot.png" alt="">
+</div>
+
+{{#hasCategories}}
+<div class="bar">Categories <small>{{categoryCount}} sections</small></div>
+<ul class="entries grid">
+{{#categories}}
+  <li>
+    <a class="title" href="/{{slug}}/">{{name}}</a>
+    <span class="note">{{summaryText}} <span class="when">({{held}})</span></span>
+  </li>
+{{/categories}}
+</ul>
+{{/hasCategories}}
+
+{{^hasCategories}}
+<div class="empty">Nothing here yet.</div>
+{{/hasCategories}}
+
+{{#hasRecent}}
+<div class="bar red">Recently Added <small><a href="/recent">See All</a></small></div>
+<ul class="entries">
+{{#recent}}
+  <li class="withicon">
+    {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
+    {{^icon}}<span class="icon blank"></span>{{/icon}}
+    <span>
+      <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
+      <span class="note">{{blurb}}
+        <span class="when">({{added}})</span>
+      </span>
+    </span>
+  </li>
+{{/recent}}
+</ul>
+{{/hasRecent}}
+{{> foot}}

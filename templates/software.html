@@ -1,0 +1,42 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; <a href="/{{software.category}}/">{{categoryName}}</a> &rsaquo; {{software.name}}</div>
+
+<div class="titlecard">
+  {{#icon}}<img class="bigicon" src="{{icon}}" alt="">{{/icon}}
+  {{^icon}}<span class="bigicon blank"></span>{{/icon}}
+  <div>
+    <h1>{{software.name}}</h1>
+    <div class="prose">{{{descriptionHtml}}}</div>
+    <div class="facts">
+      {{#software.publisher}}<span><b>Publisher</b> <a href="/search?mode=advanced&amp;publisher={{software.publisherSlug}}">{{software.publisher}}</a></span>{{/software.publisher}}
+      <span><b>Category</b> <a href="/{{software.category}}/">{{categoryName}}</a></span>
+      <span><b>Versions</b> {{versionCount}}</span>
+      {{#facts}}<span><b>{{label}}</b>
+        {{#links}}<a href="{{href}}">{{name}}</a>{{^last}}, {{/last}}{{/links}}
+        {{^links}}{{value}}{{/links}}</span>{{/facts}}
+      {{#software.homepage}}<span><b>Homepage</b> <a href="{{software.homepage}}" rel="noreferrer">{{software.homepage}}</a></span>{{/software.homepage}}
+    </div>
+  </div>
+</div>
+
+{{#hasVersions}}
+<table class="files">
+  <thead><tr><th>Version</th><th>Released</th><th>Notes</th><th class="right">Files</th><th class="right">Size</th></tr></thead>
+  <tbody>
+  {{#versions}}
+    <tr>
+      <td class="filename"><a href="/{{category}}/{{softwareSlug}}/{{slug}}/">{{version}}</a></td>
+      <td class="muted">{{released}}</td>
+      <td class="note">{{blurb}}</td>
+      <td class="right muted">{{files}}</td>
+      <td class="right muted">{{size}}</td>
+    </tr>
+  {{/versions}}
+  </tbody>
+</table>
+{{/hasVersions}}
+
+{{^hasVersions}}
+<div class="empty">No versions recorded yet.</div>
+{{/hasVersions}}
+{{> foot}}

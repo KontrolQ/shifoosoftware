@@ -1,0 +1,129 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; <a href="/search">Search</a> &rsaquo; Advanced</div>
+<h1>Advanced Search</h1>
+
+<form class="search-panel" action="/search" method="get" id="advanced">
+  <input type="hidden" name="mode" value="advanced">
+
+  <div class="askrow">
+    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}">
+    <button type="submit">Search</button>
+  </div>
+
+  <div class="facetpane" data-facets>
+    <ul class="facetnames">
+      <li><button type="button" data-range="showing" class="on">Showing</button></li>
+      <li><button type="button" data-range="ordering">Order</button></li>
+      {{#choiceFacets}}
+      <li><button type="button" data-facet="{{key}}">{{label}}<span class="facetcount" data-tally></span></button></li>
+      {{/choiceFacets}}
+      {{#rangeFacets}}
+      <li><button type="button" data-range="{{key}}">{{label}}</button></li>
+      {{/rangeFacets}}
+    </ul>
+
+    <div class="facetoptions">
+      <div class="facetbody" data-body="showing">
+        <div class="ranges">
+          <label class="tick"><input type="radio" name="show" value="software"{{#showSoftware}} checked{{/showSoftware}}> Software</label>
+          <label class="tick"><input type="radio" name="show" value="files"{{#showFiles}} checked{{/showFiles}}> Files</label>
+          <label class="tick"><input type="radio" name="show" value="both"{{#showBoth}} checked{{/showBoth}}> Both</label>
+        </div>
+      </div>
+
+      <div class="facetbody" data-body="ordering" hidden>
+        <div class="ranges">
+          <label>Order by
+            <select name="sort">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
+          </label>
+        </div>
+      </div>
+
+      {{#choiceFacets}}
+      <div class="facetbody" data-body="{{key}}" hidden>
+        <div>
+          <input class="facetsearch" type="search" data-facet-search placeholder="Search {{label}}" autocomplete="off">
+        </div>
+        <ul class="optionlist" data-list></ul>
+        <input type="hidden" name="{{key}}" value="{{picked}}" data-picked>
+      </div>
+      {{/choiceFacets}}
+
+      {{#dateFacets}}
+      <div class="facetbody" data-body="{{key}}" hidden>
+        <div class="ranges">
+          {{#ends}}
+          <span class="dateend">
+            <b>{{label}}</b>
+            <select name="{{name}}_day"><option value="">Day</option>
+              {{#days}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/days}}</select>
+            <select name="{{name}}_month"><option value="">Month</option>
+              {{#months}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/months}}</select>
+            <select name="{{name}}_year"><option value="">Year</option>
+              {{#years}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/years}}</select>
+          </span>
+          {{/ends}}
+        </div>
+        <p class="hintline">Year alone is enough. Add a month or a day to narrow it further.</p>
+      </div>
+      {{/dateFacets}}
+
+      {{#measureFacets}}
+      <div class="facetbody" data-body="{{key}}" hidden>
+        <div class="ranges">
+          {{#ends}}
+          <span class="dateend">
+            <b>{{label}}</b>
+            <input name="{{name}}" value="{{value}}" inputmode="numeric" size="6" placeholder="0">
+            <select name="{{name}}_unit">
+              {{#units}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/units}}
+            </select>
+          </span>
+          {{/ends}}
+        </div>
+      </div>
+      {{/measureFacets}}
+    </div>
+  </div>
+
+  <div class="footrow">
+    <a class="clear" href="/search?mode=advanced">Clear filters</a>
+    <a class="atend" href="/search">Simple search</a>
+  </div>
+</form>
+
+{{#searched}}
+  {{#hasResults}}
+  <div class="bar">Software <small>{{resultCount}} found</small></div>
+  <ul class="entries">
+  {{#results}}
+    <li>
+      <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
+      <span class="note">{{blurb}} <span class="when">({{versions}} versions, latest {{latest}})</span></span>
+    </li>
+  {{/results}}
+  </ul>
+  {{/hasResults}}
+
+  {{#hasMatchedFiles}}
+  <div class="bar red">Files <small>{{fileCount}} found</small></div>
+  <table>
+    <thead><tr><th>File</th><th>Title</th><th>Platform</th><th class="right">Size</th></tr></thead>
+    <tbody>
+    {{#matchedFiles}}
+      <tr>
+        <td><a href="{{href}}">{{display_name}}</a></td>
+        <td class="muted">{{softwareName}} {{version}}</td>
+        <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
+        <td class="right muted">{{size}}</td>
+      </tr>
+    {{/matchedFiles}}
+    </tbody>
+  </table>
+  {{/hasMatchedFiles}}
+
+  {{^anyFound}}<div class="empty">Nothing matched those filters.</div>{{/anyFound}}
+{{/searched}}
+
+<script src="/static/js/facets.js" defer></script>
+{{> foot}}

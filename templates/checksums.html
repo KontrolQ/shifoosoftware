@@ -1,0 +1,26 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; <a href="/{{software.category}}/">{{categoryName}}</a> &rsaquo;
+  <a href="/{{software.category}}/{{software.slug}}/">{{software.name}}</a> &rsaquo;
+  <a href="/{{software.category}}/{{software.slug}}/{{version.version}}/">{{version.version}}</a> &rsaquo; Checksums</div>
+<h1>{{software.name}} {{version.version}}</h1>
+<p class="lede">SHA-256 for every file in this version, taken when the file was stored.</p>
+
+<div class="bar magenta">Checksums</div>
+{{#hasFiles}}
+<table>
+  <thead><tr><th>File</th><th class="right">Size</th></tr></thead>
+  <tbody>
+  {{#files}}
+    <tr>
+      <td>{{display_name}}<div class="realname">{{savesAs}}</div><div class="sha">{{sha256}}</div></td>
+      <td class="right muted">{{size}}</td>
+    </tr>
+  {{/files}}
+  </tbody>
+</table>
+{{/hasFiles}}
+
+{{^hasFiles}}
+<div class="empty">No files recorded for this version.</div>
+{{/hasFiles}}
+{{> foot}}

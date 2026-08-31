@@ -1,0 +1,69 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; <a href="/{{software.category}}/">{{categoryName}}</a> &rsaquo;
+  <a href="/{{software.category}}/{{software.slug}}/">{{software.name}}</a> &rsaquo; {{version.version}}</div>
+
+<div class="titlecard">
+  {{#icon}}<img class="bigicon" src="{{icon}}" alt="">{{/icon}}
+  {{^icon}}<span class="bigicon blank"></span>{{/icon}}
+  <div>
+    <h1>{{software.name}} {{version.version}}</h1>
+    {{#version.notes}}<div class="prose">{{{notesHtml}}}</div>{{/version.notes}}
+{{#hasScreenshots}}
+<div class="bar">Screenshots</div>
+<ul class="shots">
+{{#screenshots}}
+  <li><a href="{{src}}"><img src="{{src}}" alt="{{caption}}" loading="lazy"></a>
+    {{#caption}}<span class="shotcaption">{{caption}}</span>{{/caption}}</li>
+{{/screenshots}}
+</ul>
+{{/hasScreenshots}}
+    <div class="facts">
+      {{#released}}<span><b>Released</b> {{released}}</span>{{/released}}
+      {{#hasArchitecture}}<span><b>Architecture</b> {{architecture}}</span>{{/hasArchitecture}}
+      <span><b>Files</b> {{fileCount}}</span>
+      <span><b>Total size</b> {{totalSize}}</span>
+      {{#software.publisher}}<span><b>Publisher</b> <a href="/search?mode=advanced&amp;publisher={{software.publisherSlug}}">{{software.publisher}}</a></span>{{/software.publisher}}
+    </div>
+  </div>
+</div>
+
+{{#hasFiles}}
+<table class="files">
+  <thead><tr><th>File</th><th>Platform</th><th>Language</th><th class="right">Size</th><th class="right">Get</th></tr></thead>
+  <tbody>
+  {{#files}}
+    <tr>
+      <td class="filename"><a href="{{href}}">{{display_name}}</a><div class="realname">{{savesAs}}</div></td>
+      <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
+      <td class="muted">{{language}}</td>
+      <td class="right muted">{{size}}</td>
+      <td class="right"><a class="get" href="{{href}}">Download</a></td>
+    </tr>
+  {{/files}}
+  </tbody>
+</table>
+<p class="lede"><a href="/{{software.category}}/{{software.slug}}/{{version.slug}}/checksums">All checksums for this version</a></p>
+{{/hasFiles}}
+
+{{^hasFiles}}
+<div class="empty">No files recorded for this version.</div>
+{{/hasFiles}}
+
+{{#hasOtherVersions}}
+<div class="bar">Other Versions</div>
+<table class="files">
+  <thead><tr><th>Version</th><th>Released</th><th>Notes</th><th class="right">Files</th><th class="right">Size</th></tr></thead>
+  <tbody>
+  {{#otherVersions}}
+    <tr>
+      <td class="filename"><a href="/{{category}}/{{softwareSlug}}/{{slug}}/">{{version}}</a></td>
+      <td class="muted">{{released}}</td>
+      <td class="note">{{blurb}}</td>
+      <td class="right muted">{{files}}</td>
+      <td class="right muted">{{size}}</td>
+    </tr>
+  {{/otherVersions}}
+  </tbody>
+</table>
+{{/hasOtherVersions}}
+{{> foot}}
