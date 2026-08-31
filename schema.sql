@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS processors;
 DROP TABLE IF EXISTS publishers;
 DROP TABLE IF EXISTS saved_views;
 DROP TABLE IF EXISTS changes;
+DROP TABLE IF EXISTS api_keys;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS managers;
 DROP TABLE IF EXISTS roles;
@@ -144,6 +145,13 @@ CREATE TABLE versions (
     platform_slug TEXT REFERENCES platforms (slug) ON DELETE SET NULL,
     released_on TEXT,
     notes TEXT,
+    minimum_cpu_slug TEXT REFERENCES processors (slug) ON DELETE SET NULL,
+    minimum_cpu_speed INTEGER,
+    minimum_cpu_speed_unit TEXT,
+    minimum_ram_size INTEGER,
+    minimum_ram_unit TEXT,
+    minimum_disk_size INTEGER,
+    minimum_disk_unit TEXT,
     sort_order INTEGER NOT NULL DEFAULT 100,
     UNIQUE (software_slug, slug)
 );
@@ -165,10 +173,12 @@ CREATE TABLE files (
     slug TEXT NOT NULL,
     display_name TEXT NOT NULL,
     file_type_slug TEXT REFERENCES file_types (slug) ON DELETE SET NULL,
+    architecture_slug TEXT REFERENCES architectures (slug) ON DELETE SET NULL,
     object_key TEXT,
     hotlink_slug TEXT REFERENCES hotlinks (slug) ON DELETE SET NULL,
     size_bytes INTEGER,
-    sha256 TEXT,
+    checksum TEXT,
+    checksum_algorithm TEXT,
     notes TEXT,
     published INTEGER NOT NULL DEFAULT 1,
     downloads INTEGER NOT NULL DEFAULT 0,
@@ -203,6 +213,17 @@ CREATE TABLE sessions (
     manager_id INTEGER NOT NULL REFERENCES managers (id) ON DELETE CASCADE,
     created_at TEXT NOT NULL,
     expires_at TEXT NOT NULL
+);
+
+CREATE TABLE api_keys (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    manager_id INTEGER NOT NULL REFERENCES managers (id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    opening TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL,
+    last_used_at TEXT,
+    revoked_at TEXT
 );
 
 CREATE TABLE changes (
@@ -240,6 +261,7 @@ CREATE INDEX software_by_name ON software (name);
 CREATE INDEX versions_by_software ON versions (software_slug, sort_order);
 CREATE INDEX files_by_version ON files (version_id);
 CREATE INDEX sessions_by_manager ON sessions (manager_id);
+CREATE INDEX api_keys_by_manager ON api_keys (manager_id);
 CREATE INDEX changes_by_time ON changes (happened_at DESC);
 CREATE INDEX requests_by_state ON requests (state, happened_at DESC);
 CREATE INDEX screenshots_by_version ON version_screenshots (version_id, sort_order);
@@ -322,6 +344,22 @@ SELECT
     v.released_on,
     v.notes,
     v.sort_order,
+    v.minimum_cpu_slug,
+    (SELECT p.name FROM processors p WHERE p.slug = v.minimum_cpu_slug) AS minimum_cpu_name,
+    v.minimum_cpu_speed,
+    v.minimum_cpu_speed_unit,
+    v.minimum_ram_size,
+    v.minimum_ram_unit,
+    v.minimum_disk_size,
+    v.minimum_disk_unit,
+    v.minimum_ram_size * CASE v.minimum_ram_unit
+      WHEN 'KB' THEN 1024 WHEN 'MB' THEN 1048576
+      WHEN 'GB' THEN 1073741824 WHEN 'TB' THEN 1099511627776 ELSE 1 END AS minimum_ram_bytes,
+    v.minimum_disk_size * CASE v.minimum_disk_unit
+      WHEN 'KB' THEN 1024 WHEN 'MB' THEN 1048576
+      WHEN 'GB' THEN 1073741824 WHEN 'TB' THEN 1099511627776 ELSE 1 END AS minimum_disk_bytes,
+    v.minimum_cpu_speed * CASE v.minimum_cpu_speed_unit
+      WHEN 'MHz' THEN 1000000 WHEN 'GHz' THEN 1000000000 ELSE 1 END AS minimum_cpu_hertz,
     v.software_slug,
     s.name AS software_name,
     s.category AS category_slug,
@@ -346,15 +384,19 @@ SELECT
     h.name AS hotlink_name,
     CASE WHEN f.hotlink_slug IS NOT NULL THEN 1 ELSE 0 END AS is_external,
     CASE WHEN f.hotlink_slug IS NOT NULL THEN h.size_bytes ELSE f.size_bytes END AS size_bytes,
-    f.sha256,
+    f.checksum,
+    f.checksum_algorithm,
     f.notes,
     f.published,
     f.downloads,
     f.version_id,
     v.slug AS version_slug,
     v.version,
-    v.architecture_slug,
-    (SELECT a.name FROM architectures a WHERE a.slug = v.architecture_slug) AS architecture,
+    -- a file carries its own architecture where it differs from the release's
+    COALESCE(f.architecture_slug, v.architecture_slug) AS architecture_slug,
+    f.architecture_slug AS own_architecture_slug,
+    (SELECT a.name FROM architectures a
+     WHERE a.slug = COALESCE(f.architecture_slug, v.architecture_slug)) AS architecture,
     v.platform_slug,
     (SELECT p.name FROM platforms p WHERE p.slug = v.platform_slug) AS platform_name,
     v.software_slug,

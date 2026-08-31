@@ -53,7 +53,8 @@ export const PUBLIC_DEFINITIONS = `
     displayName: String!
     fileType: String
     sizeBytes: Int
-    sha256: String
+    checksum: String
+    checksumAlgorithm: String
     notes: String
     notesHtml: String
     published: Boolean!

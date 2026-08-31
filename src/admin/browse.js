@@ -5,6 +5,7 @@ import {
   LARGEST_UPLOAD_BYTES,
   SIZE_UNITS,
   SPEED_UNITS,
+  algorithmFor,
   dateFieldFor,
   dateFrom,
   digestOf,
@@ -579,6 +580,10 @@ export async function versionEdit(environment, root, manager, identifier, messag
     ? await database.prepare("SELECT slug, name FROM platforms WHERE slug = ?").bind(held.platform_slug).first()
     : null;
 
+  const processor = held.minimum_cpu_slug
+    ? await database.prepare("SELECT slug, name FROM processors WHERE slug = ?").bind(held.minimum_cpu_slug).first()
+    : null;
+
   const shots = await rowsOf(
     database
       .prepare(`
@@ -603,6 +608,13 @@ export async function versionEdit(environment, root, manager, identifier, messag
     version: held,
     platformLabels: JSON.stringify(platform ? { [platform.slug]: platform.name } : {}),
     architectureLabels: JSON.stringify(architecture ? { [architecture.slug]: architecture.name } : {}),
+    processorLabels: JSON.stringify(processor ? { [processor.slug]: processor.name } : {}),
+    cpuSpeed: measureFieldFor("minimum_cpu_speed", "Minimum clock speed",
+      held.minimum_cpu_speed, held.minimum_cpu_speed_unit, SPEED_UNITS),
+    ram: measureFieldFor("minimum_ram", "Minimum RAM",
+      held.minimum_ram_size, held.minimum_ram_unit, SIZE_UNITS),
+    disk: measureFieldFor("minimum_disk", "Free disk space",
+      held.minimum_disk_size, held.minimum_disk_unit, SIZE_UNITS),
     releasedOn: dateFieldFor("released_on", "Released on", held.released_on),
     screenshots: shots.map((one) => ({
       ...one,
@@ -664,10 +676,17 @@ export async function versionSave(environment, root, manager, identifier, form) 
   await database
     .prepare(`
       UPDATE versions SET version = ?, slug = ?, architecture_slug = ?, platform_slug = ?,
-        released_on = ?, notes = ? WHERE id = ?`)
+        released_on = ?, notes = ?, minimum_cpu_slug = ?, minimum_cpu_speed = ?,
+        minimum_cpu_speed_unit = ?, minimum_ram_size = ?, minimum_ram_unit = ?,
+        minimum_disk_size = ?, minimum_disk_unit = ? WHERE id = ?`)
     .bind(wanted, slugFrom(form, "slug", ["version"]) ?? slugOf(wanted),
           textFrom(form, "architecture_slug"), textFrom(form, "platform_slug"),
-          dateFrom(form, "released_on"), textFrom(form, "notes"), held.id)
+          dateFrom(form, "released_on"), textFrom(form, "notes"),
+          textFrom(form, "minimum_cpu_slug"),
+          measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
+          measureFrom(form, "minimum_ram").size, measureFrom(form, "minimum_ram").unit,
+          measureFrom(form, "minimum_disk").size, measureFrom(form, "minimum_disk").unit,
+          held.id)
     .run();
 
   await noteChange(database, manager, `path:${owner.category}/${held.software_slug}/${slugFrom(form, "slug", ["version"]) ?? slugOf(wanted)}`, "updated", null);
@@ -697,10 +716,17 @@ export async function versionCreate(environment, root, manager, form) {
   await database
     .prepare(`
       INSERT INTO versions (software_slug, slug, version, architecture_slug, platform_slug,
-                            released_on, notes, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 9999) ON CONFLICT(software_slug, slug) DO NOTHING`)
+                            released_on, notes, minimum_cpu_slug, minimum_cpu_speed,
+                            minimum_cpu_speed_unit, minimum_ram_size, minimum_ram_unit,
+                            minimum_disk_size, minimum_disk_unit, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999)
+      ON CONFLICT(software_slug, slug) DO NOTHING`)
     .bind(slug, versionSlug, version, textFrom(form, "architecture_slug"),
-          textFrom(form, "platform_slug"), dateFrom(form, "released_on"), textFrom(form, "notes"))
+          textFrom(form, "platform_slug"), dateFrom(form, "released_on"), textFrom(form, "notes"),
+          textFrom(form, "minimum_cpu_slug"),
+          measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
+          measureFrom(form, "minimum_ram").size, measureFrom(form, "minimum_ram").unit,
+          measureFrom(form, "minimum_disk").size, measureFrom(form, "minimum_disk").unit)
     .run();
 
   await renumber(database, "versions", "WHERE software_slug = ?", [slug], { key: "id", order: "version" });
@@ -828,6 +854,14 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     ? await database.prepare("SELECT slug, name FROM hotlinks WHERE slug = ?").bind(held.hotlink_slug).first()
     : null;
 
+  // the file's own architecture, not the one it inherits from its release
+  const architecture = held.own_architecture_slug
+    ? await database
+        .prepare("SELECT slug, name FROM architectures WHERE slug = ?")
+        .bind(held.own_architecture_slug)
+        .first()
+    : null;
+
   const labelled = (rows) => JSON.stringify(Object.fromEntries(rows.map((one) => [one.slug, one.name])));
 
   return htmlPage(database, "edit-file", {
@@ -840,6 +874,7 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     atCategories: true,
     file: held,
     here: `${root}/browse/${held.category}/${held.software_slug}/${held.version_slug}/${held.slug}`,
+    architectureLabels: JSON.stringify(architecture ? { [architecture.slug]: architecture.name } : {}),
     filePick: {
       objectField: "object_key",
       hotlinkField: "hotlink_slug",
@@ -906,12 +941,14 @@ export async function fileSave(environment, root, manager, identifier, form) {
     : `${landing.software_slug}/${landing.version}/${wantedSlug}${fileType}`;
 
   let sizeBytes = held.size_bytes;
-  let digest = held.sha256;
+  let digest = held.checksum;
+  let algorithm = held.checksum_algorithm;
 
   if (hotlinkSlug) {
     // the link carries the size; keeping a copy here only lets the two drift apart
     sizeBytes = null;
-    digest = textFrom(form, "sha256");
+    digest = textFrom(form, "checksum");
+    algorithm = algorithmFor(digest);
   } else {
     const offered = textFrom(form, "object_key");
 
@@ -924,16 +961,19 @@ export async function fileSave(environment, root, manager, identifier, form) {
     const measured = await measuredObject(filesFor(environment), objectKey);
 
     sizeBytes = measured?.size ?? held.size_bytes;
-    digest = measured?.digest ?? held.sha256;
+    digest = measured?.checksum ?? held.checksum;
+    algorithm = measured?.algorithm ?? held.checksum_algorithm;
   }
 
   await database
     .prepare(`
       UPDATE files SET version_id = ?, slug = ?, display_name = ?, file_type_slug = ?,
-        object_key = ?, hotlink_slug = ?, size_bytes = ?, sha256 = ?, notes = ?, published = ?
+        architecture_slug = ?, object_key = ?, hotlink_slug = ?, size_bytes = ?,
+        checksum = ?, checksum_algorithm = ?, notes = ?, published = ?
       WHERE id = ?`)
-    .bind(landing.id, wantedSlug, displayName, fileTypeSlug ?? null, objectKey, hotlinkSlug ?? null,
-          sizeBytes, digest, textFrom(form, "notes"),
+    .bind(landing.id, wantedSlug, displayName, fileTypeSlug ?? null,
+          textFrom(form, "architecture_slug"), objectKey, hotlinkSlug ?? null,
+          sizeBytes, digest, algorithm, textFrom(form, "notes"),
           textFrom(form, "published") === "0" ? 0 : 1, held.id)
     .run();
 
@@ -958,15 +998,21 @@ export async function fileCreate(environment, root, manager, form) {
 
   const database = environment.CATALOGUE;
 
+  const wantedPath = textFrom(form, "version_path");
+  const [wantedSoftware, wantedVersion] = (wantedPath ?? "").split("/");
+  const finding = wantedPath
+    ? { clause: "v.software_slug = ? AND v.slug = ?", bindings: [wantedSoftware, wantedVersion] }
+    : { clause: "v.id = ?", bindings: [numberFrom(form, "version_id", 0)] };
+
   const belongsTo = await database
     .prepare(`
       SELECT v.id, v.slug, v.version, v.software_slug, s.category AS category_slug
-      FROM versions v JOIN software s ON s.slug = v.software_slug WHERE v.id = ?`)
-    .bind(numberFrom(form, "version_id", 0))
+      FROM versions v JOIN software s ON s.slug = v.software_slug WHERE ${finding.clause}`)
+    .bind(...finding.bindings)
     .first();
 
   if (!belongsTo) {
-    return goTo(`${root}/categories`);
+    return goTo(`${root}/files`);
   }
 
   const objectKey = textFrom(form, "object_key");
@@ -998,7 +1044,7 @@ export async function fileCreate(environment, root, manager, form) {
     }
 
     sizeBytes = null;
-    digest = textFrom(form, "sha256");
+    digest = textFrom(form, "checksum");
   } else {
     restingKey = objectPathFor(belongsTo.category_slug, belongsTo.software_slug, belongsTo.slug,
       fileSlug, fileType);
@@ -1014,20 +1060,23 @@ export async function fileCreate(environment, root, manager, form) {
     }
 
     sizeBytes = measured.size;
-    digest = measured.sha256;
+    digest = measured.checksum;
   }
 
   await database
     .prepare(`
-      INSERT INTO files (version_id, slug, display_name, file_type_slug, object_key, hotlink_slug,
-                         size_bytes, sha256, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO files (version_id, slug, display_name, file_type_slug, architecture_slug,
+                         object_key, hotlink_slug, size_bytes, checksum, checksum_algorithm, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(version_id, slug) DO UPDATE SET
         display_name = excluded.display_name, file_type_slug = excluded.file_type_slug,
+        architecture_slug = excluded.architecture_slug,
         object_key = excluded.object_key, hotlink_slug = excluded.hotlink_slug,
-        size_bytes = excluded.size_bytes, sha256 = excluded.sha256`)
-    .bind(belongsTo.id, fileSlug, displayName, fileTypeSlug ?? null, restingKey, hotlinkSlug ?? null,
-          sizeBytes, digest, textFrom(form, "notes"))
+        size_bytes = excluded.size_bytes, checksum = excluded.checksum,
+        checksum_algorithm = excluded.checksum_algorithm`)
+    .bind(belongsTo.id, fileSlug, displayName, fileTypeSlug ?? null,
+          textFrom(form, "architecture_slug"), restingKey, hotlinkSlug ?? null,
+          sizeBytes, digest, algorithmFor(digest), textFrom(form, "notes"))
     .run();
 
   const made = await database

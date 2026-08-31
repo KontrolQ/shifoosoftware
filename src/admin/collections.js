@@ -64,6 +64,7 @@ export const COLLECTIONS = {
     label: "Categories",
     path: "categories",
     permission: "categories",
+    makes: true,
     flag: "atCategories",
     from: `SELECT c.slug, c.name, c.summary, c.sort_order,
                   (SELECT COUNT(*) FROM software s WHERE s.category = c.slug) AS titles,
@@ -98,6 +99,7 @@ export const COLLECTIONS = {
     label: "Software",
     path: "software",
     permission: "software",
+    makes: true,
     flag: "atSoftware",
     from: `SELECT s.*,
              (SELECT GROUP_CONCAT(DISTINCT l.name) FROM catalogue_files f
@@ -220,6 +222,7 @@ export const COLLECTIONS = {
     label: "Versions",
     path: "versions",
     permission: "versions",
+    makes: true,
     flag: "atVersions",
     from: "SELECT * FROM catalogue_versions",
     search: ["version", "slug", "software_name", "software_slug", "notes", "released_on"],
@@ -291,6 +294,7 @@ export const COLLECTIONS = {
     label: "Files",
     path: "files",
     permission: "files",
+    makes: true,
     flag: "atFiles",
     from: "SELECT * FROM catalogue_files",
     search: ["display_name", "slug", "software_name", "version", "notes",
@@ -328,7 +332,7 @@ export const COLLECTIONS = {
         GROUP BY a.slug ORDER BY held DESC, a.name`),
       yesNo("live", "Published", "published = 1"),
       yesNo("hotlinked", "Hotlinked", "is_external = 1"),
-      yesNo("summed", "Has a checksum", "(sha256 IS NOT NULL AND sha256 <> '')"),
+      yesNo("summed", "Has a checksum", "(checksum IS NOT NULL AND checksum <> '')"),
     ],
     where: {
       software: "software_slug = ?",
@@ -356,8 +360,10 @@ export const COLLECTIONS = {
       col("held", "Held", "is_external", "flag", { on: true, width: "6rem",
         href: (root, held) => `${root}/files?hotlinked=${held.is_external ? "yes" : "no"}`,
         cell: (held) => ({ text: held.is_external ? "Linked" : "Bucket", muted: true }) }),
-      col("checksum", "Checksum", "sha256", "text", { own: true, width: "9rem",
-        cell: (held) => ({ text: held.sha256 ?? "", muted: true }) }),
+      col("checksum", "Checksum", "checksum", "text", { own: true, width: "9rem",
+        cell: (held) => ({ text: held.checksum ?? "", muted: true }) }),
+      col("algorithm", "Checksum kind", "checksum_algorithm", "text", { own: true, width: "7rem",
+        cell: (held) => ({ text: held.checksum_algorithm ?? "", muted: true }) }),
       col("language", "Languages", "language_names", "text", { width: "9rem" }),
       col("downloads", "Downloads", "downloads", "number", { width: "7rem" }),
       col("notes", "Notes", "notes", "text",
@@ -390,6 +396,7 @@ for (const [kind, label, table, used, column, noun] of VOCABULARIES) {
     label,
     path: kind,
     permission: kind,
+    makes: true,
     flag: `at${label.replace(/ /g, "")}`,
     from: `SELECT t.slug, t.name, t.sort_order,
                   (SELECT COUNT(*) FROM ${used} u WHERE u.${column} = t.slug) AS used
@@ -416,6 +423,7 @@ COLLECTIONS.hotlinks = {
   label: "Hotlinks",
   path: "hotlinks",
   permission: "hotlinks",
+  makes: true,
   flag: "atHotlinks",
   from: "SELECT * FROM catalogue_hotlinks",
   search: ["name", "slug", "target_url", "notes"],
@@ -522,6 +530,7 @@ COLLECTIONS.roles = {
   label: "Roles",
   path: "roles",
   permission: "roles",
+  makes: true,
   flag: "atRoles",
   from: `SELECT r.id, r.name, r.permissions, r.sort_order,
                 (SELECT COUNT(*) FROM managers m WHERE m.role_id = r.id) AS people
@@ -552,6 +561,46 @@ COLLECTIONS.roles = {
     col("order", "Order", "sort_order", "number", {}),
   ],
   href: (root, held) => `${root}/roles/${held.id}`,
+};
+
+COLLECTIONS.keys = {
+  label: "Keys",
+  path: "keys",
+  permission: "keys",
+  makes: true,
+  flag: "atKeys",
+  from: `SELECT k.id, k.name, k.opening, k.created_at, k.last_used_at, k.revoked_at,
+                m.email AS manager_email, r.name AS role_name,
+                CASE WHEN k.revoked_at IS NULL THEN 1 ELSE 0 END AS live
+         FROM api_keys k
+         JOIN managers m ON m.id = k.manager_id
+         LEFT JOIN roles r ON r.id = m.role_id`,
+  search: ["name", "opening", "manager_email"],
+  order: "created_at DESC",
+  sorts: [
+    { key: "newest", label: "Newest", clause: "created_at DESC" },
+    { key: "name", label: "Name", clause: "name" },
+    { key: "used", label: "Last used", clause: "last_used_at DESC" },
+  ],
+  facets: [
+    yesNo("live", "Still open", "revoked_at IS NULL"),
+    yesNo("everused", "Has been used", "last_used_at IS NOT NULL"),
+  ],
+  columns: [
+    col("name", "Key", "name", "text", { on: true, fixed: true, link: (held) => held.name }),
+    col("opening", "Begins", "opening", "text", { on: true, width: "10rem",
+      cell: (held) => ({ text: `${held.opening}…`, muted: true }) }),
+    col("who", "Acts as", "manager_email", "text", { on: true, width: "14rem",
+      href: (root, held) => `${root}/people?q=${held.manager_email}` }),
+    col("role", "Role", "role_name", "text", { on: true, width: "9rem" }),
+    col("live", "State", "live", "flag", { on: true, width: "7rem",
+      cell: (held) => ({ text: held.live ? "Open" : "Revoked", muted: true }) }),
+    col("used", "Last used", "last_used_at", "date", { on: true,
+      cell: (held) => ({ text: (held.last_used_at ?? "").slice(0, 10) || "never", muted: true }) }),
+    col("made", "Created", "created_at", "date", { own: true,
+      cell: (held) => ({ text: (held.created_at ?? "").slice(0, 10), muted: true }) }),
+  ],
+  href: (root, held) => `${root}/keys/${held.id}`,
 };
 
 // The subject records what was touched, so it is decoded back into wherever

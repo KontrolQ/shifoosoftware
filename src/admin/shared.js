@@ -112,11 +112,20 @@ export async function measuredObject(bucket, objectKey) {
   const digest = await stream.digest;
 
   return {
-    sha256: Array.from(new Uint8Array(digest))
+    checksum: Array.from(new Uint8Array(digest))
       .map((value) => value.toString(16).padStart(2, "0"))
       .join(""),
+    algorithm: "SHA-256",
     size: held.size,
   };
+}
+
+const DIGEST_LENGTHS = { 40: "SHA-1", 64: "SHA-256", 128: "SHA-512" };
+
+// A digest names its own algorithm by how long it is, so a checksum copied from
+// elsewhere does not have to arrive with a label attached.
+export function algorithmFor(checksum) {
+  return DIGEST_LENGTHS[String(checksum ?? "").trim().length] ?? null;
 }
 
 export async function movedObject(bucket, fromKey, toKey) {

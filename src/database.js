@@ -171,7 +171,8 @@ export function filesOfVersion(database, versionId) {
   return rowsOf(
     database
       .prepare(`
-        SELECT id, slug, display_name, file_type, extension, size_bytes, sha256, downloads,
+        SELECT id, slug, display_name, file_type, extension, size_bytes, checksum,
+               checksum_algorithm, downloads,
                object_key, hotlink_slug, external_url, is_external,
                platform_names AS platform, language_names AS language
         FROM catalogue_files

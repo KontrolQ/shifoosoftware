@@ -18,7 +18,8 @@
   {{#file.file_type}}<dt>File type</dt><dd>{{file.file_type}}</dd>{{/file.file_type}}
   <dt>Language</dt><dd>{{file.language_name}}</dd>
   <dt>Size</dt><dd>{{file.size}}</dd>
-  <dt>Checksum</dt><dd class="key">{{file.sha256}}</dd>
+  <dt>Checksum{{#file.checksum_algorithm}} &mdash; {{file.checksum_algorithm}}{{/file.checksum_algorithm}}</dt>
+  <dd class="key">{{file.checksum}}</dd>
   <dt>Where it lives</dt>
   <dd>{{#hotlinked}}An external link &mdash; nothing is stored here{{/hotlinked}}{{^hotlinked}}This bucket{{/hotlinked}}</dd>
   {{#hotlinked}}<dt>Link</dt><dd class="key"><a href="{{file.external_url}}" rel="noreferrer noopener">{{file.external_url}}</a></dd>{{/hotlinked}}

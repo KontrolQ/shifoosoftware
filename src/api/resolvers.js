@@ -560,6 +560,7 @@ export function resolversFor(environment, manager) {
     File: {
       fileType: (row) => row.file_type,
       sizeBytes: (row) => row.size_bytes,
+      checksumAlgorithm: (row) => row.checksum_algorithm,
       published: (row) => row.published === 1,
       notesHtml: (row) => rendered(row.notes),
       objectKey: (row) => (sees(manager, "files") ? row.object_key : null),

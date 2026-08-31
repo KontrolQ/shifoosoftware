@@ -59,6 +59,24 @@
       </div>
     </div>
     <div>
+      <label>Architecture <span class="hintmark">blank follows the release</span></label>
+      <div class="linkpick" data-pick="architecture" data-many="0" data-verb="Use"
+           data-labels="{{architectureLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="architecture_slug" value="{{file.own_architecture_slug}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose an architecture</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search architectures" aria-label="Search architectures" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
       <label>Language</label>
       <div class="linkpick" data-pick="language" data-many="1" data-verb="Use"
            data-labels="{{languageLabels}}" data-make-url="{{root}}/make">
@@ -79,12 +97,12 @@
   </div>
 
   {{#isHotlinked}}
-  <label class="wide">Checksum <span class="hintmark">SHA-256 &mdash; nothing here can work it out for a link</span>
-    <input name="sha256" value="{{file.sha256}}"></label>
+  <label class="wide">Checksum <span class="hintmark">SHA-1, SHA-256 or SHA-512 &mdash; nothing here can work it out for a link</span>
+    <input name="checksum" value="{{file.checksum}}"></label>
   {{/isHotlinked}}
   {{^isHotlinked}}
-  <label class="wide">Checksum <span class="hintmark">worked out from the stored object</span>
-    <input value="{{file.sha256}}" readonly></label>
+  <label class="wide">Checksum <span class="hintmark">{{#file.checksum_algorithm}}{{file.checksum_algorithm}}, {{/file.checksum_algorithm}}worked out from the stored object</span>
+    <input value="{{file.checksum}}" readonly></label>
   {{/isHotlinked}}
 
   <label class="wide">Notes <span class="hintmark">Markdown allowed</span>
