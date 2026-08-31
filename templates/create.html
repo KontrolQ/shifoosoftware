@@ -1,0 +1,71 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{backHref}}">{{backLabel}}</a> &rsaquo; new</div>
+
+<div class="bar">{{heading}}</div>
+<form class="search-panel" method="post" action="{{action}}" enctype="multipart/form-data">
+  {{#hidden}}<input type="hidden" name="{{name}}" value="{{value}}">{{/hidden}}
+  <div class="search-grid">
+    {{#fields}}
+    {{^markdown}}
+    <label>{{label}}{{#required}} *{{/required}}
+      {{#choices}}
+      <select name="{{name}}">{{#options}}<option value="{{value}}">{{label}}</option>{{/options}}</select>
+      {{/choices}}
+      {{^choices}}
+      <input name="{{name}}" placeholder="{{hint}}"{{#required}} required{{/required}}>
+      {{/choices}}
+    </label>
+    {{/markdown}}
+    {{/fields}}
+    {{#dates}}{{> datefield}}{{/dates}}
+    {{#measures}}{{> measurefield}}{{/measures}}
+    {{#files}}
+    <label>{{label}}<input type="file" name="{{name}}" accept="image/*"></label>
+    {{/files}}
+  </div>
+
+  <div class="pickpair">
+  {{#picks}}
+    <div>
+      <label>{{label}}</label>
+      {{#storage}}{{> storagepick}}{{/storage}}
+      {{^storage}}
+      <div class="linkpick" data-pick="{{kind}}" data-many="{{#many}}1{{/many}}{{^many}}0{{/many}}"
+           data-verb="Use" data-labels="{{#labels}}{{labels}}{{/labels}}{{^labels}}{}{{/labels}}"
+           data-make-url="{{root}}/make">
+        <input type="hidden" name="{{name}}" value="{{value}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>{{opener}}</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search {{kind}}" aria-label="Search {{kind}}" autocomplete="off">
+            {{#mayMake}}<button type="button" data-pick-make>Add new</button>{{/mayMake}}
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+      {{/storage}}
+    </div>
+  {{/picks}}
+  </div>
+
+  {{#prose}}
+  <label class="wide">{{label}} <span class="hintmark">Markdown allowed</span>
+    <textarea name="{{name}}" rows="8"></textarea></label>
+  {{/prose}}
+
+  {{#fields}}
+  {{#markdown}}
+  <label class="wide">{{label}} <span class="hintmark">Markdown allowed</span>
+    <textarea name="{{name}}" rows="5"></textarea></label>
+  {{/markdown}}
+  {{/fields}}
+
+  <div class="search-row">
+    <button type="submit">{{button}}</button>
+    <a class="clear" href="{{backHref}}">Cancel</a>
+  </div>
+</form>
+{{> adminfoot}}

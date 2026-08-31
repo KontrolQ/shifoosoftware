@@ -1,0 +1,31 @@
+{{> adminshell}}
+<div class="bar">Categories <small>{{subheading}}</small></div>
+
+<nav class="viewtabs">
+  {{#tabs}}<a href="{{href}}" class="{{#chosen}}on{{/chosen}}">{{label}}</a>{{/tabs}}
+</nav>
+
+<form class="sift" method="get" action="{{listPath}}">
+  <input type="hidden" name="view" value="{{view}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Name or summary"></label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+</form>
+
+<div class="bar">Actions
+  <small>{{#mayCreate}}<a href="{{root}}/categories/new">New</a>{{/mayCreate}}
+  {{#mayEdit}}<a href="{{root}}/reorder/categories">Reorder</a>{{/mayEdit}}</small>
+</div>
+{{#hasCategories}}
+<ul class="entries">
+{{#categories}}
+  <li>
+    <a class="title" href="{{root}}/browse/{{slug}}">{{name}}</a>
+    <span class="note">{{summary}} <span class="when">({{titles}} titles)</span></span>
+  </li>
+{{/categories}}
+</ul>
+{{/hasCategories}}
+{{^hasCategories}}<div class="empty">No categories yet.</div>{{/hasCategories}}
+
+{{> adminfoot}}

@@ -1,0 +1,45 @@
+{{> adminshell}}
+<div class="bar">Audit Log <small>{{subheading}}</small></div>
+
+<form class="sift" method="get" action="{{root}}/audit">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Subject or detail"></label>
+  <label>Who
+    <select name="who"><option value="">Anyone</option>
+      {{#people}}<option value="{{email}}"{{#chosen}} selected{{/chosen}}>{{email}}</option>{{/people}}</select>
+  </label>
+  <label>Action
+    <select name="deed"><option value="">Any</option>
+      {{#deeds}}<option value="{{deed}}"{{#chosen}} selected{{/chosen}}>{{deed}}</option>{{/deeds}}</select>
+  </label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{root}}/audit">Clear</a>{{/sifted}}
+</form>
+
+{{#hasEntries}}
+<table class="manage ruled">
+  <colgroup>
+    <col class="when"><col class="who"><col class="what"><col class="deed"><col>
+  </colgroup>
+  <thead><tr><th>When</th><th>Who</th><th>What</th><th>Action</th><th>Detail</th></tr></thead>
+  <tbody>
+  {{#entries}}
+    <tr>
+      <td class="key">{{when}}</td>
+      <td>{{who}}</td>
+      <td><a href="{{href}}">{{shown}}</a></td>
+      <td>{{deed}}</td>
+      <td class="quiet">{{detail}}</td>
+    </tr>
+  {{/entries}}
+  </tbody>
+</table>
+{{#hasPages}}
+<p class="pagedesc paging">
+  {{#hasPrevious}}<a href="{{root}}/audit?{{querystring}}&amp;page={{previousPage}}">&lsaquo; Newer</a>{{/hasPrevious}}
+  <span>Page {{page}} of {{pages}}</span>
+  {{#hasNext}}<a href="{{root}}/audit?{{querystring}}&amp;page={{nextPage}}">Older &rsaquo;</a>{{/hasNext}}
+</p>
+{{/hasPages}}
+{{/hasEntries}}
+{{^hasEntries}}<div class="empty">Nothing recorded yet.</div>{{/hasEntries}}
+{{> adminfoot}}

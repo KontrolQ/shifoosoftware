@@ -1,0 +1,66 @@
+{{> head}}
+<div class="bar">Request Something <small>{{count}} asked for so far</small></div>
+<p class="welcome">If something is not here, say what you are looking for. Requests are read by
+whoever keeps the archive. There is no account to make and nothing to sign.</p>
+
+{{#thanks}}<div class="done">Asked. Thank you.</div>{{/thanks}}
+
+<form class="search-panel" method="post" action="/requests">
+  <div class="search-grid">
+    <label>What are you looking for *
+      <input name="title" list="known-titles" placeholder="Netscape Communicator" required autocomplete="off">
+      <datalist id="known-titles"></datalist>
+    </label>
+    <label>Publisher
+      <input name="publisher" list="known-publishers" placeholder="Netscape" autocomplete="off">
+      <datalist id="known-publishers"></datalist>
+    </label>
+    <label>Version<input name="wanted_version" placeholder="4.08"></label>
+    <label>Your name or handle<input name="asked_by" placeholder="Optional"></label>
+  </div>
+  <label class="wide">A link, if you have one<input name="link" placeholder="Optional"></label>
+  <label class="wide">Anything else<textarea name="notes" rows="3"></textarea></label>
+  <div class="search-row"><button type="submit">Send Request</button></div>
+</form>
+
+{{#hasOpen}}
+<div class="bar magenta">Already Asked For</div>
+<ul class="entries">
+{{#open}}
+  <li>
+    <span class="title">{{title}}</span>
+    <span class="note">{{publisher}} {{wanted_version}} <span class="when">({{when}})</span></span>
+  </li>
+{{/open}}
+</ul>
+{{/hasOpen}}
+<script>
+(async function () {
+  const answer = await fetch("/graphql", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ query: "{ allSoftware(limit:200){ name } publishers { name } }" }),
+  }).then((one) => one.json()).catch(() => null);
+
+  if (!answer || !answer.data) {
+    return;
+  }
+
+  const fill = (id, names) => {
+    const list = document.getElementById(id);
+
+    list.replaceChildren();
+
+    for (const name of names) {
+      const option = document.createElement("option");
+
+      option.value = name;
+      list.appendChild(option);
+    }
+  };
+
+  fill("known-titles", answer.data.allSoftware.map((one) => one.name));
+  fill("known-publishers", answer.data.publishers.map((one) => one.name));
+})();
+</script>
+{{> foot}}

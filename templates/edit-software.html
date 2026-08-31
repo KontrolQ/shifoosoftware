@@ -1,0 +1,136 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo;
+  <a href="{{here}}">{{software.name}}</a> &rsaquo; edit</div>
+
+<div class="bar">Edit Title</div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+<form class="search-panel" method="post" action="{{here}}" enctype="multipart/form-data">
+  <div class="search-grid">
+    <label>Name<input name="name" value="{{software.name}}" required></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the name</span>
+      <input name="slug" value="{{software.slug}}"></label>
+    <label>Homepage<input name="homepage" value="{{software.homepage}}"></label>
+    <label>Published
+      <select name="published">
+        <option value="1"{{#isLive}} selected{{/isLive}}>Yes</option>
+        <option value="0"{{^isLive}} selected{{/isLive}}>No</option>
+      </select>
+    </label>
+    {{#releasedOn}}{{> datefield}}{{/releasedOn}}
+    {{#endOfLife}}{{> datefield}}{{/endOfLife}}
+    {{#cpuSpeed}}{{> measurefield}}{{/cpuSpeed}}
+    {{#ram}}{{> measurefield}}{{/ram}}
+    {{#disk}}{{> measurefield}}{{/disk}}
+  </div>
+
+  <div class="pickpair">
+    <div>
+      <label>Icon</label>
+      {{#iconPick}}{{> storagepick}}{{/iconPick}}
+    </div>
+    <div>
+      <label>Category</label>
+      <div class="linkpick" data-pick="category" data-many="0" data-verb="Use" data-labels="{{categoryLabels}}">
+        <input type="hidden" name="category" value="{{software.category}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose a category</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search categories" aria-label="Search categories" autocomplete="off">
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>Publishers</label>
+      <div class="linkpick" data-pick="publisher" data-many="1" data-verb="Use"
+           data-labels="{{publisherLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="publishers" value="{{publisherValue}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Add a publisher</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search publishers" aria-label="Search publishers" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>Platforms</label>
+      <div class="linkpick" data-pick="platform" data-many="1" data-verb="Use"
+           data-labels="{{platformLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="platforms" value="{{platformValue}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Add a platform</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search platforms" aria-label="Search platforms" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>User interface</label>
+      <div class="linkpick" data-pick="interface" data-many="1" data-verb="Use"
+           data-labels="{{interfaceLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="interfaces" value="{{interfaceValue}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Add an interface</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search interfaces" aria-label="Search interfaces" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>Minimum processor</label>
+      <div class="linkpick" data-pick="processor" data-many="0" data-verb="Use"
+           data-labels="{{processorLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="minimum_cpu_slug" value="{{software.minimum_cpu_slug}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose a processor</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search processors" aria-label="Search processors" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <label class="wide">Description
+    <span class="hintmark">Markdown: **bold**, *italic*, `code`, [link](url), - lists, # headings</span>
+    <textarea name="description" rows="10">{{software.description}}</textarea>
+  </label>
+  <div class="search-row">
+    <button type="submit">Save</button>
+    <a class="clear" href="{{here}}">Cancel</a>
+  </div>
+</form>
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<p class="pagedesc"><a class="pill wipe" href="{{here}}/remove">Delete this title</a></p>
+{{/mayDelete}}
+{{> adminfoot}}

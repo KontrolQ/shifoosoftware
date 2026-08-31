@@ -1,0 +1,31 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo; {{category.name}}</div>
+
+<div class="bar">{{category.name}}
+  <small>{{#mayEdit}}<a href="{{root}}/browse/{{category.slug}}/edit">Edit</a>{{/mayEdit}}</small>
+</div>
+<dl class="facts stacked">
+  <dt>Slug</dt><dd class="key">{{category.slug}}</dd>
+  <dt>Summary</dt><dd>{{{summaryHtml}}}</dd>
+</dl>
+
+<div class="bar magenta">Software
+  <small>{{#mayAddSoftware}}<a href="{{root}}/browse/{{category.slug}}/new">New</a>{{/mayAddSoftware}}
+  {{#mayEdit}}<a href="{{root}}/reorder/software/{{category.slug}}">Reorder</a>{{/mayEdit}}</small>
+</div>
+{{#hasSoftware}}
+<ul class="entries">
+{{#software}}
+  <li class="withact">
+    <a class="title" href="{{root}}/browse/{{category.slug}}/{{slug}}">{{name}}</a>
+    <span class="note">{{publisher}}
+      <span class="when">({{versions}} versions{{^published}}, hidden{{/published}})</span>
+    </span>
+    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{category.slug}}/{{slug}}/remove">Remove</a>{{/mayEdit}}
+  </li>
+{{/software}}
+</ul>
+{{/hasSoftware}}
+{{^hasSoftware}}<div class="empty">Nothing in this category yet.</div>{{/hasSoftware}}
+
+{{> adminfoot}}

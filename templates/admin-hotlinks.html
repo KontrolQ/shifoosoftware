@@ -1,0 +1,63 @@
+{{> adminshell}}
+<div class="bar">Hotlinks <small>{{subheading}}</small></div>
+
+<div class="viewtabs">
+{{#tabs}}<a href="{{href}}" class="{{#chosen}}on{{/chosen}}">{{label}}</a>{{/tabs}}
+{{#mayCreate}}<a class="make" href="{{root}}/hotlinks/new">Add a hotlink</a>{{/mayCreate}}
+</div>
+
+<form class="sift" method="get" action="{{listPath}}">
+  <input type="hidden" name="view" value="{{view}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Words from anywhere"></label>
+  <label>Host<input type="search" name="host" value="{{hostValue}}" placeholder="Any"></label>
+  <label>Sort
+    <select name="sort">{{#sorts}}<option value="{{key}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/sorts}}</select>
+  </label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+  <a class="pill" href="{{checkPath}}">Check these links</a>
+</form>
+
+{{#checking}}
+  {{#hasBroken}}<div class="empty warn">{{broken}} did not answer.</div>{{/hasBroken}}
+  {{^hasBroken}}<div class="empty">Every link answered.</div>{{/hasBroken}}
+{{/checking}}
+
+{{#hasLinks}}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th><th>Points at</th><th>Address here</th>
+      <th class="right">Size</th><th>Used by</th>{{#checking}}<th>Answered</th>{{/checking}}
+    </tr>
+  </thead>
+  <tbody>
+  {{#links}}
+    <tr>
+      <td><a href="{{here}}">{{name}}</a>{{#note}}<span class="note"> {{note}}</span>{{/note}}</td>
+      <td class="key"><a href="{{target}}" rel="noreferrer noopener">{{host}}</a></td>
+      <td class="key">{{address}}</td>
+      <td class="right muted">{{size}}</td>
+      <td class="muted">{{#isUsed}}{{usedWhere}}{{/isUsed}}{{^isUsed}}<span class="warn">nothing yet</span>{{/isUsed}}</td>
+      {{#checking}}
+      <td>{{#reachable}}{{said}}{{/reachable}}{{^reachable}}<span class="warn">{{said}}</span>{{/reachable}}</td>
+      {{/checking}}
+    </tr>
+  {{/links}}
+  </tbody>
+</table>
+{{/hasLinks}}
+{{^hasLinks}}
+<div class="empty">{{#sifted}}Nothing matched.{{/sifted}}{{^sifted}}No hotlinks yet.
+  {{#mayCreate}}<a href="{{root}}/hotlinks/new">Add one</a>, or press Hotlink in any file picker.{{/mayCreate}}{{/sifted}}</div>
+{{/hasLinks}}
+
+{{#hasPages}}
+<div class="pager">
+  {{#hasPrevious}}<a href="{{listPath}}?view={{view}}&amp;page={{previousPage}}">Previous</a>{{/hasPrevious}}
+  <span>{{page}} of {{pages}}</span>
+  {{#hasNext}}<a href="{{listPath}}?view={{view}}&amp;page={{nextPage}}">Next</a>{{/hasNext}}
+</div>
+{{/hasPages}}
+
+{{> adminfoot}}

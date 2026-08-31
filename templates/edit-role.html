@@ -1,0 +1,47 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/roles">Roles</a> &rsaquo; {{role.name}}</div>
+
+<div class="bar">{{role.name}} <small>{{subheading}}</small></div>
+<form method="post" action="{{root}}/roles/{{role.id}}">
+  <div class="search-panel">
+    <div class="search-grid">
+      <label>Name<input name="name" value="{{role.name}}" required></label>
+    </div>
+    <label class="tick"><input type="checkbox" name="everything" value="1"{{#everything}} checked{{/everything}}>
+      Everything, including anything added later</label>
+  </div>
+
+  <table class="perms">
+    <thead><tr><th></th>{{#grid.0.actions}}<th>{{label}}</th>{{/grid.0.actions}}</tr></thead>
+    <tbody>
+    {{#grid}}
+      <tr>
+        <th class="side">{{label}}</th>
+        {{#actions}}
+        <td><label><input type="checkbox" name="permission" value="{{key}}"{{#given}} checked{{/given}}></label></td>
+        {{/actions}}
+      </tr>
+    {{/grid}}
+    </tbody>
+  </table>
+
+  <div class="search-row">
+    {{#mayEdit}}<button type="submit">Save Role</button>{{/mayEdit}}
+    <a class="clear" href="{{root}}/roles">Back</a>
+  </div>
+</form>
+
+{{#hasPeople}}
+<div class="bar magenta">People With This Role</div>
+<ul class="entries">
+{{#people}}<li><a class="title" href="{{root}}/people">{{email}}</a><span class="note">{{display_name}}</span></li>{{/people}}
+</ul>
+{{/hasPeople}}
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<form class="search-panel" method="post" action="{{root}}/roles/{{role.id}}/delete">
+  <button type="submit" class="wipe" data-confirm="Delete the {{role.name}} role?">Delete Role</button>
+</form>
+{{/mayDelete}}
+{{> adminfoot}}

@@ -1,0 +1,33 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo;
+  <a href="{{root}}/browse/{{file.category}}/{{file.software_slug}}">{{file.software_name}}</a> &rsaquo;
+  <a href="{{root}}/browse/{{file.category}}/{{file.software_slug}}/{{file.version_slug}}">{{file.version}}</a> &rsaquo; {{file.display_name}}</div>
+
+<div class="bar">{{file.display_name}}
+  <small>
+    {{#mayEdit}}<a href="{{here}}/edit">Edit</a>{{/mayEdit}}
+    
+    {{#mayEdit}}<a href="{{here}}/remove">Remove</a>{{/mayEdit}}
+  </small>
+</div>
+
+<dl class="facts stacked">
+  <dt>Belongs to</dt><dd><a href="{{root}}/browse/{{file.category}}/{{file.software_slug}}/{{file.version_slug}}">{{file.software_name}} {{file.version}}</a></dd>
+  {{#file.architecture}}<dt>Architecture</dt><dd>{{file.architecture}}</dd>{{/file.architecture}}
+  {{#file.platform_name}}<dt>Platform</dt><dd>{{file.platform_name}}</dd>{{/file.platform_name}}
+  {{#file.file_type}}<dt>File type</dt><dd>{{file.file_type}}</dd>{{/file.file_type}}
+  <dt>Language</dt><dd>{{file.language_name}}</dd>
+  <dt>Size</dt><dd>{{file.size}}</dd>
+  <dt>Checksum</dt><dd class="key">{{file.sha256}}</dd>
+  <dt>Where it lives</dt>
+  <dd>{{#hotlinked}}An external link &mdash; nothing is stored here{{/hotlinked}}{{^hotlinked}}This bucket{{/hotlinked}}</dd>
+  {{#hotlinked}}<dt>Link</dt><dd class="key"><a href="{{file.external_url}}" rel="noreferrer noopener">{{file.external_url}}</a></dd>{{/hotlinked}}
+  {{^hotlinked}}
+  <dt>Object key</dt><dd class="key">{{file.object_key}}</dd>
+  <dt>In the bucket</dt><dd>{{#inBucket}}Yes{{/inBucket}}{{^inBucket}}<span class="warn">Missing</span>{{/inBucket}}</dd>
+  {{/hotlinked}}
+  <dt>Downloads</dt><dd>{{file.downloads}}</dd>
+  <dt>State</dt><dd>{{#isLive}}Live on the site{{/isLive}}{{^isLive}}<span class="warn">Hidden from the site</span>{{/isLive}}</dd>
+  <dt>Notes</dt><dd>{{{notesHtml}}}</dd>
+</dl>
+{{> adminfoot}}

@@ -1,0 +1,59 @@
+{{> adminshell}}
+
+<div class="bar">Bucket <small>{{shown}} shown{{#hasMore}}, more beyond{{/hasMore}}</small></div>
+
+<div class="crumbs bucketpath">
+  <a href="{{root}}/bucket">All objects</a>
+  {{#trail}} &rsaquo; <a href="{{root}}/bucket?prefix={{path}}">{{name}}</a>{{/trail}}
+</div>
+
+<form class="sift" method="get" action="{{root}}/bucket">
+  <input type="hidden" name="prefix" value="{{prefix}}">
+  <label>Filter<input type="search" name="q" value="{{query}}" placeholder="Name contains"></label>
+  <button type="submit">Filter</button>
+  {{#query}}<a class="clear" href="{{root}}/bucket?prefix={{prefix}}">Clear</a>{{/query}}
+</form>
+
+<table class="manage ruled bucket">
+  <colgroup><col class="tick"><col><col class="size"><col class="when"><col class="used"><col class="act"></colgroup>
+  <thead><tr><th></th><th>Name</th><th>Size</th><th>Uploaded</th><th>Used</th><th></th></tr></thead>
+  <tbody>
+  {{#folders}}
+    <tr class="folder">
+      <td class="tick">▸</td>
+      <td colspan="4"><a href="{{root}}/bucket?prefix={{path}}">{{name}}/</a></td>
+      <td class="act quiet">folder</td>
+    </tr>
+  {{/folders}}
+  {{#objects}}
+    <tr>
+      <td class="tick">·</td>
+      <td class="key"><a href="{{href}}">{{leaf}}</a></td>
+      <td class="num">{{size}}</td>
+      <td class="num">{{changed}}</td>
+      <td>{{#claimed}}yes{{/claimed}}{{^claimed}}<span class="warn">no</span>{{/claimed}}</td>
+      <td class="act">
+        <form method="post" action="{{root}}/bucket/drop">
+          <input type="hidden" name="key" value="{{key}}">
+          <button type="submit" class="wipe">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {{/objects}}
+  </tbody>
+</table>
+{{^hasObjects}}{{^hasFolders}}<div class="empty">Nothing stored here.</div>{{/hasFolders}}{{/hasObjects}}
+{{#hasMore}}
+<p class="pagedesc"><a href="{{root}}/bucket?prefix={{prefix}}&amp;cursor={{nextCursor}}">Next {{shown}} &rsaquo;</a></p>
+{{/hasMore}}
+
+<div class="bar red">Upload Here</div>
+<form class="search-panel" method="post" action="{{root}}/bucket/put" enctype="multipart/form-data">
+  <div class="search-grid">
+    <label>Into folder<input name="prefix" value="{{prefix}}" placeholder="winamp/2.95"></label>
+    <label>Object key<input name="key" placeholder="Taken from the folder and file name if blank"></label>
+    <label>File<input type="file" name="payload" required></label>
+  </div>
+  <div class="search-row"><button type="submit">Upload</button></div>
+</form>
+{{> adminfoot}}

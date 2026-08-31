@@ -1,0 +1,32 @@
+{{> adminshell}}
+<div class="bar">Requests <small>{{subheading}}</small></div>
+
+<form class="sift" method="get" action="{{root}}/requests">
+  <label>Showing
+    <select name="state" onchange="this.form.submit()">
+      <option value="all">All</option>
+      {{#states}}<option value="{{key}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/states}}
+    </select>
+  </label>
+  <noscript><button type="submit">Show</button></noscript>
+</form>
+
+<form class="sift" method="get" action="{{listPath}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Search"></label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+</form>
+{{#hasRequests}}
+<ul class="entries">
+{{#requests}}
+  <li>
+    <a class="title" href="{{root}}/requests/{{id}}">{{title}}</a>
+    <span class="note">{{publisher}} {{wanted_version}}
+      <span class="when">({{state}}, {{when}})</span>
+    </span>
+  </li>
+{{/requests}}
+</ul>
+{{/hasRequests}}
+{{^hasRequests}}<div class="empty">No requests.</div>{{/hasRequests}}
+{{> adminfoot}}

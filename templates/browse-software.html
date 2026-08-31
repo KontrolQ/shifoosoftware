@@ -1,0 +1,43 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo;
+  <a href="{{root}}/categories/{{category.slug}}">{{category.name}}</a> &rsaquo; {{software.name}}</div>
+
+<div class="bar">{{software.name}}
+  <small>
+    {{#mayEdit}}<a href="{{root}}/browse/{{software.category}}/{{software.slug}}/edit">Edit</a>{{/mayEdit}}
+    
+  </small>
+</div>
+<div class="titlecard">
+  {{#iconHref}}<img class="bigicon" src="{{iconHref}}" alt="">{{/iconHref}}
+  {{^iconHref}}<span class="bigicon blank"></span>{{/iconHref}}
+  <div>
+    <dl class="facts stacked">
+      <dt>Slug</dt><dd class="key">{{software.slug}}</dd>
+      <dt>Category</dt><dd><a href="{{root}}/categories/{{category.slug}}">{{category.name}}</a></dd>
+      <dt>Publisher</dt><dd>{{software.publisher}}</dd>
+      <dt>Homepage</dt><dd>{{software.homepage}}</dd>
+      <dt>State</dt><dd>{{#isLive}}Live on the site{{/isLive}}{{^isLive}}<span class="warn">Hidden from the site</span>{{/isLive}}</dd>
+    </dl>
+    <div class="prose">{{{descriptionHtml}}}</div>
+  </div>
+</div>
+
+<div class="bar magenta">Versions
+  <small>{{#mayAddVersion}}<a href="{{root}}/browse/{{software.category}}/{{software.slug}}/new">New</a>{{/mayAddVersion}}
+  {{#mayEdit}}<a href="{{root}}/reorder/versions/{{software.slug}}">Reorder</a>{{/mayEdit}}</small>
+</div>
+{{#hasVersions}}
+<ul class="entries">
+{{#versions}}
+  <li class="withact">
+    <a class="title" href="{{root}}/browse/{{software.category}}/{{software.slug}}/{{slug}}">{{version}}</a>
+    <span class="note">{{blurb}} <span class="when">({{files}} files{{#released_on}}, {{released_on}}{{/released_on}})</span></span>
+    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{software.category}}/{{software.slug}}/{{slug}}/remove">Remove</a>{{/mayEdit}}
+  </li>
+{{/versions}}
+</ul>
+{{/hasVersions}}
+{{^hasVersions}}<div class="empty">No versions yet.</div>{{/hasVersions}}
+
+{{> adminfoot}}

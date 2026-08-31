@@ -1,0 +1,34 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{backHref}}">Back</a> &rsaquo; delete</div>
+
+<div class="bar red">Delete {{tree.name}}</div>
+
+{{#tree.blocked}}
+<div class="notice">{{tree.blockedWhy}}</div>
+<p class="pagedesc"><a class="pill" href="{{backHref}}">Go back</a></p>
+{{/tree.blocked}}
+
+{{^tree.blocked}}
+<p class="pagedesc">This will permanently remove the following. There is no undo.</p>
+
+<ul class="tree">
+  <li class="depth0"><b>{{tree.name}}</b> <span class="note">{{tree.what}}</span></li>
+  {{#branches}}
+  <li class="{{indent}}">{{label}} <span class="note">{{note}}</span></li>
+  {{/branches}}
+</ul>
+{{^hasBranches}}<p class="pagedesc">Nothing else hangs off it.</p>{{/hasBranches}}
+{{#tree.footnote}}<p class="pagedesc">{{tree.footnote}}</p>{{/tree.footnote}}
+
+<form class="search-panel" method="post" action="{{action}}">
+  {{#tree.keepable}}
+  <label class="tick"><input type="checkbox" name="keep_object" value="1">
+    Keep the object in the bucket, remove only the catalogue entry</label>
+  {{/tree.keepable}}
+  <div class="search-row">
+    <button type="submit" class="wipe">Delete {{tree.name}}</button>
+    <a class="clear" href="{{backHref}}">Cancel</a>
+  </div>
+</form>
+{{/tree.blocked}}
+{{> adminfoot}}

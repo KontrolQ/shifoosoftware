@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{title}}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="page doorway">
+  <div class="brand">
+    <b>ソフトウェア アーカイブ</b>
+    <span>Shifoo's Software Archive</span>
+    <em>Management</em>
+  </div>
+  <div class="body">
+    {{#message}}<div class="notice">{{message}}</div>{{/message}}
+    <p class="pagedesc">Sign in with Shifoo's Dungeon.</p>
+    {{#wanted}}<p class="pagedesc">You will land back on <span class="key">{{wanted}}</span>.</p>{{/wanted}}
+    <form method="get" action="{{root}}/signin">
+      <input type="hidden" name="next" value="{{wanted}}">
+      <button type="submit">Sign in</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

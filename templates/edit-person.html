@@ -1,0 +1,39 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/people">People</a> &rsaquo; {{person.email}}</div>
+
+<div class="bar">{{person.email}}</div>
+<dl class="facts stacked">
+  <dt>Name</dt><dd>{{person.display_name}}</dd>
+  <dt>Role</dt><dd>{{#roleHref}}<a href="{{roleHref}}">{{person.role_name}}</a>{{/roleHref}}{{^roleHref}}No role{{/roleHref}}</dd>
+  <dt>First seen</dt><dd class="key">{{joined}}</dd>
+  <dt>Last seen</dt><dd class="key">{{seen}}</dd>
+  <dt>Live sessions</dt><dd>{{sessions}}</dd>
+</dl>
+
+{{#isSelf}}
+<p class="pagedesc">This is your own account. Roles are changed by someone else, so nobody can lock
+themselves out.</p>
+{{/isSelf}}
+
+{{^isSelf}}
+{{#mayEdit}}
+<div class="bar magenta">Role</div>
+<form class="search-panel" method="post" action="{{root}}/people/{{person.id}}">
+  <label class="wide">Give this person a role</label>
+  {{> pick}}
+  <div class="search-row"><button type="submit">Save Role</button></div>
+</form>
+{{/mayEdit}}
+{{/isSelf}}
+
+{{#hasChanges}}
+<div class="bar">What They Changed</div>
+<table class="manage">
+  <thead><tr><th>When</th><th>What</th><th>Action</th></tr></thead>
+  <tbody>
+  {{#changes}}<tr><td class="key">{{when}}</td><td class="key">{{subject}}</td><td>{{deed}}</td></tr>{{/changes}}
+  </tbody>
+</table>
+<p class="pagedesc"><a href="{{root}}/audit?who={{person.email}}">Everything they have done</a></p>
+{{/hasChanges}}
+{{> adminfoot}}

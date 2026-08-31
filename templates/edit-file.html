@@ -1,0 +1,102 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/browse/{{file.category}}/{{file.software_slug}}/{{file.version_slug}}">{{file.software_name}} {{file.version}}</a>
+  &rsaquo; <a href="{{here}}">{{file.display_name}}</a> &rsaquo; edit</div>
+
+<div class="bar">Edit File</div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+<form class="search-panel" method="post" action="{{here}}" enctype="multipart/form-data">
+  <div class="search-grid">
+    <label>Display name<input name="display_name" value="{{file.display_name}}" required></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the display name</span>
+      <input name="slug" value="{{file.slug}}"></label>
+    <label>Published
+      <select name="published">
+        <option value="1"{{#isLive}} selected{{/isLive}}>Yes</option>
+        <option value="0"{{^isLive}} selected{{/isLive}}>No</option>
+      </select>
+    </label>
+
+  </div>
+
+  <div class="pickpair">
+    <div>
+      <label>The file itself</label>
+      {{#filePick}}{{> storagepick}}{{/filePick}}
+    </div>
+    <div>
+      <label>Belongs to which version</label>
+      <div class="linkpick" data-pick="version" data-many="0" data-verb="Use"
+           data-labels="{{versionLabels}}">
+        <input type="hidden" name="version_path" value="{{versionPath}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose a version</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search every version" aria-label="Search every version" autocomplete="off">
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>File type</label>
+      <div class="linkpick" data-pick="filetype" data-many="0" data-verb="Use"
+           data-labels="{{fileTypeLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="file_type_slug" value="{{file.file_type_slug}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Choose a file type</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search file types" aria-label="Search file types" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>Language</label>
+      <div class="linkpick" data-pick="language" data-many="1" data-verb="Use"
+           data-labels="{{languageLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="language" value="{{languageValue}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Add a language</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search languages" aria-label="Search languages" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{#isHotlinked}}
+  <label class="wide">Checksum <span class="hintmark">SHA-256 &mdash; nothing here can work it out for a link</span>
+    <input name="sha256" value="{{file.sha256}}"></label>
+  {{/isHotlinked}}
+  {{^isHotlinked}}
+  <label class="wide">Checksum <span class="hintmark">worked out from the stored object</span>
+    <input value="{{file.sha256}}" readonly></label>
+  {{/isHotlinked}}
+
+  <label class="wide">Notes <span class="hintmark">Markdown allowed</span>
+    <textarea name="notes" rows="5">{{file.notes}}</textarea></label>
+  <div class="search-row">
+    <button type="submit">Save</button>
+    <a class="clear" href="{{here}}">Cancel</a>
+  </div>
+</form>
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<p class="pagedesc"><a class="pill wipe" href="{{here}}/remove">Delete this file</a></p>
+{{/mayDelete}}
+{{> adminfoot}}

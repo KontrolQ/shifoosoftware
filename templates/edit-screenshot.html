@@ -1,0 +1,30 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{here}}">{{version.software_name}} {{version.version}}</a> &rsaquo;
+  <a href="{{listPath}}">screenshots</a> &rsaquo; {{heading}}</div>
+
+<div class="bar">{{heading}} <small>{{subheading}}</small></div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+
+<form class="search-panel" method="post" action="{{action}}" enctype="multipart/form-data">
+  <div class="search-grid">
+    <label>Caption<input name="caption" value="{{shot.caption}}"></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the caption</span>
+      <input name="slug" value="{{shot.slug}}"></label>
+  </div>
+  <div class="pickpair">
+    <div>
+      <label>The picture</label>
+      {{#shotPick}}{{> storagepick}}{{/shotPick}}
+    </div>
+  </div>
+  <div class="search-row">
+    <button type="submit">{{button}}</button>
+    <a class="clear" href="{{listPath}}">Cancel</a>
+  </div>
+</form>
+
+{{#mayDelete}}
+<div class="bar">Remove</div>
+<p class="pagedesc"><a class="pill wipe" href="{{listPath}}/{{shot.slug}}/remove">Remove this screenshot</a></p>
+{{/mayDelete}}
+{{> adminfoot}}

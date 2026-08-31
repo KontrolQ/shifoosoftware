@@ -1,0 +1,196 @@
+{{> adminshell}}
+<div class="bar">{{heading}} <small>{{subheading}}</small></div>
+
+<nav class="viewtabs">
+  <a href="{{listPath}}" class="{{#onDefault}}on{{/onDefault}}">All</a>
+  {{#views}}<a href="{{href}}" class="{{#chosen}}on{{/chosen}}">{{name}}</a>{{/views}}
+  {{#standingView}}
+  <form class="tabdrop" method="post" action="{{listPath}}/views/drop">
+    <input type="hidden" name="view" value="{{standingView}}">
+    <button type="submit" class="wipe">Forget this view</button>
+  </form>
+  {{/standingView}}
+</nav>
+
+{{#maySave}}
+<form class="keeprow" method="post" action="{{listPath}}/views">
+  <input type="hidden" name="query" value="{{carried}}">
+  {{#changedView}}
+  <button type="submit" name="view" value="{{standingView}}" formnovalidate>Update {{standingName}}</button>
+  {{/changedView}}
+  {{#sifted}}
+  <label class="field">
+    <span class="name">Keep these filters as</span>
+    <input name="name" placeholder="Name this view" maxlength="60" required>
+  </label>
+  <button type="submit">Save as new view</button>
+  {{/sifted}}
+</form>
+{{/maySave}}
+
+<form class="listform" method="get" action="{{listPath}}">
+{{#standingView}}<input type="hidden" name="view" value="{{standingView}}">{{/standingView}}
+<input type="hidden" name="cols" value="{{chosenColumns}}" data-columns-value>
+
+<div class="toolbar">
+  <label class="field grow">
+    <span class="name">Search</span>
+    <input class="find" type="search" name="q" value="{{query}}" placeholder="Words from anywhere">
+  </label>
+
+  <label class="field">
+    <span class="name">Sort</span>
+    <select class="chip" name="sort">
+      <option value="">Default order</option>
+      {{#sorts}}<option value="{{key}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/sorts}}
+    </select>
+  </label>
+
+  <label class="field">
+    <span class="name">Order</span>
+    <select class="chip" name="dir">
+      <option value="">A to Z</option>
+      <option value="down"{{#falling}} selected{{/falling}}>Z to A</option>
+    </select>
+  </label>
+
+  <label class="field">
+    <span class="name">Narrow by</span>
+    <button type="button" class="mild" data-narrow-toggle>Choose</button>
+  </label>
+
+  <label class="field">
+    <span class="name">Columns</span>
+    <button type="button" class="mild" data-columns-toggle>Choose</button>
+  </label>
+
+  <label class="field">
+    <span class="name">&nbsp;</span>
+    <button type="submit">Apply</button>
+  </label>
+
+  {{#sifted}}
+  <label class="field">
+    <span class="name">&nbsp;</span>
+    <a class="pill wipe" href="{{listPath}}">Clear</a>
+  </label>
+  {{/sifted}}
+</div>
+
+<div class="panelroom">
+<div class="facetpanel" data-narrow hidden>
+  <ul class="facetnames" data-facet-names>
+    {{#facets}}
+    <li><button type="button" data-facet-name="{{name}}" class="{{#first}}on{{/first}}">{{label}}{{#taken}}
+      <span class="facetmark">{{taken}}</span>{{/taken}}</button></li>
+    {{/facets}}
+  </ul>
+  <div class="facetbodies">
+    {{#facets}}
+    <div class="facetbody" data-facet-body="{{name}}"{{^first}} hidden{{/first}}>
+      {{#isFlag}}
+      <div class="ranges">
+        <label class="tick"><input type="radio" name="{{name}}" value=""{{^value}} checked{{/value}}> Any</label>
+        {{#options}}
+        <label class="tick"><input type="radio" name="{{name}}" value="{{value}}"{{#chosen}} checked{{/chosen}}>
+          {{label}}</label>
+        {{/options}}
+      </div>
+      {{/isFlag}}
+      {{#isRange}}
+      <div class="span">
+        {{#isDate}}
+        <label><span>On or after</span>
+          <input type="date" name="r.{{name}}.from" value="{{from}}"></label>
+        <label><span>On or before</span>
+          <input type="date" name="r.{{name}}.to" value="{{to}}"></label>
+        {{/isDate}}
+        {{^isDate}}
+        <label><span>At least</span>
+          <input type="number" min="0" step="any" name="r.{{name}}.from" value="{{from}}"
+                 placeholder="no lower limit"></label>
+        <label><span>At most</span>
+          <input type="number" min="0" step="any" name="r.{{name}}.to" value="{{to}}"
+                 placeholder="no upper limit"></label>
+        {{#hasUnits}}
+        <label><span>Measured in</span>
+          <select name="r.{{name}}.unit">
+            {{#units}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/units}}
+          </select></label>
+        {{/hasUnits}}
+        {{/isDate}}
+      </div>
+      {{/isRange}}
+      {{^isFlag}}{{^isRange}}
+      <input class="facetsearch" type="search" data-facet-search placeholder="Search {{label}}"
+             aria-label="Search {{label}}" autocomplete="off">
+      <ul class="optionlist">
+        {{#options}}
+        <li><label class="optionrow">
+          <input type="checkbox" name="{{name}}" value="{{value}}"{{#chosen}} checked{{/chosen}}>
+          <span class="optionname">{{label}}</span><span class="optionheld">{{held}}</span>
+        </label></li>
+        {{/options}}
+      </ul>
+      {{/isRange}}{{/isFlag}}
+    </div>
+    {{/facets}}
+  </div>
+</div>
+
+<div class="facetpanel columnpanel" data-columns hidden>
+  <div class="pane">
+    <b>Showing, in order</b>
+    <ul class="chooser" data-columns-shown></ul>
+  </div>
+  <div class="pane">
+    <b>Hidden &mdash; click to add</b>
+    <ul class="chooser" data-columns-spare></ul>
+  </div>
+</div>
+</div>
+
+<div class="tablewrap">
+<table class="rows">
+  <thead>
+    <tr>{{#columns}}<th class="{{#right}}right{{/right}}{{#tight}} tight{{/tight}}{{#sorted}} sorted{{/sorted}}{{#falling}} down{{/falling}}"><a href="{{sortHref}}" title="Sort by {{label}}">{{label}}</a></th>{{/columns}}</tr>
+    <tr class="filterrow">
+      {{#filters}}
+      <th>
+        <select name="f.{{name}}" title="{{label}}: how to match" aria-label="{{label}}: how to match">
+          <option value="">no filter</option>
+          {{#operators}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/operators}}
+        </select>
+        <input name="v.{{name}}" value="{{value}}" placeholder="value"
+               title="{{label}}: what to match" aria-label="{{label}}: what to match" autocomplete="off">
+      </th>
+      {{/filters}}
+    </tr>
+  </thead>
+  <tbody>
+  {{#rows}}
+    <tr>
+      {{#cells}}
+      <td class="{{#right}}right{{/right}}{{#muted}} muted{{/muted}}{{#warn}} warn{{/warn}}{{#tight}} tight{{/tight}}"
+          style="{{styled}}" title="{{shown}}">
+        {{#rowHref}}<a href="{{rowHref}}">{{shown}}</a>{{/rowHref}}{{^rowHref}}<span>{{shown}}</span>{{/rowHref}}
+      </td>
+      {{/cells}}
+    </tr>
+  {{/rows}}
+  </tbody>
+</table>
+</div>
+{{^hasRows}}<div class="empty">Nothing matches those filters.</div>{{/hasRows}}
+</form>
+
+{{#hasPages}}
+<p class="paging">
+  {{#hasPrevious}}<a href="{{listPath}}?{{here}}&amp;page={{previousPage}}">&lsaquo; Previous</a>{{/hasPrevious}}
+  <span>Page {{page}} of {{pages}}</span>
+  {{#hasNext}}<a href="{{listPath}}?{{here}}&amp;page={{nextPage}}">Next &rsaquo;</a>{{/hasNext}}
+</p>
+{{/hasPages}}
+<script id="columnchoices" type="application/json">{{{choicesJson}}}</script>
+<script src="/static/js/lists.js" defer></script>
+{{> adminfoot}}

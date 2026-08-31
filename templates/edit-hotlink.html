@@ -1,0 +1,54 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/hotlinks">Hotlinks</a> &rsaquo; {{hotlink.name}}</div>
+
+<div class="bar">{{hotlink.name}} <small>{{host}}</small></div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+
+<dl class="facts stacked">
+  <dt>Points at</dt><dd class="key"><a href="{{hotlink.target_url}}" rel="noreferrer noopener">{{hotlink.target_url}}</a></dd>
+  <dt>Address here</dt><dd class="key"><a href="{{address}}">{{address}}</a></dd>
+  <dt>Added</dt><dd>{{hotlink.added_at}}</dd>
+  {{#size}}<dt>Size</dt><dd>{{size}}</dd>{{/size}}
+</dl>
+
+{{#mayEdit}}
+<form class="search-panel" method="post" action="{{root}}/hotlinks/{{hotlink.slug}}">
+  <div class="search-grid">
+    <label>Name<input name="name" value="{{hotlink.name}}" required></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the name</span>
+      <input name="slug" value="{{hotlink.slug}}"></label>
+    <label>Size in bytes <span class="hintmark">optional</span>
+      <input name="size_bytes" value="{{hotlink.size_bytes}}" inputmode="numeric"></label>
+  </div>
+  <label class="wide">Points at<input name="target_url" value="{{hotlink.target_url}}" required></label>
+  <label class="wide">Notes <span class="hintmark">Markdown allowed</span>
+    <textarea name="notes" rows="4">{{hotlink.notes}}</textarea></label>
+  <div class="search-row">
+    <button type="submit">Save</button>
+    <a class="clear" href="{{root}}/hotlinks">Back</a>
+  </div>
+</form>
+{{/mayEdit}}
+
+{{#isUsed}}
+<div class="bar magenta">Used By</div>
+<ul class="entries">
+{{#usedBy}}
+  <li><a class="title" href="{{href}}">{{label}}</a> <span class="note">{{what}}</span></li>
+{{/usedBy}}
+</ul>
+{{/isUsed}}
+{{^isUsed}}
+<div class="empty">Nothing points at this yet.</div>
+{{/isUsed}}
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<form class="search-panel" method="post" action="{{root}}/hotlinks/{{hotlink.slug}}/delete">
+  <button type="submit" class="wipe" data-confirm="Delete {{hotlink.name}}?">Delete</button>
+</form>
+{{/mayDelete}}
+{{#lockedByUse}}
+<p class="pagedesc">It cannot be deleted while something points at it.</p>
+{{/lockedByUse}}
+{{> adminfoot}}

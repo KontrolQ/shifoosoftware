@@ -1,0 +1,63 @@
+{{> adminshell}}
+
+<div class="bar">Bucket</div>
+<dl class="facts stacked">
+  <dt>Objects</dt><dd>{{objectCount}}</dd>
+  <dt>Held</dt><dd>{{totalHeld}} of {{allowance}}</dd>
+  <dt>Left</dt><dd>{{left}}</dd>
+  <dt>Accounted for</dt><dd>{{claimedCount}} objects</dd>
+</dl>
+<div class="gauge"><span style="width:{{usedShare}}%"></span></div>
+<p class="pagedesc">{{totalHeld}} of {{allowance}} used. {{left}} left.</p>
+
+<div class="bar red">Missing <small>recorded in the catalogue, absent from the bucket</small></div>
+{{#hasMissing}}
+<table class="manage">
+  <thead><tr><th>File</th><th>Belongs to</th><th>Object key</th><th>Recorded size</th></tr></thead>
+  <tbody>
+  {{#missing}}
+    <tr>
+      <td><a class="warn" href="{{root}}/browse/{{path}}">{{file_name}}</a></td>
+      <td>{{where}}</td>
+      <td class="key">{{object_key}}</td>
+      <td class="num">{{size_bytes}}</td>
+    </tr>
+  {{/missing}}
+  </tbody>
+</table>
+<p class="pagedesc">These rows point at nothing. Their download links will fail.</p>
+{{/hasMissing}}
+{{^hasMissing}}<div class="empty">Every recorded file is present in the bucket.</div>{{/hasMissing}}
+
+<div class="bar magenta">Orphaned <small>in the bucket, referenced by nothing</small></div>
+{{#hasOrphans}}
+<table class="manage">
+  <thead><tr><th>Object key</th><th>Size</th></tr></thead>
+  <tbody>
+  {{#orphans}}
+    <tr><td class="key">{{key}}</td><td class="num">{{size}}</td></tr>
+  {{/orphans}}
+  </tbody>
+</table>
+<form method="post" action="{{root}}/sweep">
+  <div class="doing">
+    <button type="submit" class="wipe"
+            data-confirm="Delete all {{orphanCount}} orphaned objects from the bucket? This cannot be undone.">Delete all orphans</button>
+    <span class="note">Nothing in the catalogue points at these.</span>
+  </div>
+</form>
+{{/hasOrphans}}
+{{^hasOrphans}}<div class="empty">Nothing orphaned.</div>{{/hasOrphans}}
+
+{{#hasWrongSize}}
+<div class="bar">Size mismatch</div>
+<table class="manage">
+  <thead><tr><th>File</th><th>Recorded</th><th>Actually</th></tr></thead>
+  <tbody>
+  {{#wrongSize}}
+    <tr><td>{{file_name}}</td><td class="num">{{recorded}}</td><td class="num warn">{{actual}}</td></tr>
+  {{/wrongSize}}
+  </tbody>
+</table>
+{{/hasWrongSize}}
+{{> adminfoot}}

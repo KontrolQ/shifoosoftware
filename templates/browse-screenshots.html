@@ -1,0 +1,26 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{here}}">{{version.software_name}} {{version.version}}</a> &rsaquo; screenshots</div>
+
+<div class="bar">Screenshots
+  {{#mayEdit}}<small><a href="{{listPath}}/new">Add a screenshot</a></small>{{/mayEdit}}
+  <small>{{subheading}}</small>
+</div>
+
+{{#hasShots}}
+<table>
+  <thead><tr><th>Caption</th><th>Slug</th><th>Comes from</th></tr></thead>
+  <tbody>
+  {{#shots}}
+    <tr>
+      <td><a href="{{href}}">{{shown}}</a></td>
+      <td class="muted">{{slug}}</td>
+      <td class="key">{{comesFrom}}</td>
+    </tr>
+  {{/shots}}
+  </tbody>
+</table>
+{{/hasShots}}
+{{^hasShots}}
+<div class="empty">No screenshots yet.{{#mayEdit}} <a href="{{listPath}}/new">Add one</a>.{{/mayEdit}}</div>
+{{/hasShots}}
+{{> adminfoot}}

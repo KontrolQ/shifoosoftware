@@ -1,0 +1,24 @@
+{{> adminshell}}
+<div class="bar">People <small>{{subheading}}</small></div>
+<p class="pagedesc">People appear here after they sign in through Shifoo's Dungeon. Accounts are not
+created from this side.</p>
+
+<form class="sift" method="get" action="{{listPath}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Search"></label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+</form>
+{{#hasPeople}}
+<ul class="entries">
+{{#people}}
+  <li>
+    <a class="title" href="{{root}}/people/{{id}}">{{email}}</a>
+    <span class="note">{{display_name}}
+      <span class="when">({{role_name}}{{^role_name}}no role{{/role_name}} &middot; last seen {{seen}})</span>
+    </span>
+  </li>
+{{/people}}
+</ul>
+{{/hasPeople}}
+{{^hasPeople}}<div class="empty">Nobody has signed in yet.</div>{{/hasPeople}}
+{{> adminfoot}}

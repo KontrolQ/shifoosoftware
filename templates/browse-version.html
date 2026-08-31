@@ -1,0 +1,34 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo;
+  <a href="{{root}}/categories/{{version.category}}">Category</a> &rsaquo;
+  <a href="{{root}}/software/{{version.software_slug}}">{{version.software_name}}</a> &rsaquo; {{version.version}}</div>
+
+<div class="bar">{{version.version}}
+  <small>{{#mayEdit}}<a href="{{root}}/browse/{{version.category}}/{{version.software_slug}}/{{version.slug}}/edit">Edit</a>{{/mayEdit}}</small>
+</div>
+<dl class="facts stacked">
+  <dt>Title</dt><dd><a href="{{root}}/software/{{version.software_slug}}">{{version.software_name}}</a></dd>
+  <dt>Released</dt><dd>{{version.released_on}}</dd>
+  <dt>Notes</dt><dd>{{{notesHtml}}}</dd>
+</dl>
+
+<div class="bar magenta">Files
+  <small>{{#mayAddFile}}<a href="{{root}}/browse/{{version.category}}/{{version.software_slug}}/{{version.slug}}/new">New</a>{{/mayAddFile}}</small>
+</div>
+{{#hasFiles}}
+<ul class="entries">
+{{#files}}
+  <li class="withact">
+    <a class="title" href="{{root}}/browse/{{path}}">{{display_name}}</a>
+    <span class="note">{{language_name}}{{#is_external}} · hotlink{{/is_external}}
+      <span class="when">({{#is_external}}hotlink{{/is_external}}{{^is_external}}{{size}}{{/is_external}},
+        {{downloads}} downloads{{^published}}, hidden{{/published}})</span>
+    </span>
+    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{path}}/remove">Remove</a>{{/mayEdit}}
+  </li>
+{{/files}}
+</ul>
+{{/hasFiles}}
+{{^hasFiles}}<div class="empty">No files yet.</div>{{/hasFiles}}
+
+{{> adminfoot}}

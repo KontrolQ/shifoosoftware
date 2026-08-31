@@ -1,0 +1,25 @@
+{{> adminshell}}
+<div class="bar">{{label}}
+  <small>
+    {{#mayCreate}}<a href="{{root}}/{{kind}}/new">New</a>{{/mayCreate}}
+    {{#mayReorder}}<a href="{{root}}/reorder/{{kind}}">Reorder</a>{{/mayReorder}}
+  </small>
+</div>
+<form class="sift" method="get" action="{{listPath}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Search"></label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+</form>
+{{#hasEntries}}
+<ul class="entries">
+{{#entries}}
+  <li>
+    <a class="title" href="{{root}}/{{kind}}/{{slug}}">{{name}}</a>
+    <span class="note"><span class="key">{{slug}}</span> <span class="when">({{used}} files)</span></span>
+  </li>
+{{/entries}}
+</ul>
+{{/hasEntries}}
+{{^hasEntries}}<div class="empty">Nothing here yet.</div>{{/hasEntries}}
+
+{{> adminfoot}}

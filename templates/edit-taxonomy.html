@@ -1,0 +1,41 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/{{kind}}">{{label}}</a> &rsaquo; {{entry.name}}</div>
+
+<div class="bar">{{entry.name}}</div>
+<form class="search-panel" method="post" action="{{root}}/{{kind}}/{{entry.slug}}">
+  <div class="search-grid">
+    <label>Name<input name="name" value="{{entry.name}}" required></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the name</span>
+      <input name="slug" value="{{entry.slug}}"></label>
+    {{#extras}}
+    <label>{{label}} <span class="hintmark">{{hint}}</span>
+      <input name="{{name}}" value="{{value}}"></label>
+    {{/extras}}
+  </div>
+  <div class="search-row">
+    <button type="submit">Save</button>
+    <a class="clear" href="{{root}}/{{kind}}">Back</a>
+  </div>
+</form>
+<p class="pagedesc">Changing the slug updates every file that points at it. In use by {{used}} files.</p>
+
+{{#hasFiles}}
+<div class="bar magenta">Files Using This</div>
+<ul class="entries">
+{{#files}}
+  <li>
+    <a class="title" href="{{root}}/browse/{{path}}">{{label}}</a>
+    <span class="note">{{software_name}} {{version}}</span>
+  </li>
+{{/files}}
+</ul>
+{{/hasFiles}}
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<form class="search-panel" method="post" action="{{root}}/{{kind}}/{{entry.slug}}/delete">
+  <p class="pagedesc">Only possible while nothing uses it.</p>
+  <button type="submit" class="wipe" data-confirm="Delete {{entry.name}}?">Delete</button>
+</form>
+{{/mayDelete}}
+{{> adminfoot}}

@@ -1,0 +1,21 @@
+{{> adminshell}}
+<div class="bar">Roles
+  <small>{{#mayCreate}}<a href="{{root}}/roles/new">New</a>{{/mayCreate}}</small>
+</div>
+<form class="sift" method="get" action="{{listPath}}">
+  <label>Search<input type="search" name="q" value="{{query}}" placeholder="Search"></label>
+  <button type="submit">Apply</button>
+  {{#sifted}}<a class="clear" href="{{listPath}}">Clear</a>{{/sifted}}
+</form>
+<ul class="entries">
+{{#roles}}
+  <li>
+    <a class="title" href="{{root}}/roles/{{id}}">{{name}}</a>
+    <span class="note">{{#everything}}Every permission{{/everything}}{{^everything}}{{granted}} permissions{{/everything}}
+      <span class="when">({{people}} people)</span>
+    </span>
+  </li>
+{{/roles}}
+</ul>
+
+{{> adminfoot}}

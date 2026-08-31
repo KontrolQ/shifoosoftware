@@ -1,0 +1,40 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/requests">Requests</a> &rsaquo; {{request.title}}</div>
+
+<div class="bar">{{request.title}}</div>
+<dl class="facts stacked">
+  <dt>Publisher</dt><dd>{{request.publisher}}</dd>
+  <dt>Version wanted</dt><dd>{{request.wanted_version}}</dd>
+  <dt>Link offered</dt><dd>{{request.link}}</dd>
+  <dt>Asked by</dt><dd>{{request.asked_by}}</dd>
+  <dt>When</dt><dd class="key">{{request.happened_at}}</dd>
+  <dt>State</dt><dd>{{request.state}}</dd>
+  <dt>Notes</dt><dd>{{{notesHtml}}}</dd>
+</dl>
+
+{{#mayEdit}}
+<div class="bar magenta">Handle It</div>
+<form class="search-panel" method="post" action="{{root}}/requests/{{request.id}}">
+  <div class="search-grid">
+    <label>State
+      <select name="state">
+        {{#states}}<option value="{{key}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/states}}
+      </select>
+    </label>
+  </div>
+  <label class="wide">Notes<textarea name="notes" rows="4">{{request.notes}}</textarea></label>
+  <div class="search-row"><button type="submit">Save</button></div>
+</form>
+{{/mayEdit}}
+{{^mayEdit}}
+<div class="bar magenta">Notes</div>
+<p class="pagedesc">{{request.notes}}</p>
+{{/mayEdit}}
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<form class="search-panel" method="post" action="{{root}}/requests/{{request.id}}/delete">
+  <button type="submit" class="wipe" data-confirm="Delete this request?">Delete Request</button>
+</form>
+{{/mayDelete}}
+{{> adminfoot}}

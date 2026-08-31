@@ -1,0 +1,23 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/hotlinks">Hotlinks</a> &rsaquo; new</div>
+
+<div class="bar">Add a Hotlink</div>
+{{#message}}<div class="empty warn">{{message}}</div>{{/message}}
+<p class="pagedesc">A hotlink is a file that lives somewhere else. It is named and addressed here just
+  like an uploaded object, so anything pointing at it keeps working even when the far end moves.</p>
+
+<form class="search-panel" method="post" action="{{root}}/hotlinks">
+  <div class="search-grid">
+    <label>Name<input name="name" placeholder="Windows 98 Second Edition (OEM)" required></label>
+    <label>Slug <span class="hintmark">leave blank to name it after the name</span><input name="slug"></label>
+    <label>Size in bytes <span class="hintmark">optional</span><input name="size_bytes" inputmode="numeric"></label>
+  </div>
+  <label class="wide">Points at<input name="target_url" placeholder="https://" required></label>
+  <label class="wide">Notes <span class="hintmark">Markdown allowed</span>
+    <textarea name="notes" rows="4"></textarea></label>
+  <div class="search-row">
+    <button type="submit">Add</button>
+    <a class="clear" href="{{root}}/hotlinks">Cancel</a>
+  </div>
+</form>
+{{> adminfoot}}

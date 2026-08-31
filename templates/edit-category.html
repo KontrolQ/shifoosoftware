@@ -1,0 +1,24 @@
+{{> adminshell}}
+<div class="crumbs"><a href="{{root}}/categories">Categories</a> &rsaquo;
+  <a href="{{root}}/categories/{{category.slug}}">{{category.name}}</a> &rsaquo; edit</div>
+
+<div class="bar">Edit Category</div>
+<form class="search-panel" method="post" action="{{root}}/categories/{{category.slug}}">
+  <div class="search-grid">
+    <label>Slug<input name="slug" value="{{category.slug}}" required></label>
+    <label>Name<input name="name" value="{{category.name}}" required></label>
+  </div>
+  <label class="wide">Summary <span class="hintmark">Markdown allowed</span>
+    <textarea name="summary" rows="5">{{category.summary}}</textarea></label>
+  <div class="search-row">
+    <button type="submit">Save</button>
+    <a class="clear" href="{{root}}/categories/{{category.slug}}">Cancel</a>
+  </div>
+</form>
+<p class="pagedesc">Changing the slug moves every title in this category with it.</p>
+
+{{#mayDelete}}
+<div class="bar">Delete</div>
+<p class="pagedesc"><a class="pill wipe" href="{{root}}/categories/{{category.slug}}/remove">Delete this category</a></p>
+{{/mayDelete}}
+{{> adminfoot}}
