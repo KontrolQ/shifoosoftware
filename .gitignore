@@ -1,0 +1,28 @@
+# Dependencies
+/node_modules/
+
+# Wrangler's local state: the emulated D1 database, R2 bucket and build cache
+/.wrangler/
+/dist/
+
+# Secrets. Never commit these — the example file records the names only.
+*.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+
+# Local fixtures and tooling scratch, not part of the product
+/.seedfiles/
+/.superpowers/
+/.playwright-mcp/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
