@@ -243,7 +243,10 @@ function wire(box) {
       const label = document.createElement("span");
       const drop = document.createElement("button");
 
-      label.textContent = `${values.length} chosen`;
+      const labels = box.dataset.labels ? JSON.parse(box.dataset.labels) : {};
+
+      label.textContent = values.map((one) => labels[one] ?? one).join(", ");
+      tag.title = label.textContent;
       drop.type = "button";
       drop.textContent = "×";
       drop.title = "Clear";
