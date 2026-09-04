@@ -2,7 +2,8 @@ const SOFTWARE_COLUMNS = `
   s.slug, s.name, s.category_slug AS category, s.publisher_names AS publisher, s.description,
   s.homepage, s.icon_key, s.icon_hotlink_slug, s.platform_names, s.interface_names,
   s.released_on, s.end_of_life, s.minimum_cpu_slug, s.minimum_cpu_name, s.minimum_cpu_speed, s.minimum_cpu_speed_unit,
-  s.minimum_ram_size, s.minimum_ram_unit, s.minimum_disk_size, s.minimum_disk_unit, s.created_at`;
+  s.minimum_ram_size, s.minimum_ram_unit, s.minimum_disk_size, s.minimum_disk_unit, s.created_at,
+  s.file_count, s.bytes_held`;
 
 const COUNTED_SOFTWARE = `
   SELECT ${SOFTWARE_COLUMNS},
@@ -21,7 +22,11 @@ export function categories(database) {
   return rowsOf(
     database.prepare(`
       SELECT c.slug, c.name, c.summary,
-             (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) AS held
+             (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) AS held,
+             (SELECT s.category_slug || '/' || s.slug FROM catalogue_software s
+              WHERE s.category_slug = c.slug AND s.published = 1
+                AND (s.icon_key IS NOT NULL OR s.icon_hotlink_slug IS NOT NULL)
+              ORDER BY s.sort_order, s.name LIMIT 1) AS icon_from
       FROM categories c ORDER BY c.sort_order, c.name`)
   );
 }
@@ -30,7 +35,11 @@ export function stockedCategories(database) {
   return rowsOf(
     database.prepare(`
       SELECT c.slug, c.name, c.summary,
-             (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) AS held
+             (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) AS held,
+             (SELECT s.category_slug || '/' || s.slug FROM catalogue_software s
+              WHERE s.category_slug = c.slug AND s.published = 1
+                AND (s.icon_key IS NOT NULL OR s.icon_hotlink_slug IS NOT NULL)
+              ORDER BY s.sort_order, s.name LIMIT 1) AS icon_from
       FROM categories c
       WHERE (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) > 0
       ORDER BY c.sort_order, c.name`)
@@ -38,7 +47,16 @@ export function stockedCategories(database) {
 }
 
 export function categoryBySlug(database, slug) {
-  return database.prepare("SELECT slug, name, summary FROM categories WHERE slug = ?").bind(slug).first();
+  return database
+    .prepare(`
+      SELECT c.slug, c.name, c.summary,
+             (SELECT s.category_slug || '/' || s.slug FROM catalogue_software s
+              WHERE s.category_slug = c.slug AND s.published = 1
+                AND (s.icon_key IS NOT NULL OR s.icon_hotlink_slug IS NOT NULL)
+              ORDER BY s.sort_order, s.name LIMIT 1) AS icon_from
+      FROM categories c WHERE c.slug = ?`)
+    .bind(slug)
+    .first();
 }
 
 export function platforms(database) {
@@ -121,9 +139,11 @@ export function versionsOf(database, slug) {
   );
 }
 
+// The view is what carries the named architecture and platforms; the bare table holds
+// only the slugs, so reading it left those fields blank on the page.
 export function versionBySlug(database, slug, versionSlug) {
   return database
-    .prepare("SELECT * FROM versions WHERE software_slug = ? AND slug = ?")
+    .prepare("SELECT * FROM catalogue_versions WHERE software_slug = ? AND slug = ?")
     .bind(slug, versionSlug)
     .first();
 }

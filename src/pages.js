@@ -121,13 +121,19 @@ function statedFacts(row) {
   ].filter((one) => one.value !== null && one.value !== undefined && String(one.value).trim() !== "");
 }
 
+function counted(howMany, word, many) {
+  return `${howMany} ${howMany === 1 ? word : many ?? `${word}s`}`;
+}
+
 function withCategoryNames(rows, lookup) {
   return rows.map((row) => ({
     ...row,
     categoryName: lookup.get(row.category) ?? row.category,
     added: (row.created_at ?? "").slice(0, 10),
-    blurb: plain(row.description, 180),
+    blurb: plain(row.description, 320),
     icon: iconFor(row),
+    versionsLabel: counted(row.versions ?? 0, "version"),
+    filesLabel: counted(row.file_count ?? 0, "file"),
   }));
 }
 
@@ -139,8 +145,14 @@ export async function home(database) {
   return htmlResponse("home", {
     ...base,
     title: "Shifoo's Software Archive",
-    categories: base.stocked.map((row) => ({ ...row, summaryText: plain(row.summary, 120) })),
+    categories: base.stocked.map((row) => ({
+      ...row,
+      summaryText: plain(row.summary, 320),
+      icon: row.icon_from ? `/icon/${row.icon_from}` : null,
+      heldLabel: counted(row.held ?? 0, "title"),
+    })),
     categoryCount: base.stocked.length,
+    categoryLabel: counted(base.stocked.length, "section"),
     hasCategories: base.stocked.length > 0,
     recent: withCategoryNames(recent, lookup),
     hasRecent: recent.length > 0,
@@ -158,18 +170,24 @@ export async function category(database, slug) {
   const software = (await softwareInCategory(database, slug)).map((row) => ({
     ...row,
     icon: iconFor(row),
+    blurb: plain(row.description, 320),
+    size: describedSize(row.bytes_held),
+    versionsLabel: counted(row.versions ?? 0, "version"),
+    filesLabel: counted(row.file_count ?? 0, "file"),
   }));
 
   return htmlResponse("category", {
     ...base,
     title: held.name,
     category: held,
+    categoryIcon: held.icon_from ? `/icon/${held.icon_from}` : null,
     summaryHtml: rendered(held.summary),
     categoryDescription: `${held.summary
       ? held.summary.charAt(0).toUpperCase() + held.summary.slice(1)
       : held.name}. ${software.length} ${software.length === 1 ? "title" : "titles"} held in this category.`,
     software,
     softwareCount: software.length,
+    softwareLabel: counted(software.length, "title"),
     hasSoftware: software.length > 0,
   });
 }
@@ -188,7 +206,7 @@ export async function software(database, categorySlug, slug) {
     softwareSlug: slug,
     released: describedDate(row.released_on),
     size: describedSize(row.total_bytes),
-    blurb: plain(row.notes, 120),
+    blurb: plain(row.notes, 320),
   }));
 
   const facts = statedFacts(held);
@@ -227,7 +245,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
     ...row,
     href: `/${categorySlug}/${slug}/${versionName}/${downloadName(row.slug, row.extension)}`,
     size: describedSize(row.size_bytes),
-    blurb: plain(row.notes, 120),
+    blurb: plain(row.notes, 320),
     savesAs: downloadName(row.slug, row.extension),
   }));
 
