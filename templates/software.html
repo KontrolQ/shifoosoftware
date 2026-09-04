@@ -11,9 +11,8 @@
       {{#software.publisher}}<span><b>Publisher</b> <a href="/search?mode=advanced&amp;publisher={{software.publisherSlug}}">{{software.publisher}}</a></span>{{/software.publisher}}
       <span><b>Category</b> <a href="/{{software.category}}/">{{categoryName}}</a></span>
       <span><b>Versions</b> {{versionCount}}</span>
-      {{#facts}}<span><b>{{label}}</b>
-        {{#links}}<a href="{{href}}">{{name}}</a>{{^last}}, {{/last}}{{/links}}
-        {{^links}}{{value}}{{/links}}</span>{{/facts}}
+      {{#facts}}<span><b>{{label}}</b><span
+        >{{#links}}<a href="{{href}}">{{name}}</a>{{^last}}, {{/last}}{{/links}}{{^links}}{{value}}{{/links}}</span></span>{{/facts}}
       {{#software.homepage}}<span><b>Homepage</b> <a href="{{software.homepage}}" rel="noreferrer">{{software.homepage}}</a></span>{{/software.homepage}}
     </div>
   </div>

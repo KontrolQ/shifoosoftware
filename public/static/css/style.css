@@ -143,7 +143,7 @@ h1{font:900 1.15rem var(--body);margin:0 0 .1rem;color:var(--navy-deep)}
 .bigicon{width:56px;height:56px;flex:0 0 56px;border:1px solid var(--rule);background:#fff;object-fit:contain}
 .bigicon.blank{display:block;background:var(--navy-pale)}
 .facts{display:flex;flex-wrap:wrap;gap:.15rem 1rem;font-size:.7rem}
-.facts span{white-space:nowrap}
+.facts > span{white-space:nowrap}
 .facts b{color:var(--muted);font-weight:400;letter-spacing:.06em;font-size:.62rem;text-transform:uppercase;margin-right:.2rem}
 .about{font-size:.76rem;line-height:1.7;margin:.2rem 0 0}
 
@@ -497,10 +497,10 @@ td.desc .clip *{display:inline}
 .linkpick.linking [data-pick-newlink]{display:inline-block}
 
 .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.15rem 2rem}
-.facts span{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:.5rem;
+.facts > span{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:.5rem;
   align-items:baseline;min-width:0;white-space:normal}
-.facts span b{white-space:nowrap}
-.facts span > :not(b){min-width:0;overflow-wrap:anywhere}
+.facts > span b{white-space:nowrap}
+.facts > span > :not(b){min-width:0;overflow-wrap:anywhere}
 @media (max-width:44rem){.facts{grid-template-columns:1fr}}
 
 
