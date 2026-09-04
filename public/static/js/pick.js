@@ -236,35 +236,6 @@ function wire(box) {
       return;
     }
 
-    // several picks in a narrow control would crush each other, so they are
-    // counted instead and managed in the drawer
-    if (many && values.length > 1) {
-      const tag = document.createElement("span");
-      const label = document.createElement("span");
-      const drop = document.createElement("button");
-
-      const labels = box.dataset.labels ? JSON.parse(box.dataset.labels) : {};
-
-      label.textContent = values.map((one) => labels[one] ?? one).join(", ");
-      tag.title = label.textContent;
-      drop.type = "button";
-      drop.textContent = "×";
-      drop.title = "Clear";
-      drop.addEventListener("click", () => {
-        for (const value of held()) {
-          forget(value);
-        }
-
-        paint();
-        hand();
-      });
-
-      tag.className = "tag";
-      tag.append(label, drop);
-      chosen.appendChild(tag);
-      return;
-    }
-
     for (const value of values) {
       const tag = document.createElement("span");
       const label = document.createElement("span");
