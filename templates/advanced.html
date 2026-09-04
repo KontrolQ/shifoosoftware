@@ -103,13 +103,20 @@
       <div class="catbody">
         <div class="cattop">
           <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
-          <span class="catcount">{{versionsLabel}}{{#latest}} &middot; latest {{latest}}{{/latest}}</span>
         </div>
         {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
       </div>
     </li>
   {{/results}}
   </ul>
+  {{#softwarePager.hasMore}}
+  <div class="pager">
+    <span class="pagerat">Showing {{softwarePager.from}}&ndash;{{softwarePager.to}} of {{softwarePager.total}}</span>
+    {{#softwarePager.hasBack}}<a href="{{softwarePager.backHref}}">&larr; Previous</a>{{/softwarePager.hasBack}}
+    <span class="pagerat">Page {{softwarePager.page}} of {{softwarePager.lastPage}}</span>
+    {{#softwarePager.hasNext}}<a href="{{softwarePager.nextHref}}">Next &rarr;</a>{{/softwarePager.hasNext}}
+  </div>
+  {{/softwarePager.hasMore}}
   {{/hasResults}}
 
   {{#hasMatchedFiles}}
@@ -127,6 +134,14 @@
     {{/matchedFiles}}
     </tbody>
   </table>
+  {{#filePager.hasMore}}
+  <div class="pager">
+    <span class="pagerat">Showing {{filePager.from}}&ndash;{{filePager.to}} of {{filePager.total}}</span>
+    {{#filePager.hasBack}}<a href="{{filePager.backHref}}">&larr; Previous</a>{{/filePager.hasBack}}
+    <span class="pagerat">Page {{filePager.page}} of {{filePager.lastPage}}</span>
+    {{#filePager.hasNext}}<a href="{{filePager.nextHref}}">Next &rarr;</a>{{/filePager.hasNext}}
+  </div>
+  {{/filePager.hasMore}}
   {{/hasMatchedFiles}}
 
   {{^anyFound}}<div class="empty">Nothing matched those filters.</div>{{/anyFound}}

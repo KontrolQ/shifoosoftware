@@ -772,3 +772,10 @@ table.manage input,table.manage select,table.manage button,
   .catlist.grid{grid-template-columns:1fr}
   .cattop{flex-wrap:wrap;gap:.2rem .6rem}
 }
+
+/* result paging */
+.pager{display:flex;align-items:center;gap:.9rem;margin:.5rem 0 1rem;font-size:.72rem;
+  padding-top:.5rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.pager a{font-weight:700}
+.pagerat{color:var(--muted);font-family:var(--mono);font-size:.66rem}
+.pagerat:last-of-type{margin-left:auto}

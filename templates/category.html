@@ -20,13 +20,9 @@
     <div class="catbody">
       <div class="cattop">
         <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
-        <span class="catcount">{{versionsLabel}} &middot; {{filesLabel}} &middot; {{size}}</span>
       </div>
       {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
-      <div class="cattags">
-        {{#publisher}}<a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a>{{/publisher}}
-        {{#latest}}<span class="when">latest {{latest}}</span>{{/latest}}
-      </div>
+      {{#publisher}}<div class="cattags"><a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a></div>{{/publisher}}
     </div>
   </li>
 {{/software}}

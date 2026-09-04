@@ -26,6 +26,7 @@ import {
   SIZE_UNITS,
   SORTS,
   SPEED_UNITS,
+  PER_PAGE,
   anyFilterSet,
   searchFiles,
   searchSoftware,
@@ -132,8 +133,6 @@ function withCategoryNames(rows, lookup) {
     added: (row.created_at ?? "").slice(0, 10),
     blurb: plain(row.description, 320),
     icon: iconFor(row),
-    versionsLabel: counted(row.versions ?? 0, "version"),
-    filesLabel: counted(row.file_count ?? 0, "file"),
   }));
 }
 
@@ -149,7 +148,6 @@ export async function home(database) {
       ...row,
       summaryText: plain(row.summary, 320),
       icon: row.icon_from ? `/icon/${row.icon_from}` : null,
-      heldLabel: counted(row.held ?? 0, "title"),
     })),
     categoryCount: base.stocked.length,
     categoryLabel: counted(base.stocked.length, "section"),
@@ -172,8 +170,6 @@ export async function category(database, slug) {
     icon: iconFor(row),
     blurb: plain(row.description, 320),
     size: describedSize(row.bytes_held),
-    versionsLabel: counted(row.versions ?? 0, "version"),
-    filesLabel: counted(row.file_count ?? 0, "file"),
   }));
 
   return htmlResponse("category", {
@@ -375,18 +371,59 @@ async function resultsFor(database, filters) {
   const wantsSoftware = filters.show !== "files";
   const wantsFiles = filters.show === "files" || filters.show === "both";
 
-  const results = searched && wantsSoftware ? await searchSoftware(database, filters) : [];
-  const matchedFiles = searched && wantsFiles ? await searchFiles(database, filters) : [];
-
-  return { searched, results, matchedFiles };
-}
-
-function shownResults(base, results, matchedFiles) {
-  const lookup = named(base.stocked);
+  const software = searched && wantsSoftware
+    ? await searchSoftware(database, filters)
+    : { rows: [], total: 0 };
+  const files = searched && wantsFiles
+    ? await searchFiles(database, filters)
+    : { rows: [], total: 0 };
 
   return {
+    searched,
+    results: software.rows,
+    resultTotal: software.total,
+    matchedFiles: files.rows,
+    fileTotal: files.total,
+  };
+}
+
+
+// Page links keep whatever narrowed the search, so stepping through never widens it.
+function pagerFor(filters, total, carried) {
+  const lastPage = Math.max(1, Math.ceil(total / PER_PAGE));
+  const page = Math.min(filters.page, lastPage);
+
+  const linkTo = (wanted) => {
+    const held = new URLSearchParams(carried);
+
+    held.set("page", String(wanted));
+
+    return `?${held.toString()}`;
+  };
+
+  return {
+    page,
+    lastPage,
+    total,
+    from: total === 0 ? 0 : (page - 1) * PER_PAGE + 1,
+    to: Math.min(page * PER_PAGE, total),
+    hasMore: lastPage > 1,
+    hasBack: page > 1,
+    hasNext: page < lastPage,
+    backHref: linkTo(page - 1),
+    nextHref: linkTo(page + 1),
+  };
+}
+
+function shownResults(base, held, filters, carried) {
+  const lookup = named(base.stocked);
+  const { results, matchedFiles } = held;
+
+  return {
+    softwarePager: pagerFor(filters, held.resultTotal, carried),
+    filePager: pagerFor(filters, held.fileTotal, carried),
     results: withCategoryNames(results, lookup),
-    resultCount: results.length,
+    resultCount: held.resultTotal,
     hasResults: results.length > 0,
     matchedFiles: matchedFiles.map((row) => ({
       ...row,
@@ -394,7 +431,7 @@ function shownResults(base, results, matchedFiles) {
       href: `/${row.category}/${row.software_slug}/${row.version_slug}/${downloadName(row.slug, row.extension)}`,
       size: describedSize(row.size_bytes),
     })),
-    fileCount: matchedFiles.length,
+    fileCount: held.fileTotal,
     hasMatchedFiles: matchedFiles.length > 0,
     anyFound: results.length > 0 || matchedFiles.length > 0,
   };
@@ -418,8 +455,9 @@ function carriedFilters(filters) {
 
 export async function search(database, filters) {
   const base = await shell(database);
-  const { searched, results, matchedFiles } = await resultsFor(database, filters);
+  const found = await resultsFor(database, filters);
   const carried = carriedFilters(filters);
+  const { searched } = found;
 
   return htmlResponse("search", {
     ...base,
@@ -432,13 +470,15 @@ export async function search(database, filters) {
     advancedHref: `/search?mode=advanced${carried.toString() ? `&${carried.toString()}` : ""}`,
     narrowed: [...carried.keys()].some((one) => one !== "q"),
     searched,
-    ...shownResults(base, results, matchedFiles),
+    ...shownResults(base, found, filters, carried),
   });
 }
 
 export async function advancedSearch(database, filters) {
   const base = await shell(database);
-  const { searched, results, matchedFiles } = await resultsFor(database, filters);
+  const found = await resultsFor(database, filters);
+  const carried = carriedFilters(filters);
+  const { searched } = found;
 
   const spread = await releaseYears(database);
   const known = spread.map((row) => Number(row.year)).filter((year) => year > 0);
@@ -526,7 +566,7 @@ export async function advancedSearch(database, filters) {
     ],
     rangeFacets: RANGE_FACETS,
     searched,
-    ...shownResults(base, results, matchedFiles),
+    ...shownResults(base, found, filters, carried),
   });
 }
 

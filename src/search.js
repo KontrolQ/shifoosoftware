@@ -10,7 +10,9 @@ export const SORTS = [
 export const SIZE_UNITS = { KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
 export const SPEED_UNITS = { MHz: 1000000, GHz: 1000000000 };
 
-const RESULT_LIMIT = 200;
+// A page of results, and the count of everything behind it, so the reader is told
+// what they are not being shown.
+export const PER_PAGE = 50;
 
 // Each of these picks many values at once; anything chosen inside one widens the
 // search, while each facet used narrows it.
@@ -84,6 +86,7 @@ export function filtersFrom(parameters) {
 
   return {
     query: oneFrom(parameters, "q"),
+    page: Math.max(1, Number(oneFrom(parameters, "page")) || 1),
     chosen,
     from: dateFrom(parameters, "from"),
     to: dateFrom(parameters, "to"),
@@ -260,6 +263,12 @@ export async function searchSoftware(database, filters) {
   softwareConditions(filters, conditions, bindings);
   fileReach(filters, conditions, bindings);
 
+  const where = conditions.join(" AND ");
+  const counted = await database
+    .prepare(`SELECT COUNT(*) AS held FROM catalogue_software s WHERE ${where}`)
+    .bind(...bindings)
+    .first();
+
   const held = await database
     .prepare(`
       SELECT s.slug, s.name, s.category_slug AS category, s.publisher_names AS publisher, s.description,
@@ -268,13 +277,13 @@ export async function searchSoftware(database, filters) {
              (SELECT v.version FROM versions v WHERE v.software_slug = s.slug
               ORDER BY v.sort_order DESC, v.version DESC LIMIT 1) AS latest
       FROM catalogue_software s
-      WHERE ${conditions.join(" AND ")}
+      WHERE ${where}
       ORDER BY ${sortClause(filters.sort)}
-      LIMIT ${RESULT_LIMIT}`)
-    .bind(...bindings)
+      LIMIT ? OFFSET ?`)
+    .bind(...bindings, PER_PAGE, (filters.page - 1) * PER_PAGE)
     .all();
 
-  return held.results ?? [];
+  return { rows: held.results ?? [], total: counted?.held ?? 0 };
 }
 
 export async function searchFiles(database, filters) {
@@ -311,6 +320,14 @@ export async function searchFiles(database, filters) {
   );
   between("f.size_bytes", filters.minimumSize, filters.maximumSize, conditions, bindings);
 
+  const where = `f.published = 1 AND ${conditions.join(" AND ")}`;
+  const counted = await database
+    .prepare(`
+      SELECT COUNT(*) AS held FROM catalogue_files f
+      JOIN catalogue_software s ON s.slug = f.software_slug WHERE ${where}`)
+    .bind(...bindings)
+    .first();
+
   const held = await database
     .prepare(`
       SELECT f.id, f.slug, f.display_name, f.file_type, f.extension, f.size_bytes, f.object_key,
@@ -318,13 +335,13 @@ export async function searchFiles(database, filters) {
              f.category_slug AS category, f.platform_names AS platform
       FROM catalogue_files f
       JOIN catalogue_software s ON s.slug = f.software_slug
-      WHERE f.published = 1 AND ${conditions.join(" AND ")}
+      WHERE ${where}
       ORDER BY s.name, f.version DESC, f.display_name
-      LIMIT ${RESULT_LIMIT}`)
-    .bind(...bindings)
+      LIMIT ? OFFSET ?`)
+    .bind(...bindings, PER_PAGE, (filters.page - 1) * PER_PAGE)
     .all();
 
-  return held.results ?? [];
+  return { rows: held.results ?? [], total: counted?.held ?? 0 };
 }
 
 export function tidiedQuery(parameters) {
