@@ -29,12 +29,13 @@
 
 {{#hasFiles}}
 <table class="files">
-  <thead><tr><th>File</th><th>Platform</th><th>Language</th><th class="right">Size</th><th class="right">Get</th></tr></thead>
+  <thead><tr><th>File</th><th>Platform</th>{{#hasDevices}}<th>Hardware</th>{{/hasDevices}}<th>Language</th><th class="right">Size</th><th class="right">Get</th></tr></thead>
   <tbody>
   {{#files}}
     <tr>
       <td class="filename"><a href="{{href}}">{{display_name}}</a><div class="realname">{{savesAs}}</div></td>
       <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
+      {{#hasDevices}}<td class="hw">{{#devices}}<a href="{{href}}">{{name}}</a>{{/devices}}</td>{{/hasDevices}}
       <td class="muted">{{language}}</td>
       <td class="right muted">{{size}}</td>
       <td class="right"><a class="get" href="{{href}}">Download</a></td>

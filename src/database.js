@@ -1,6 +1,6 @@
 const SOFTWARE_COLUMNS = `
   s.slug, s.name, s.category_slug AS category, s.publisher_names AS publisher, s.description,
-  s.homepage, s.icon_key, s.icon_hotlink_slug, s.platform_names, s.interface_names,
+  s.homepage, s.icon_key, s.icon_hotlink_slug, s.platform_names, s.interface_names, s.device_names,
   s.released_on, s.end_of_life, s.minimum_cpu_slug, s.minimum_cpu_name, s.minimum_cpu_speed, s.minimum_cpu_speed_unit,
   s.minimum_ram_size, s.minimum_ram_unit, s.minimum_disk_size, s.minimum_disk_unit, s.created_at,
   s.file_count, s.bytes_held`;
@@ -194,7 +194,7 @@ export function filesOfVersion(database, versionId) {
         SELECT id, slug, display_name, file_type, extension, size_bytes, checksum,
                checksum_algorithm, downloads,
                object_key, hotlink_slug, external_url, is_external,
-               platform_names AS platform, language_names AS language
+               platform_names AS platform, language_names AS language, device_names
         FROM catalogue_files
         WHERE version_id = ? AND published = 1 ORDER BY sort_order, display_name`)
       .bind(versionId)

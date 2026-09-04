@@ -93,6 +93,11 @@ h1{font:900 1.15rem var(--body);margin:0 0 .1rem;color:var(--navy-deep)}
   font-size:.62rem;color:var(--navy-deep);border-radius:2px}
 .get{color:var(--red);font-weight:700}
 
+.hw{white-space:nowrap}
+.hw a{display:inline-block;margin:0 .25rem .15rem 0;padding:0 .35rem;border:1px solid var(--rule);
+  background:var(--navy-pale);font-size:.62rem;color:var(--navy-deep);border-radius:2px;text-decoration:none}
+.hw a:hover{background:var(--navy);color:#fff}
+
 .empty{padding:1.4rem;text-align:center;color:var(--muted);background:var(--ground);border:1px dotted var(--rule);font-size:.75rem}
 
 .search-panel{background:var(--navy-pale);border:1px solid var(--rule);padding:.6rem;margin-bottom:1rem}

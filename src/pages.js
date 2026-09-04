@@ -102,6 +102,7 @@ function statedFacts(row) {
     { label: "First released", value: describedDate(row.released_on) },
     { label: "Platform", value: row.platform_names, links: linkedFacts(row.platform_names, null, "platform") },
     { label: "Interface", value: row.interface_names, links: linkedFacts(row.interface_names, null, "interface") },
+    { label: "Hardware", value: row.device_names, links: linkedFacts(row.device_names, null, "device") },
     {
       label: "Minimum CPU",
       value: [row.minimum_cpu_name, describedMeasure(row.minimum_cpu_speed, row.minimum_cpu_speed_unit)]
@@ -243,6 +244,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
     size: describedSize(row.size_bytes),
     blurb: plain(row.notes, 320),
     savesAs: downloadName(row.slug, row.extension),
+    devices: linkedFacts(row.device_names, null, "device"),
   }));
 
   const screenshots = (await screenshotsOfVersion(database, heldVersion.id)).map((row) => ({
@@ -275,6 +277,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
     released: describedDate(heldVersion.released_on),
     architecture: heldVersion.architecture ?? "",
     hasArchitecture: Boolean(heldVersion.architecture),
+    hasDevices: files.some((row) => row.devices),
     screenshots,
     hasScreenshots: screenshots.length > 0,
     notesHtml: rendered(heldVersion.notes),
