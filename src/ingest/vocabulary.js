@@ -31,6 +31,32 @@ function named(offered) {
   return { name, slug: wanted || slugOf(name) };
 }
 
+// Hardware is the one vocabulary with more to it than a name. A sender that knows
+// the vendor and the sort of part should not leave somebody to fill them in by hand,
+// but it must not overwrite what the catalogue was told before either.
+async function describedDevice(database, manager, slug, offered, report) {
+  if (typeof offered !== "object" || offered === null) {
+    return;
+  }
+
+  const vendor = await slugFor(database, manager, "publisher", offered.vendor, report);
+  const kind = String(offered.kind ?? "").trim() || null;
+  const released = String(offered.releasedOn ?? "").trim() || null;
+  const known = kind
+    ? await database.prepare("SELECT slug FROM device_kinds WHERE slug = ?").bind(kind).first()
+    : null;
+
+  await database
+    .prepare(`
+      UPDATE devices
+      SET vendor_slug = COALESCE(vendor_slug, ?),
+          kind_slug = COALESCE(kind_slug, ?),
+          released_on = COALESCE(released_on, ?)
+      WHERE slug = ?`)
+    .bind(vendor, known?.slug ?? null, released, slug)
+    .run();
+}
+
 export async function slugFor(database, manager, kind, offered, report) {
   const table = TABLES[kind];
   const wanted = named(offered);
@@ -45,6 +71,10 @@ export async function slugFor(database, manager, kind, offered, report) {
     .first();
 
   if (held) {
+    if (kind === "device") {
+      await describedDevice(database, manager, held.slug, offered, report);
+    }
+
     return held.slug;
   }
 
@@ -63,6 +93,10 @@ export async function slugFor(database, manager, kind, offered, report) {
       .prepare(`INSERT INTO ${table} (slug, name, sort_order) VALUES (?, ?, 9999)`)
       .bind(wanted.slug, wanted.name)
       .run();
+  }
+
+  if (kind === "device") {
+    await describedDevice(database, manager, wanted.slug, offered, report);
   }
 
   await noteChange(database, manager, `${kind}:${wanted.slug}`, "created", wanted.name);
