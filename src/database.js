@@ -196,7 +196,7 @@ export function filesOfVersion(database, versionId) {
                object_key, hotlink_slug, external_url, is_external,
                platform_names AS platform, language_names AS language
         FROM catalogue_files
-        WHERE version_id = ? AND published = 1 ORDER BY display_name`)
+        WHERE version_id = ? AND published = 1 ORDER BY sort_order, display_name`)
       .bind(versionId)
   );
 }

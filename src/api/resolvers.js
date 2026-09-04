@@ -543,7 +543,7 @@ export function resolversFor(environment, manager) {
       files: (row, { limit, offset } = {}) =>
         rowsOf(
           database
-            .prepare(`SELECT f.* FROM catalogue_files f WHERE f.version_id = ?${filesVisible()} ORDER BY f.display_name`)
+            .prepare(`SELECT f.* FROM catalogue_files f WHERE f.version_id = ?${filesVisible()} ORDER BY f.sort_order, f.display_name`)
             .bind(row.id)
         ),
       fileCount: async (row) => {

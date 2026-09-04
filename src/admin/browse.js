@@ -510,7 +510,7 @@ export async function versionView(environment, root, manager, identifier, saved)
         SELECT id, slug, display_name, file_type, size_bytes, published, downloads,
                object_key, hotlink_slug, hotlink_name, is_external, language_names AS language_name
         FROM catalogue_files
-        WHERE version_id = ? ORDER BY display_name`)
+        WHERE version_id = ? ORDER BY sort_order, display_name`)
       .bind(held.id)
   );
 

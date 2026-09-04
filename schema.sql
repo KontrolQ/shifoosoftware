@@ -188,6 +188,7 @@ CREATE TABLE files (
     notes TEXT,
     published INTEGER NOT NULL DEFAULT 1,
     downloads INTEGER NOT NULL DEFAULT 0,
+    sort_order INTEGER NOT NULL DEFAULT 100,
     UNIQUE (version_id, slug)
 );
 

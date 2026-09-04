@@ -174,18 +174,18 @@ export async function upsertFile(database, manager, version, offered, report) {
     .prepare(`
       INSERT INTO files (version_id, slug, display_name, file_type_slug, architecture_slug,
                          object_key, hotlink_slug, size_bytes, checksum, checksum_algorithm,
-                         notes, published)
-      VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?)
+                         notes, published, sort_order)
+      VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?, ?)
       ON CONFLICT(version_id, slug) DO UPDATE SET
         display_name = excluded.display_name, file_type_slug = excluded.file_type_slug,
         architecture_slug = excluded.architecture_slug, hotlink_slug = excluded.hotlink_slug,
         checksum = excluded.checksum, checksum_algorithm = excluded.checksum_algorithm,
-        notes = excluded.notes, published = excluded.published`)
+        notes = excluded.notes, published = excluded.published, sort_order = excluded.sort_order`)
     .bind(version.id, slug, displayName,
           await slugFor(database, manager, "filetype", offered.fileType, report),
           await slugFor(database, manager, "architecture", offered.architecture, report),
           linked.slug, checksum, text(offered.checksumAlgorithm) ?? algorithmFor(checksum),
-          text(offered.notes), flagged(offered.published, 1))
+          text(offered.notes), flagged(offered.published, 1), Number(offered.order) || 100)
     .run();
 
   const held = await database
