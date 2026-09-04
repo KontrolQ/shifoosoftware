@@ -34,8 +34,8 @@
   {{#files}}
     <tr>
       <td class="filename"><a href="{{href}}">{{display_name}}</a><div class="realname">{{savesAs}}</div></td>
-      <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
-      {{#hasDevices}}<td class="hw">{{#devices}}<a href="{{href}}">{{name}}</a>{{/devices}}</td>{{/hasDevices}}
+      <td class="pills">{{#platforms}}<a href="{{href}}">{{name}}</a>{{/platforms}}</td>
+      {{#hasDevices}}<td class="pills">{{#devices}}<a href="{{href}}">{{name}}</a>{{/devices}}</td>{{/hasDevices}}
       <td class="muted">{{language}}</td>
       <td class="right muted">{{size}}</td>
       <td class="right"><a class="get" href="{{href}}">Download</a></td>

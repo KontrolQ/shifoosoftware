@@ -122,13 +122,14 @@
   {{#hasMatchedFiles}}
   <div class="bar red">Files <small>{{fileCount}} found</small></div>
   <table>
-    <thead><tr><th>File</th><th>Title</th><th>Platform</th><th class="right">Size</th></tr></thead>
+    <thead><tr><th>File</th><th>Title</th><th>Platform</th>{{#anyHardware}}<th>Hardware</th>{{/anyHardware}}<th class="right">Size</th></tr></thead>
     <tbody>
     {{#matchedFiles}}
       <tr>
         <td><a href="{{href}}">{{display_name}}</a></td>
         <td class="muted">{{softwareName}} {{version}}</td>
-        <td>{{#platform}}<span class="pill">{{platform}}</span>{{/platform}}</td>
+        <td class="pills">{{#platforms}}<a href="{{href}}">{{name}}</a>{{/platforms}}</td>
+        {{#anyHardware}}<td class="pills">{{#devices}}<a href="{{href}}">{{name}}</a>{{/devices}}</td>{{/anyHardware}}
         <td class="right muted">{{size}}</td>
       </tr>
     {{/matchedFiles}}

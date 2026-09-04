@@ -343,7 +343,7 @@ export async function searchFiles(database, filters) {
     .prepare(`
       SELECT f.id, f.slug, f.display_name, f.file_type, f.extension, f.size_bytes, f.object_key,
              f.is_external, f.version_slug, f.version, f.software_slug, f.software_name,
-             f.category_slug AS category, f.platform_names AS platform
+             f.category_slug AS category, f.platform_names AS platform, f.device_names
       FROM catalogue_files f
       JOIN catalogue_software s ON s.slug = f.software_slug
       WHERE ${where}
