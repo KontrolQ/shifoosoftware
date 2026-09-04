@@ -405,6 +405,7 @@ SELECT
     f.notes,
     f.published,
     f.downloads,
+    f.sort_order,
     f.version_id,
     v.slug AS version_slug,
     v.version,
