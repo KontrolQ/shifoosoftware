@@ -261,6 +261,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
       category: categorySlug,
       softwareSlug: slug,
       released: describedDate(row.released_on),
+      blurb: plain(row.notes, 320),
       size: describedSize(row.total_bytes),
     }));
 

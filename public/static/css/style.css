@@ -193,6 +193,7 @@ input:focus,select:focus,textarea:focus,button:focus{outline:none}
 
 
 .files td.note{color:#4a4a4a;width:100%}
+.files td.muted{white-space:nowrap}
 .rowedit{border:1px solid #d5d8e0;background:#fbfbfd;padding:.6rem .7rem;margin:0 0 .5rem}
 .rowedit .search-grid{margin:0}
 .rowedit .search-row{margin-top:.5rem;align-items:center;gap:.5rem}
