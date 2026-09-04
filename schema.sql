@@ -191,6 +191,14 @@ CREATE TABLE files (
     UNIQUE (version_id, slug)
 );
 
+CREATE TABLE file_platforms (
+    file_id INTEGER NOT NULL REFERENCES files (id) ON DELETE CASCADE,
+    platform_slug TEXT NOT NULL REFERENCES platforms (slug) ON DELETE CASCADE,
+    PRIMARY KEY (file_id, platform_slug)
+);
+
+CREATE INDEX file_platforms_by_platform ON file_platforms (platform_slug);
+
 CREATE TABLE file_languages (
     file_id INTEGER NOT NULL REFERENCES files (id) ON DELETE CASCADE,
     language_slug TEXT NOT NULL REFERENCES languages (slug) ON DELETE CASCADE,
@@ -409,8 +417,8 @@ SELECT
     s.category AS category_slug,
     -- a file runs wherever its release runs, which is narrower than the title's platforms
     (SELECT group_concat(p.name, ', ')
-     FROM version_platforms vp JOIN platforms p ON p.slug = vp.platform_slug
-     WHERE vp.version_id = v.id) AS platform_names,
+     FROM file_platforms fp JOIN platforms p ON p.slug = fp.platform_slug
+     WHERE fp.file_id = f.id) AS platform_names,
     (SELECT group_concat(l.name, ', ') FROM file_languages fl JOIN languages l ON l.slug = fl.language_slug
      WHERE fl.file_id = f.id) AS language_names
 FROM files f
