@@ -426,6 +426,20 @@ for (const [kind, label, table, used, column, noun] of VOCABULARIES) {
   };
 }
 
+// Hardware carries more than a name, and the listing is where you check it.
+COLLECTIONS.devices.from = `SELECT t.slug, t.name, t.sort_order, t.released_on,
+              (SELECT p.name FROM publishers p WHERE p.slug = t.vendor_slug) AS vendor,
+              (SELECT k.name FROM device_kinds k WHERE k.slug = t.kind_slug) AS kind,
+              (SELECT COUNT(*) FROM file_devices u WHERE u.device_slug = t.slug) AS used
+       FROM devices t`;
+COLLECTIONS.devices.search = ["name", "slug"];
+COLLECTIONS.devices.sorts.push({ key: "released", label: "Oldest first", clause: "released_on, name" });
+COLLECTIONS.devices.columns.splice(2, 0,
+  col("vendor", "Vendor", "vendor", "text", { on: true, width: "12rem" }),
+  col("kind", "Kind", "kind", "text", { on: true, width: "10rem" }),
+  col("released", "Released", "released_on", "date", { on: true, width: "9rem",
+    cell: (held) => ({ text: describedDate(held.released_on), muted: true }) }));
+
 COLLECTIONS.hotlinks = {
   label: "Hotlinks",
   path: "hotlinks",

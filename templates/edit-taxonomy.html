@@ -9,7 +9,13 @@
       <input name="slug" value="{{entry.slug}}"></label>
     {{#extras}}
     <label>{{label}} <span class="hintmark">{{hint}}</span>
-      <input name="{{name}}" value="{{value}}"></label>
+      {{#choices}}
+      <select name="{{name}}">
+        {{#options}}<option value="{{value}}"{{#selected}} selected{{/selected}}>{{label}}</option>{{/options}}
+      </select>
+      {{/choices}}
+      {{^choices}}<input name="{{name}}" value="{{value}}">{{/choices}}
+    </label>
     {{/extras}}
   </div>
   <div class="search-row">

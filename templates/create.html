@@ -9,7 +9,7 @@
     {{^markdown}}
     <label>{{label}}{{#required}} *{{/required}}
       {{#choices}}
-      <select name="{{name}}">{{#options}}<option value="{{value}}">{{label}}</option>{{/options}}</select>
+      <select name="{{name}}">{{#options}}<option value="{{value}}"{{#selected}} selected{{/selected}}>{{label}}</option>{{/options}}</select>
       {{/choices}}
       {{^choices}}
       <input name="{{name}}" placeholder="{{hint}}"{{#required}} required{{/required}}>

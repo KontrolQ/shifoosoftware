@@ -54,6 +54,11 @@ export const KINDS = {
     singular: "A Device",
     slugHint: "voodoo-3",
     nameHint: "3dfx Voodoo 3",
+    extras: [
+      { name: "vendor_slug", label: "Vendor", hint: "who built it", from: "publishers" },
+      { name: "kind_slug", label: "Kind", hint: "what sort of part it is", from: "device_kinds" },
+      { name: "released_on", label: "Released on", hint: "1999-04-03" },
+    ],
     countTable: "file_devices",
     countColumn: "device_slug",
     usedBy: `
@@ -128,6 +133,33 @@ export const KINDS = {
   },
 };
 
+// An extra that names another table is picked from it rather than typed.
+export async function extrasFor(database, shape, held) {
+  const filled = [];
+
+  for (const one of shape.extras ?? []) {
+    const value = held?.[one.name] ?? "";
+
+    if (!one.from) {
+      filled.push({ ...one, value });
+      continue;
+    }
+
+    const rows = await rowsOf(database.prepare(`SELECT slug, name FROM ${one.from} ORDER BY name`));
+
+    filled.push({
+      ...one,
+      value,
+      choices: true,
+      options: [{ value: "", label: "—", selected: value === "" }].concat(
+        rows.map((row) => ({ value: row.slug, label: row.name, selected: row.slug === value }))
+      ),
+    });
+  }
+
+  return filled;
+}
+
 // A file type typed as "ISO" ends its files with ".iso" unless told otherwise.
 function grownExtra(column, name) {
   return column === "extension" ? tidyFileType(name) : null;
@@ -165,7 +197,7 @@ export async function taxonomyView(environment, root, manager, kind, slug, messa
     kind,
     label: shape.label,
     entry: held,
-    extras: (shape.extras ?? []).map((one) => ({ ...one, value: held[one.name] ?? "" })),
+    extras: await extrasFor(database, shape, held),
     hasExtras: Boolean(shape.extras),
     used: files.length,
     files,

@@ -1,5 +1,5 @@
 import { describedSize } from "../rendering.js";
-import { KINDS } from "./taxonomy.js";
+import { KINDS, extrasFor } from "./taxonomy.js";
 import { can, refuse } from "./permissions.js";
 import {
   SIZE_UNITS,
@@ -183,7 +183,7 @@ export async function newTaxonomy(environment, root, manager, kind) {
     fields: [
       { name: "name", label: "Name", hint: shape.nameHint, required: true },
       { name: "slug", label: "Slug", hint: "worked out from the name if blank" },
-      ...(shape.extras ?? []),
+      ...(await extrasFor(environment.CATALOGUE, shape, null)),
     ],
   });
 }
