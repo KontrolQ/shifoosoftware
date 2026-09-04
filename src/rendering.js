@@ -9,6 +9,7 @@ import datefield from "../templates/partials/datefield.html";
 import measurefield from "../templates/partials/measurefield.html";
 import home from "../templates/home.html";
 import category from "../templates/category.html";
+import directory from "../templates/directory.html";
 import software from "../templates/software.html";
 import version from "../templates/version.html";
 import search from "../templates/search.html";
@@ -56,7 +57,7 @@ import pick from "../templates/partials/pick.html";
 const PARTIALS = { head, foot, adminshell, adminfoot, pick, storagepick, datefield, measurefield };
 
 const TEMPLATES = {
-  home, category, software, version, search, advanced, recent, missing, checksums, requests, api,
+  home, category, directory, software, version, search, advanced, recent, missing, checksums, requests, api,
   "admin-hotlinks": adminHotlinks,
   "browse-screenshots": browseScreenshots,
   "edit-screenshot": editScreenshot,

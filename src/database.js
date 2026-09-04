@@ -113,6 +113,47 @@ export function softwareInCategory(database, category) {
   );
 }
 
+// The directory is read a page at a time, and a letter with nothing behind it is
+// shown as such rather than left to lead somewhere empty.
+const STARTS_WITH = "UPPER(SUBSTR(s.name, 1, 1))";
+
+function letterClause(letter) {
+  if (!letter) {
+    return { clause: "", bindings: [] };
+  }
+
+  return letter === "#"
+    ? { clause: ` AND ${STARTS_WITH} NOT BETWEEN 'A' AND 'Z'`, bindings: [] }
+    : { clause: ` AND ${STARTS_WITH} = ?`, bindings: [letter.toUpperCase()] };
+}
+
+export async function softwareByLetter(database, letter, page, perPage) {
+  const { clause, bindings } = letterClause(letter);
+  const counted = await database
+    .prepare(`SELECT COUNT(*) AS total FROM catalogue_software s WHERE s.published = 1${clause}`)
+    .bind(...bindings)
+    .first();
+
+  const rows = await rowsOf(
+    database
+      .prepare(`${COUNTED_SOFTWARE} WHERE s.published = 1${clause}
+                ORDER BY s.name LIMIT ? OFFSET ?`)
+      .bind(...bindings, perPage, (page - 1) * perPage)
+  );
+
+  return { rows, total: counted?.total ?? 0 };
+}
+
+export function lettersHeld(database) {
+  return rowsOf(
+    database.prepare(`
+      SELECT CASE WHEN ${STARTS_WITH} BETWEEN 'A' AND 'Z' THEN ${STARTS_WITH} ELSE '#' END AS letter,
+             COUNT(*) AS held
+      FROM catalogue_software s WHERE s.published = 1
+      GROUP BY letter ORDER BY letter`)
+  );
+}
+
 export function softwareBySlug(database, category, slug) {
   return database
     .prepare(`${COUNTED_SOFTWARE} WHERE s.published = 1 AND s.category_slug = ? AND s.slug = ?`)

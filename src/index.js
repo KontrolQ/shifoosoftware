@@ -10,6 +10,7 @@ import {
   api,
   category,
   checksums,
+  directory,
   home,
   missing,
   recent,
@@ -218,6 +219,14 @@ async function route(request, environment, url) {
 
   if (parts[0] === "recent") {
     return recent(environment.CATALOGUE);
+  }
+
+  if (parts[0] === "software" && parts.length === 1) {
+    return directory(
+      environment.CATALOGUE,
+      url.searchParams.get("letter"),
+      url.searchParams.get("page")
+    );
   }
 
   if (parts.length === 1) {

@@ -1,0 +1,46 @@
+{{> head}}
+<div class="crumbs"><a href="/">Index</a> &rsaquo; All Software</div>
+
+<div class="bar">{{heading}} <small>{{softwareLabel}}</small></div>
+
+<nav class="azbar" aria-label="Filter by first letter">
+{{#letters}}
+  {{#held}}<a href="{{href}}" class="{{#chosen}}on{{/chosen}}">{{label}}</a>{{/held}}
+  {{^held}}<span>{{label}}</span>{{/held}}
+{{/letters}}
+</nav>
+
+{{#hasSoftware}}
+<ul class="catlist">
+{{#software}}
+  <li class="catrow">
+    {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
+    {{^icon}}<span class="icon blank"></span>{{/icon}}
+    <div class="catbody">
+      <div class="cattop">
+        <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+      </div>
+      {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
+      <div class="cattags">
+        <a class="pill" href="/{{category}}/">{{categoryName}}</a>
+        {{#publisher}}<a class="pill" href="/search?mode=advanced&amp;publisher={{publisher}}">{{publisher}}</a>{{/publisher}}
+      </div>
+    </div>
+  </li>
+{{/software}}
+</ul>
+
+{{#pager.hasMore}}
+<div class="pager">
+  <span class="pagerat">Showing {{pager.from}}&ndash;{{pager.to}} of {{pager.total}}</span>
+  {{#pager.hasBack}}<a href="{{pager.backHref}}">&larr; Previous</a>{{/pager.hasBack}}
+  <span class="pagerat">Page {{pager.page}} of {{pager.lastPage}}</span>
+  {{#pager.hasNext}}<a href="{{pager.nextHref}}">Next &rarr;</a>{{/pager.hasNext}}
+</div>
+{{/pager.hasMore}}
+{{/hasSoftware}}
+
+{{^hasSoftware}}
+<div class="empty">Nothing starts with that.</div>
+{{/hasSoftware}}
+{{> foot}}

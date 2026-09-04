@@ -34,7 +34,7 @@ import {
 import { describedDate, describedMeasure, describedSize, downloadName, htmlResponse } from "./rendering.js";
 import { plain, rendered } from "./markdown.js";
 import { apiDescription } from "./api/documented.js";
-import { rowsOf } from "./database.js";
+import { lettersHeld, rowsOf, softwareByLetter } from "./database.js";
 
 const RECENT_LIMIT = 3;
 
@@ -188,6 +188,69 @@ export async function category(database, slug) {
     softwareCount: software.length,
     softwareLabel: counted(software.length, "title"),
     hasSoftware: software.length > 0,
+  });
+}
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+export async function directory(database, letter, page) {
+  const base = await shell(database);
+  const counts = new Map((await lettersHeld(database)).map((row) => [row.letter, row.held]));
+  const asked = letter && (letter === "#" || ALPHABET.includes(letter.toUpperCase()))
+    ? (letter === "#" ? "#" : letter.toUpperCase())
+    : null;
+
+  const wanted = Math.max(1, Number.parseInt(page, 10) || 1);
+  const held = await softwareByLetter(database, asked, wanted, PER_PAGE);
+  const lookup = named(base.stocked);
+
+  const linkTo = (one, at) => {
+    const carried = new URLSearchParams();
+
+    if (one) carried.set("letter", one);
+    if (at > 1) carried.set("page", String(at));
+
+    const query = carried.toString();
+
+    return query ? `/software/?${query}` : "/software/";
+  };
+
+  const lastPage = Math.max(1, Math.ceil(held.total / PER_PAGE));
+  const at = Math.min(wanted, lastPage);
+
+  return htmlResponse("directory", {
+    ...base,
+    title: "All Software",
+    letters: [{ label: "All", value: null, held: true, chosen: asked === null, href: linkTo(null, 1) }]
+      .concat(
+        ["#"].concat(ALPHABET).map((one) => ({
+          label: one,
+          value: one,
+          held: (counts.get(one) ?? 0) > 0,
+          chosen: asked === one,
+          href: linkTo(one, 1),
+        }))
+      ),
+    heading: asked === null ? "All Software" : `Titles starting with ${asked === "#" ? "a number or symbol" : asked}`,
+    software: withCategoryNames(held.rows, lookup).map((row) => ({
+      ...row,
+      icon: iconFor(row),
+      blurb: plain(row.description, 320),
+    })),
+    softwareLabel: counted(held.total, "title"),
+    hasSoftware: held.rows.length > 0,
+    pager: {
+      page: at,
+      lastPage,
+      total: held.total,
+      from: held.total === 0 ? 0 : (at - 1) * PER_PAGE + 1,
+      to: Math.min(at * PER_PAGE, held.total),
+      hasMore: lastPage > 1,
+      hasBack: at > 1,
+      hasNext: at < lastPage,
+      backHref: linkTo(asked, at - 1),
+      nextHref: linkTo(asked, at + 1),
+    },
   });
 }
 
