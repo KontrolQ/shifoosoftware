@@ -283,11 +283,12 @@ export async function searchFiles(database, filters) {
 
   applyMatch(
     filters.query,
+    // platform and language are asked for by facet, and matching them here made a bare
+    // "9" hit every file that runs on Windows 95
     ["f.display_name", "f.slug", "f.notes", "f.software_name", "f.version", "f.architecture",
-     "f.platform_names", "f.language_names", "f.file_type", "f.hotlink_name"],
+     "f.file_type", "f.hotlink_name"],
     `EXISTS (SELECT 1 FROM catalogue_software cs WHERE cs.slug = f.software_slug
-             AND (cs.publisher_names LIKE ?t ESCAPE '~' OR cs.description LIKE ?t ESCAPE '~'
-                  OR cs.category_name LIKE ?t ESCAPE '~'))`,
+             AND (cs.publisher_names LIKE ?t ESCAPE '~' OR cs.category_name LIKE ?t ESCAPE '~'))`,
     conditions,
     bindings
   );

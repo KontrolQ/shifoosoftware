@@ -192,8 +192,11 @@ input:focus,select:focus,textarea:focus,button:focus{outline:none}
 
 
 
-.files td.note{color:#4a4a4a;width:100%}
-.files td.muted{white-space:nowrap}
+.files td.note{color:#4a4a4a}
+/* the release table gives its whole spare width to the notes, so the short columns
+   beside them have to be told to stay on one line */
+.versions td.note{width:100%}
+.versions td.filename,.versions td.muted{white-space:nowrap}
 .rowedit{border:1px solid #d5d8e0;background:#fbfbfd;padding:.6rem .7rem;margin:0 0 .5rem}
 .rowedit .search-grid{margin:0}
 .rowedit .search-row{margin-top:.5rem;align-items:center;gap:.5rem}
