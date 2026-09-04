@@ -182,17 +182,21 @@ function betweenDates(column, from, to, conditions, bindings) {
   }
 }
 
-function softwareConditions(filters, conditions, bindings) {
+function softwareConditions(filters, conditions, bindings, askedOfRelease) {
   anyOf("s.category_slug", filters.chosen.category, conditions, bindings);
 
   existsAnyOf(
     "EXISTS (SELECT 1 FROM software_publishers sp WHERE sp.software_slug = s.slug AND sp.publisher_slug IN (?list))",
     filters.chosen.publisher, conditions, bindings
   );
-  existsAnyOf(
-    "EXISTS (SELECT 1 FROM software_platforms sp WHERE sp.software_slug = s.slug AND sp.platform_slug IN (?list))",
-    filters.chosen.platform, conditions, bindings
-  );
+
+  if (!askedOfRelease) {
+    existsAnyOf(
+      "EXISTS (SELECT 1 FROM software_platforms sp WHERE sp.software_slug = s.slug AND sp.platform_slug IN (?list))",
+      filters.chosen.platform, conditions, bindings
+    );
+  }
+
   existsAnyOf(
     "EXISTS (SELECT 1 FROM software_interfaces si WHERE si.software_slug = s.slug AND si.interface_slug IN (?list))",
     filters.chosen.interface, conditions, bindings
@@ -290,7 +294,14 @@ export async function searchFiles(database, filters) {
 
   // a file belongs to a title, so a title-level filter narrows the files too;
   // without this, asking for "16 MB of RAM" would still list every download
-  softwareConditions(filters, conditions, bindings);
+  softwareConditions(filters, conditions, bindings, true);
+
+  // the title lists every platform any of its releases reach, so asking it here would
+  // hand back a Windows 95 file for a release that only ever ran on XP
+  existsAnyOf(
+    "EXISTS (SELECT 1 FROM version_platforms vp WHERE vp.version_id = f.version_id AND vp.platform_slug IN (?list))",
+    filters.chosen.platform, conditions, bindings
+  );
 
   anyOf("f.file_type_slug", filters.chosen.filetype, conditions, bindings);
   existsAnyOf(
