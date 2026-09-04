@@ -74,12 +74,13 @@ function orderedQuery(query) {
     .join("&");
 }
 
-export async function signedFetch(environment, method, key, options = {}) {
+// The store answers on paths outside the bucket too — its own administration among
+// them — so signing is over a path rather than over a key.
+export async function signedRequest(environment, method, path, options = {}) {
   const endpoint = new URL(environment.S3_ENDPOINT);
   const region = environment.S3_REGION || "us-east-1";
   const { stamp, day } = stamped();
   const scope = `${day}/${region}/${SERVICE}/aws4_request`;
-  const path = `/${bucketName(environment)}${key ? `/${escaped(key)}` : ""}`;
   const query = orderedQuery(options.query);
 
   const headers = new Headers(options.headers ?? {});
@@ -111,6 +112,14 @@ export async function signedFetch(environment, method, key, options = {}) {
     body: options.body,
     duplex: options.body ? "half" : undefined,
   });
+}
+
+export function signedFetch(environment, method, key, options = {}) {
+  return signedRequest(
+    environment, method,
+    `/${bucketName(environment)}${key ? `/${escaped(key)}` : ""}`,
+    options
+  );
 }
 
 // A browser uploads straight to the store, so the worker never carries the file.

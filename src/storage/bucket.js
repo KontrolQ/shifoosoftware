@@ -1,4 +1,4 @@
-import { bucketName, escaped, signedFetch, storageReady } from "./signing.js";
+import { bucketName, escaped, signedFetch, signedRequest, storageReady } from "./signing.js";
 
 // The store answers in XML. Only a handful of fields are ever read from it, so
 // they are picked out directly rather than by parsing the whole document.
@@ -140,6 +140,68 @@ export function filesFor(environment) {
       };
     },
   };
+}
+
+// MinIO knows how much room the disks behind it actually have. It answers only to
+// credentials with administration rights, and other S3 stores do not answer at all,
+// so anything but a well-formed reply means the size is simply unknown.
+export async function capacityOf(environment) {
+  if (!storageReady(environment)) {
+    return null;
+  }
+
+  try {
+    const answer = await signedRequest(environment, "GET", "/minio/admin/v3/storageinfo");
+
+    if (!answer.ok) {
+      return null;
+    }
+
+    const held = await answer.json();
+    const disks = held?.Disks ?? held?.disks;
+
+    if (!Array.isArray(disks) || disks.length === 0) {
+      return null;
+    }
+
+    const total = disks.reduce((running, one) => running + (Number(one.totalspace) || 0), 0);
+    const free = disks.reduce(
+      (running, one) => running + (Number(one.availspace ?? one.availablespace) || 0), 0);
+
+    return total > 0 ? { total, free } : null;
+  } catch (unreachable) {
+    return null;
+  }
+}
+
+// What every bucket in the store holds, so this archive's share of the disk can be
+// told apart from everything else living on it.
+export async function bucketSizes(environment) {
+  if (!storageReady(environment)) {
+    return null;
+  }
+
+  try {
+    const answer = await signedRequest(environment, "GET", "/minio/admin/v3/datausageinfo");
+
+    if (!answer.ok) {
+      return null;
+    }
+
+    const held = await answer.json();
+    const buckets = held?.bucketsUsageInfo ?? held?.bucketsSizes;
+
+    if (!buckets || typeof buckets !== "object") {
+      return null;
+    }
+
+    return Object.entries(buckets).map(([name, one]) => ({
+      name,
+      size: Number(typeof one === "object" ? one.size : one) || 0,
+    }));
+  } catch (unreachable) {
+    return null;
+  }
 }
 
 // Where a stored file is read from by anyone, which is not where it is written to.

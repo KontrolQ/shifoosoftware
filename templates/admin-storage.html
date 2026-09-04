@@ -3,12 +3,25 @@
 <div class="bar">Bucket</div>
 <dl class="facts stacked">
   <dt>Objects</dt><dd>{{objectCount}}</dd>
-  <dt>Held</dt><dd>{{totalHeld}} of {{allowance}}</dd>
-  <dt>Left</dt><dd>{{left}}</dd>
+  <dt>Held</dt><dd>{{totalHeld}}{{#hasDisk}} of {{disk.total}}{{/hasDisk}}</dd>
   <dt>Accounted for</dt><dd>{{claimedCount}} objects</dd>
 </dl>
-<div class="gauge"><span style="width:{{usedShare}}%"></span></div>
-<p class="pagedesc">{{totalHeld}} of {{allowance}} used. {{left}} left.</p>
+{{#hasDisk}}
+<div class="gauge split">
+  {{#disk.parts}}{{#any}}<span class="{{tone}}" style="width:{{width}}" title="{{label}} {{size}}"></span>{{/any}}{{/disk.parts}}
+</div>
+<ul class="legend">
+  {{#disk.parts}}<li><i class="{{tone}}"></i>{{label}} <b>{{size}}</b></li>{{/disk.parts}}
+</ul>
+{{^disk.countedBuckets}}
+<p class="pagedesc">The store did not report per-bucket sizes, so everything outside this
+bucket is counted together.</p>
+{{/disk.countedBuckets}}
+{{/hasDisk}}
+{{^hasDisk}}
+<p class="pagedesc">{{totalHeld}} held across {{objectCount}} objects. The store did not
+report how large it is; set STORAGE_ALLOWANCE to state a ceiling by hand.</p>
+{{/hasDisk}}
 
 <div class="bar red">Missing <small>recorded in the catalogue, absent from the bucket</small></div>
 {{#hasMissing}}

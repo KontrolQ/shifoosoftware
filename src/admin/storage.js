@@ -1,8 +1,52 @@
 import { describedSize } from "../rendering.js";
 import { goTo, htmlPage, rowsOf, titleList } from "./shared.js";
-import { filesFor } from "../storage/bucket.js";
+import { bucketSizes, capacityOf, filesFor } from "../storage/bucket.js";
+import { bucketName } from "../storage/signing.js";
 
-const ALLOWANCE = 10 * 1024 * 1024 * 1024;
+// The disk under the store carries more than this archive. What is drawn is the whole
+// disk, split into this bucket, the other buckets beside it, whatever else lives on the
+// same filesystem, and what is left.
+async function diskShares(environment, ourBytes) {
+  const stated = Number(environment.STORAGE_ALLOWANCE);
+  const capacity = await capacityOf(environment);
+  const total = Number.isFinite(stated) && stated > 0 ? stated : capacity?.total ?? null;
+
+  if (!total) {
+    return null;
+  }
+
+  const buckets = await bucketSizes(environment);
+  const ours = bucketName(environment);
+  const others = buckets
+    ? buckets.filter((one) => one.name !== ours).reduce((running, one) => running + one.size, 0)
+    : 0;
+
+  const free = capacity?.free ?? Math.max(0, total - ourBytes - others);
+  const elsewhere = Math.max(0, total - free - ourBytes - others);
+
+  const share = (held) => Math.max(0, Math.min(100, (held / total) * 100));
+  const named = (label, held, tone) => ({
+    label,
+    tone,
+    size: describedSize(held),
+    share: share(held),
+    width: `${share(held).toFixed(2)}%`,
+    any: held > 0,
+  });
+
+  return {
+    total: describedSize(total),
+    knownTotal: capacity !== null || (Number.isFinite(stated) && stated > 0),
+    fromStore: capacity !== null,
+    countedBuckets: buckets !== null,
+    parts: [
+      named("This archive", ourBytes, "ours"),
+      named("Other buckets", others, "others"),
+      named("Elsewhere on the disk", elsewhere, "elsewhere"),
+      named("Free", free, "free"),
+    ],
+  };
+}
 
 async function everyObject(bucket) {
   const held = [];
@@ -66,6 +110,8 @@ export async function storage(environment, root, message, saved, manager) {
     }));
 
   const titles = await titleList(database, null);
+  const used = objects.reduce((running, object) => running + object.size, 0);
+  const disk = await diskShares(environment, used);
 
   return htmlPage(database, "admin-storage", {
     root,
@@ -79,11 +125,9 @@ export async function storage(environment, root, message, saved, manager) {
     titles,
     titleCount: titles.length,
     objectCount: objects.length,
-    totalHeld: describedSize(objects.reduce((running, object) => running + object.size, 0)),
-    allowance: describedSize(ALLOWANCE),
-    left: describedSize(Math.max(0, ALLOWANCE - objects.reduce((running, object) => running + object.size, 0))),
-    usedShare: Math.min(100, Math.round(
-      (objects.reduce((running, object) => running + object.size, 0) / ALLOWANCE) * 100)),
+    totalHeld: describedSize(used),
+    disk,
+    hasDisk: disk !== null,
     claimedCount: claimed.size,
     orphans,
     hasOrphans: orphans.length > 0,
