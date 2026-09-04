@@ -51,6 +51,7 @@ async function shell(database) {
     railCategoryLabels: labelsFor(held, "slug", "name"),
     count: (counted ? counted.held : 0).toLocaleString("en"),
     filesHeld: (stored ? stored.total : 0).toLocaleString("en"),
+    bytesHeld: describedSize(stored ? stored.bytes : 0),
     downloads: (served ? served.total : 0).toLocaleString("en"),
     visitors: (seen ? seen.total : 0).toLocaleString("en"),
     updated: updated && updated.updated ? updated.updated.slice(0, 10) : "never",
@@ -101,6 +102,7 @@ function statedFacts(row) {
   return [
     { label: "First released", value: describedDate(row.released_on) },
     { label: "Platform", value: row.platform_names, links: linkedFacts(row.platform_names, null, "platform") },
+    { label: "Architecture", value: row.architecture_names },
     { label: "Interface", value: row.interface_names, links: linkedFacts(row.interface_names, null, "interface") },
     { label: "Hardware", value: row.device_names, links: linkedFacts(row.device_names, null, "device") },
     {
@@ -244,6 +246,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
     size: describedSize(row.size_bytes),
     blurb: plain(row.notes, 320),
     savesAs: downloadName(row.slug, row.extension),
+    platforms: linkedFacts(row.platform, null, "platform"),
     devices: linkedFacts(row.device_names, null, "device"),
   }));
 
@@ -433,7 +436,10 @@ function shownResults(base, held, filters, carried) {
       softwareName: row.software_name,
       href: `/${row.category}/${row.software_slug}/${row.version_slug}/${downloadName(row.slug, row.extension)}`,
       size: describedSize(row.size_bytes),
+      platforms: linkedFacts(row.platform, null, "platform"),
+      devices: linkedFacts(row.device_names, null, "device"),
     })),
+    anyHardware: matchedFiles.some((row) => row.device_names),
     fileCount: held.fileTotal,
     hasMatchedFiles: matchedFiles.length > 0,
     anyFound: results.length > 0 || matchedFiles.length > 0,

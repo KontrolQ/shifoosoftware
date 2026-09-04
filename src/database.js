@@ -1,6 +1,7 @@
 const SOFTWARE_COLUMNS = `
   s.slug, s.name, s.category_slug AS category, s.publisher_names AS publisher, s.description,
   s.homepage, s.icon_key, s.icon_hotlink_slug, s.platform_names, s.interface_names, s.device_names,
+  s.architecture_names,
   s.released_on, s.end_of_life, s.minimum_cpu_slug, s.minimum_cpu_name, s.minimum_cpu_speed, s.minimum_cpu_speed_unit,
   s.minimum_ram_size, s.minimum_ram_unit, s.minimum_disk_size, s.minimum_disk_unit, s.created_at,
   s.file_count, s.bytes_held`;
@@ -218,7 +219,11 @@ export function lastUpdated(database) {
 }
 
 export function fileTotal(database) {
-  return database.prepare("SELECT COUNT(*) AS total FROM files WHERE published = 1").first();
+  return database
+    .prepare(`
+      SELECT COUNT(*) AS total, COALESCE(SUM(size_bytes), 0) AS bytes
+      FROM catalogue_files WHERE published = 1`)
+    .first();
 }
 
 export function visitorTotal(database) {
