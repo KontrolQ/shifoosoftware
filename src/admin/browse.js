@@ -666,14 +666,16 @@ export async function versionSave(environment, root, manager, identifier, form) 
   if (wanted !== held.version) {
     const carried = await rowsOf(
       database
-        .prepare("SELECT id, slug, file_type, object_key FROM files WHERE version_id = ? AND object_key IS NOT NULL")
+        .prepare(`
+          SELECT id, slug, file_type_slug, object_key FROM files
+          WHERE version_id = ? AND object_key IS NOT NULL`)
         .bind(held.id)
     );
 
     for (const file of carried) {
       const moved = await movedObject(filesFor(environment), file.object_key,
         objectPathFor(owner.category, held.software_slug, slugFrom(form, "slug", ["version"]) ?? slugOf(wanted),
-          file.slug, file.file_type ?? ""));
+          file.slug, await typeNameFor(database, file.file_type_slug)));
 
       await database.prepare("UPDATE files SET object_key = ? WHERE id = ?").bind(moved, file.id).run();
     }
