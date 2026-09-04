@@ -1,6 +1,7 @@
 import { describedSize, extensionOf, tidyFileType } from "../rendering.js";
 import { plain, rendered } from "../markdown.js";
 import { can, refuse } from "./permissions.js";
+import { dropLooseHotlinks } from "./hotlinks.js";
 import {
   LARGEST_UPLOAD_BYTES,
   SIZE_UNITS,
@@ -482,6 +483,7 @@ export async function softwareDelete(environment, root, manager, slug) {
   }
 
   await database.prepare("DELETE FROM software WHERE slug = ?").bind(slug).run();
+  await dropLooseHotlinks(database, manager);
   await noteChange(database, manager, `path:${category}/${slug}`, "deleted", null);
 
   return goTo(`${root}/categories/${held?.category ?? ""}?saved=Deleted.`);
@@ -781,6 +783,7 @@ export async function versionDelete(environment, root, manager, identifier) {
   }
 
   await database.prepare("DELETE FROM versions WHERE id = ?").bind(held.id).run();
+  await dropLooseHotlinks(database, manager);
   await noteChange(database, manager, `version:${held.software_slug} ${held.version}`, "deleted", null);
 
   return goTo(`${root}/browse/${owner.category}/${held.software_slug}?saved=Version deleted.`);
@@ -1123,6 +1126,7 @@ export async function fileDelete(environment, root, manager, identifier, form) {
   }
 
   await database.prepare("DELETE FROM files WHERE id = ?").bind(held.id).run();
+  await dropLooseHotlinks(database, manager);
   await noteChange(database, manager, `file:${held.slug}`, "deleted", null);
 
   const landed = await database

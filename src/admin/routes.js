@@ -47,6 +47,7 @@ import {
   hotlinkCreate,
   hotlinkDelete,
   hotlinkNew,
+  sweepHotlinks,
   hotlinkSave,
   hotlinkView,
 } from "./hotlinks.js";
@@ -318,6 +319,12 @@ async function acting(environment, root, manager, parts, form) {
 
   if (parts[0] === "bucket" && parts[1] === "drop") {
     return can(manager, "bucket.delete") ? dropObject(environment, root, manager, form) : refuse("delete objects");
+  }
+
+  if (parts[0] === "sweep-hotlinks") {
+    return can(manager, "hotlinks.delete")
+      ? sweepHotlinks(environment, root, manager)
+      : refuse("delete hotlinks");
   }
 
   if (parts[0] === "sweep") {

@@ -289,3 +289,28 @@ export async function hotlinkDelete(environment, root, manager, slug) {
 
   return goTo(`${root}/hotlinks?saved=Deleted.`);
 }
+
+// Nothing cascades from a deleted file or version to the link it stood behind, so a
+// deletion elsewhere would otherwise leave the link sitting in the list forever.
+export async function dropLooseHotlinks(database, manager) {
+  const loose = await rowsOf(
+    database.prepare(`
+      SELECT h.slug FROM hotlinks h
+      WHERE NOT EXISTS (SELECT 1 FROM files f WHERE f.hotlink_slug = h.slug)
+        AND NOT EXISTS (SELECT 1 FROM version_screenshots s WHERE s.hotlink_slug = h.slug)
+        AND NOT EXISTS (SELECT 1 FROM software w WHERE w.icon_hotlink_slug = h.slug)`)
+  );
+
+  for (const one of loose) {
+    await database.prepare("DELETE FROM hotlinks WHERE slug = ?").bind(one.slug).run();
+    await noteChange(database, manager, `hotlink:${one.slug}`, "deleted", "left with nothing to stand for");
+  }
+
+  return loose.length;
+}
+
+export async function sweepHotlinks(environment, root, manager) {
+  const gone = await dropLooseHotlinks(environment.CATALOGUE, manager);
+
+  return goTo(`${root}/hotlinks?view=loose&saved=${gone} swept.`);
+}
