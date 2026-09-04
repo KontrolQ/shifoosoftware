@@ -198,6 +198,20 @@ export async function upsertFile(database, manager, version, offered, report) {
       "language_slug", await slugsFor(database, manager, "language", offered.languages, report));
   }
 
+  // A file can run in fewer places than the release that carries it, so it keeps its own
+  // list. Saying nothing means it runs wherever the release does.
+  if (offered.platforms != null) {
+    await relinked(database, "file_platforms", "file_id", held.id,
+      "platform_slug", await slugsFor(database, manager, "platform", offered.platforms, report));
+  } else if (!standing) {
+    await database
+      .prepare(`
+        INSERT OR IGNORE INTO file_platforms (file_id, platform_slug)
+        SELECT ?, vp.platform_slug FROM version_platforms vp WHERE vp.version_id = ?`)
+      .bind(held.id, version.id)
+      .run();
+  }
+
   // the link carries the size, so recording it against the file would let the two drift
   if (Number(offered.sizeBytes) > 0) {
     await database

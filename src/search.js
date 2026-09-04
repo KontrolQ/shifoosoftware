@@ -306,10 +306,10 @@ export async function searchFiles(database, filters) {
   // without this, asking for "16 MB of RAM" would still list every download
   softwareConditions(filters, conditions, bindings, true);
 
-  // the title lists every platform any of its releases reach, so asking it here would
-  // hand back a Windows 95 file for a release that only ever ran on XP
+  // neither the title nor the release is narrow enough: within one release the monthly
+  // DirectX packages differ, so the question is asked of the file itself
   existsAnyOf(
-    "EXISTS (SELECT 1 FROM version_platforms vp WHERE vp.version_id = f.version_id AND vp.platform_slug IN (?list))",
+    "EXISTS (SELECT 1 FROM file_platforms fp WHERE fp.file_id = f.id AND fp.platform_slug IN (?list))",
     filters.chosen.platform, conditions, bindings
   );
 

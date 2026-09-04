@@ -863,6 +863,14 @@ export async function fileEdit(environment, root, manager, identifier, message) 
       .bind(held.id)
   );
 
+  const platforms = await rowsOf(
+    database
+      .prepare(`
+        SELECT p.slug, p.name FROM platforms p JOIN file_platforms fp ON fp.platform_slug = p.slug
+        WHERE fp.file_id = ? ORDER BY p.sort_order, p.name`)
+      .bind(held.id)
+  );
+
   const linked = held.hotlink_slug
     ? await database.prepare("SELECT slug, name FROM hotlinks WHERE slug = ?").bind(held.hotlink_slug).first()
     : null;
@@ -902,6 +910,8 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     },
     isLive: held.published === 1,
     isHotlinked: Boolean(held.hotlink_slug),
+    platformValue: platforms.map((one) => one.slug).join(","),
+    platformLabels: labelled(platforms),
     fileTypeLabels: JSON.stringify(
       held.file_type_slug && held.file_type ? { [held.file_type_slug]: held.file_type } : {}
     ),
@@ -991,6 +1001,7 @@ export async function fileSave(environment, root, manager, identifier, form) {
     .run();
 
   await relink(database, "file_languages", "file_id", held.id, "language_slug", form.get("language"));
+  await relink(database, "file_platforms", "file_id", held.id, "platform_slug", form.get("platform"));
   await noteChange(database, manager, `file:${wantedSlug}`, hotlinkSlug ? "hotlinked" : "updated", null);
 
   const landed = await database
@@ -1099,6 +1110,7 @@ export async function fileCreate(environment, root, manager, form) {
 
   if (made) {
     await relink(database, "file_languages", "file_id", made.id, "language_slug", form.get("language"));
+    await relink(database, "file_platforms", "file_id", made.id, "platform_slug", form.get("platform"));
   }
 
   await noteChange(database, manager, `file:${fileSlug}`, hotlinkSlug ? "hotlinked" : "added", null);
