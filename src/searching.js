@@ -9,6 +9,15 @@ export function escaped(word) {
   return word.replace(/[~%_]/g, (one) => `~${one}`);
 }
 
+// Versions get typed without their punctuation, so a term that changes between digits
+// and letters is allowed to spread: 9c reaches 9.0c, and 98se reaches 98 SE.
+export function patternFor(word) {
+  const loose = escaped(word)
+    .replace(/(?<=[0-9])(?=[a-zA-Z])|(?<=[a-zA-Z])(?=[0-9])/g, "%");
+
+  return `%${loose}%`;
+}
+
 export function termsIn(query) {
   const held = [];
 
@@ -42,7 +51,7 @@ export function matching(query, fields, reach) {
     clauses.push(`(${own}${below})`);
 
     for (let hole = 0; hole < fields.length + holes; hole += 1) {
-      bindings.push(`%${escaped(word)}%`);
+      bindings.push(patternFor(word));
     }
   }
 
