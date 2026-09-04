@@ -113,7 +113,7 @@ export function versionsOf(database, slug) {
   return rowsOf(
     database
       .prepare(`
-        SELECT v.id, v.slug, v.version, v.architecture, v.platform_name, v.released_on, v.notes,
+        SELECT v.id, v.slug, v.version, v.architecture, v.platform_names, v.released_on, v.notes,
                v.file_count AS files, v.bytes_held AS total_bytes
         FROM catalogue_versions v WHERE v.software_slug = ?
         ORDER BY v.sort_order DESC, v.version DESC`)

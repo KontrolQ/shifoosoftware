@@ -35,13 +35,13 @@
       </div>
     </div>
     <div>
-      <label>Platform <span class="hintmark">this build runs on one</span></label>
-      <div class="linkpick" data-pick="platform" data-many="0" data-verb="Use"
+      <label>Platforms <span class="hintmark">every system this build runs on</span></label>
+      <div class="linkpick" data-pick="platform" data-many="1" data-verb="Use"
            data-labels="{{platformLabels}}" data-make-url="{{root}}/make">
-        <input type="hidden" name="platform_slug" value="{{version.platform_slug}}" data-pick-value>
+        <input type="hidden" name="platforms" value="{{platformValue}}" data-pick-value>
         <div class="chosenrow">
           <span data-pick-chosen class="tags"></span>
-          <button type="button" data-pick-open>Choose a platform</button>
+          <button type="button" data-pick-open>Add a platform</button>
         </div>
         <div data-pick-drawer hidden>
           <div class="pickhead">

@@ -240,7 +240,7 @@ export const COLLECTIONS = {
         FROM catalogue_versions GROUP BY software_slug ORDER BY held DESC, software_name`),
       countedBy("platform", "Platform", `
         SELECT p.slug AS value, p.name AS label, COUNT(*) AS held
-        FROM versions v JOIN platforms p ON p.slug = v.platform_slug
+        FROM version_platforms vp JOIN platforms p ON p.slug = vp.platform_slug
         GROUP BY p.slug ORDER BY held DESC, p.name`),
       countedBy("architecture", "Architecture", `
         SELECT a.slug AS value, a.name AS label, COUNT(*) AS held
@@ -261,7 +261,8 @@ export const COLLECTIONS = {
     ],
     where: {
       software: "software_slug = ?",
-      platform: "platform_slug = ?",
+      platform: "EXISTS (SELECT 1 FROM version_platforms j " +
+        "WHERE j.version_id = held.id AND j.platform_slug = ?)",
       architecture: "architecture_slug = ?",
       category: "category_slug = ?",
       publisher: "EXISTS (SELECT 1 FROM software_publishers j " +
@@ -276,8 +277,7 @@ export const COLLECTIONS = {
         cell: (held) => ({ text: describedDate(held.released_on), muted: true }) }),
       col("architecture", "Architecture", "architecture", "text", { on: true, width: "9rem",
         href: (root, held) => `${root}/architectures/${held.architecture_slug}` }),
-      col("platform", "Platform", "platform_name", "text", { width: "9rem",
-        href: (root, held) => `${root}/platforms/${held.platform_slug}` }),
+      col("platform", "Platforms", "platform_names", "text", { width: "11rem" }),
       col("notes", "Notes", "notes", "text",
         { cell: (held) => ({ text: plain(held.notes, Infinity), muted: true }) }),
       col("files", "Files", "file_count", "number", { on: true,

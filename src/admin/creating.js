@@ -137,8 +137,8 @@ export async function newVersion(environment, root, manager, softwareSlug) {
     picks: [
       { kind: "software", name: "software_slug", label: "Title", value: held?.slug ?? "",
         labels: JSON.stringify(held ? { [held.slug]: held.name } : {}), opener: "Choose a title" },
-      { kind: "platform", name: "platform_slug", label: "Platform", mayMake: true,
-        opener: "Choose a platform" },
+      { kind: "platform", name: "platforms", label: "Platforms", many: true, mayMake: true,
+        opener: "Add a platform" },
       { kind: "architecture", name: "architecture_slug", label: "Architecture", mayMake: true,
         opener: "Choose an architecture" },
       { kind: "processor", name: "minimum_cpu_slug", label: "Minimum processor", mayMake: true,

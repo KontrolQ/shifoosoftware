@@ -60,7 +60,7 @@ const EVERYTHING = [
       v.version, COALESCE(v.software_name, ''), COALESCE(v.notes, ''),
       'browse/' || v.category_slug || '/' || v.software_slug || '/' || v.slug, v.released_on,
       CASE WHEN v.software_published THEN 'Live' ELSE 'Hidden' END, v.bytes_held, v.file_count,
-      v.category_slug, '', COALESCE(v.platform_name, ''), '', '', '',
+      v.category_slug, '', COALESCE(v.platform_names, ''), '', '', '',
       COALESCE(v.architecture, ''), '', NULL, NULL, NULL, v.released_on, NULL
     FROM catalogue_versions v`],
   ["files.view", `SELECT 'Files', 'files', 4,

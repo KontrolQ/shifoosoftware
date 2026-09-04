@@ -101,14 +101,14 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
 
   await database
     .prepare(`
-      INSERT INTO versions (software_slug, slug, version, architecture_slug, platform_slug,
+      INSERT INTO versions (software_slug, slug, version, architecture_slug,
                             released_on, notes, minimum_cpu_slug, minimum_cpu_speed,
                             minimum_cpu_speed_unit, minimum_ram_size, minimum_ram_unit,
                             minimum_disk_size, minimum_disk_unit, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(software_slug, slug) DO UPDATE SET
         version = excluded.version, architecture_slug = excluded.architecture_slug,
-        platform_slug = excluded.platform_slug, released_on = excluded.released_on,
+        released_on = excluded.released_on,
         notes = excluded.notes, minimum_cpu_slug = excluded.minimum_cpu_slug,
         minimum_cpu_speed = excluded.minimum_cpu_speed,
         minimum_cpu_speed_unit = excluded.minimum_cpu_speed_unit,
@@ -117,7 +117,6 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
         minimum_disk_unit = excluded.minimum_disk_unit, sort_order = excluded.sort_order`)
     .bind(softwareSlug, slug, version,
           await slugFor(database, manager, "architecture", offered.architecture, report),
-          await slugFor(database, manager, "platform", offered.platform, report),
           text(offered.releasedOn), text(offered.notes),
           await slugFor(database, manager, "processor", offered.minimumCpu, report),
           cpu.size, cpu.unit, ram.size, ram.unit, disk.size, disk.unit,
@@ -128,6 +127,14 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
     .prepare("SELECT id FROM versions WHERE software_slug = ? AND slug = ?")
     .bind(softwareSlug, slug)
     .first();
+
+  // a release names the systems it runs on, and "platform" alone is still taken
+  const offeredPlatforms = offered.platforms ?? offered.platform;
+
+  if (offeredPlatforms != null) {
+    await relinked(database, "version_platforms", "version_id", held.id,
+      "platform_slug", await slugsFor(database, manager, "platform", offeredPlatforms, report));
+  }
 
   await noteChange(database, manager, `path:${softwareSlug}/${slug}`, standing ? "updated" : "created", null);
   report[standing ? "changed" : "made"].push(`version:${softwareSlug}/${slug}`);

@@ -4,6 +4,7 @@ DROP VIEW IF EXISTS catalogue_software;
 DROP VIEW IF EXISTS catalogue_hotlinks;
 
 DROP TABLE IF EXISTS file_languages;
+DROP TABLE IF EXISTS version_platforms;
 DROP TABLE IF EXISTS file_platforms;
 DROP TABLE IF EXISTS version_screenshots;
 DROP TABLE IF EXISTS files;
@@ -142,7 +143,6 @@ CREATE TABLE versions (
     slug TEXT NOT NULL,
     version TEXT NOT NULL,
     architecture_slug TEXT REFERENCES architectures (slug) ON DELETE SET NULL,
-    platform_slug TEXT REFERENCES platforms (slug) ON DELETE SET NULL,
     released_on TEXT,
     notes TEXT,
     minimum_cpu_slug TEXT REFERENCES processors (slug) ON DELETE SET NULL,
@@ -154,6 +154,12 @@ CREATE TABLE versions (
     minimum_disk_unit TEXT,
     sort_order INTEGER NOT NULL DEFAULT 100,
     UNIQUE (software_slug, slug)
+);
+
+CREATE TABLE version_platforms (
+    version_id INTEGER NOT NULL REFERENCES versions (id) ON DELETE CASCADE,
+    platform_slug TEXT NOT NULL REFERENCES platforms (slug) ON DELETE CASCADE,
+    PRIMARY KEY (version_id, platform_slug)
 );
 
 CREATE TABLE version_screenshots (
@@ -339,8 +345,9 @@ SELECT
     v.version,
     v.architecture_slug,
     (SELECT a.name FROM architectures a WHERE a.slug = v.architecture_slug) AS architecture,
-    v.platform_slug,
-    (SELECT p.name FROM platforms p WHERE p.slug = v.platform_slug) AS platform_name,
+    (SELECT group_concat(p.name, ', ')
+     FROM version_platforms vp JOIN platforms p ON p.slug = vp.platform_slug
+     WHERE vp.version_id = v.id) AS platform_names,
     v.released_on,
     v.notes,
     v.sort_order,
@@ -397,14 +404,13 @@ SELECT
     f.architecture_slug AS own_architecture_slug,
     (SELECT a.name FROM architectures a
      WHERE a.slug = COALESCE(f.architecture_slug, v.architecture_slug)) AS architecture,
-    v.platform_slug,
-    (SELECT p.name FROM platforms p WHERE p.slug = v.platform_slug) AS platform_name,
     v.software_slug,
     s.name AS software_name,
     s.category AS category_slug,
+    -- a file runs wherever its release runs, which is narrower than the title's platforms
     (SELECT group_concat(p.name, ', ')
-     FROM software_platforms spl JOIN platforms p ON p.slug = spl.platform_slug
-     WHERE spl.software_slug = v.software_slug) AS platform_names,
+     FROM version_platforms vp JOIN platforms p ON p.slug = vp.platform_slug
+     WHERE vp.version_id = v.id) AS platform_names,
     (SELECT group_concat(l.name, ', ') FROM file_languages fl JOIN languages l ON l.slug = fl.language_slug
      WHERE fl.file_id = f.id) AS language_names
 FROM files f

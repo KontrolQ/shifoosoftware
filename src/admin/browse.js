@@ -576,9 +576,14 @@ export async function versionEdit(environment, root, manager, identifier, messag
         .first()
     : null;
 
-  const platform = held.platform_slug
-    ? await database.prepare("SELECT slug, name FROM platforms WHERE slug = ?").bind(held.platform_slug).first()
-    : null;
+  const platforms = await rowsOf(
+    database
+      .prepare(`
+        SELECT p.slug, p.name FROM version_platforms vp
+        JOIN platforms p ON p.slug = vp.platform_slug
+        WHERE vp.version_id = ? ORDER BY p.sort_order, p.name`)
+      .bind(held.id)
+  );
 
   const processor = held.minimum_cpu_slug
     ? await database.prepare("SELECT slug, name FROM processors WHERE slug = ?").bind(held.minimum_cpu_slug).first()
@@ -606,7 +611,8 @@ export async function versionEdit(environment, root, manager, identifier, messag
     atVersions: true,
     here,
     version: held,
-    platformLabels: JSON.stringify(platform ? { [platform.slug]: platform.name } : {}),
+    platformValue: platforms.map((one) => one.slug).join(","),
+    platformLabels: JSON.stringify(Object.fromEntries(platforms.map((one) => [one.slug, one.name]))),
     architectureLabels: JSON.stringify(architecture ? { [architecture.slug]: architecture.name } : {}),
     processorLabels: JSON.stringify(processor ? { [processor.slug]: processor.name } : {}),
     cpuSpeed: measureFieldFor("minimum_cpu_speed", "Minimum clock speed",
@@ -675,12 +681,12 @@ export async function versionSave(environment, root, manager, identifier, form) 
 
   await database
     .prepare(`
-      UPDATE versions SET version = ?, slug = ?, architecture_slug = ?, platform_slug = ?,
+      UPDATE versions SET version = ?, slug = ?, architecture_slug = ?,
         released_on = ?, notes = ?, minimum_cpu_slug = ?, minimum_cpu_speed = ?,
         minimum_cpu_speed_unit = ?, minimum_ram_size = ?, minimum_ram_unit = ?,
         minimum_disk_size = ?, minimum_disk_unit = ? WHERE id = ?`)
     .bind(wanted, slugFrom(form, "slug", ["version"]) ?? slugOf(wanted),
-          textFrom(form, "architecture_slug"), textFrom(form, "platform_slug"),
+          textFrom(form, "architecture_slug"),
           dateFrom(form, "released_on"), textFrom(form, "notes"),
           textFrom(form, "minimum_cpu_slug"),
           measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
@@ -689,6 +695,7 @@ export async function versionSave(environment, root, manager, identifier, form) 
           held.id)
     .run();
 
+  await relink(database, "version_platforms", "version_id", held.id, "platform_slug", form.get("platforms"));
   await noteChange(database, manager, `path:${owner.category}/${held.software_slug}/${slugFrom(form, "slug", ["version"]) ?? slugOf(wanted)}`, "updated", null);
 
   return goTo(
@@ -715,14 +722,14 @@ export async function versionCreate(environment, root, manager, form) {
 
   await database
     .prepare(`
-      INSERT INTO versions (software_slug, slug, version, architecture_slug, platform_slug,
+      INSERT INTO versions (software_slug, slug, version, architecture_slug,
                             released_on, notes, minimum_cpu_slug, minimum_cpu_speed,
                             minimum_cpu_speed_unit, minimum_ram_size, minimum_ram_unit,
                             minimum_disk_size, minimum_disk_unit, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999)
       ON CONFLICT(software_slug, slug) DO NOTHING`)
     .bind(slug, versionSlug, version, textFrom(form, "architecture_slug"),
-          textFrom(form, "platform_slug"), dateFrom(form, "released_on"), textFrom(form, "notes"),
+          dateFrom(form, "released_on"), textFrom(form, "notes"),
           textFrom(form, "minimum_cpu_slug"),
           measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
           measureFrom(form, "minimum_ram").size, measureFrom(form, "minimum_ram").unit,
@@ -736,6 +743,7 @@ export async function versionCreate(environment, root, manager, form) {
     .bind(slug, versionSlug)
     .first();
 
+  await relink(database, "version_platforms", "version_id", held.id, "platform_slug", form.get("platforms"));
   await noteChange(database, manager, `path:${owner?.category ?? ""}/${slug}/${versionSlug}`, "created", null);
 
   return goTo(
@@ -811,7 +819,7 @@ export async function fileView(environment, root, manager, identifier, saved) {
     file: {
       ...held,
       size: describedSize(held.size_bytes),
-      platform_name: held.platform_name ?? held.platform_names ?? "",
+      platform_names: held.platform_names ?? "",
       language_name: languages.map((one) => one.name).join(", "),
     },
     here: `${root}/browse/${held.category}/${held.software_slug}/${held.version_slug}/${held.slug}`,
