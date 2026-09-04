@@ -34,6 +34,10 @@ export function termsIn(query) {
 
 // Every term must appear somewhere, but each may appear in a different column, so
 // "windows 98 oem" matches a title called Windows 98 holding a file called OEM Full.
+//
+// D1 takes a hundred bound values at most, and a term held against a dozen columns
+// once spent that inside seven words. Each term is bound once and named by number,
+// which means the callers must apply the match before anything else they bind.
 export function matching(query, fields, reach) {
   const words = termsIn(query);
 
@@ -41,19 +45,17 @@ export function matching(query, fields, reach) {
     return null;
   }
 
-  const holes = (reach ?? "").split("?t").length - 1;
-  const own = fields.map((one) => `${one} LIKE ? ESCAPE '~'`).join(" OR ");
-  const below = reach ? ` OR ${reach.replace(/\?t/g, "?")}` : "";
   const clauses = [];
   const bindings = [];
 
-  for (const word of words) {
-    clauses.push(`(${own}${below})`);
+  words.forEach((word, at) => {
+    const held = `?${at + 1}`;
+    const own = fields.map((one) => `${one} LIKE ${held} ESCAPE '~'`).join(" OR ");
+    const below = reach ? ` OR ${reach.replace(/\?t/g, held)}` : "";
 
-    for (let hole = 0; hole < fields.length + holes; hole += 1) {
-      bindings.push(patternFor(word));
-    }
-  }
+    clauses.push(`(${own}${below})`);
+    bindings.push(patternFor(word));
+  });
 
   return { clause: clauses.join(" AND "), bindings };
 }
