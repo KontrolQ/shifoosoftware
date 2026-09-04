@@ -71,9 +71,8 @@ a:hover{color:var(--red)}
 .entries{margin:0;padding:0;list-style:none}
 .entries li{padding:.42rem 0;border-bottom:1px dotted var(--rule)}
 .entries li:last-child{border-bottom:0}
-.entries .title{font-weight:700;font-size:.8rem;position:relative;padding-left:.85rem;display:block}
-.entries .title::before{content:"\25CF";position:absolute;left:0;color:var(--red);font-size:.6rem;top:.28rem}
-.entries .note{display:block;color:var(--muted);font-size:.72rem;padding-left:.85rem}
+.entries .title{font-weight:700;font-size:.8rem;display:block}
+.entries .note{display:block;color:var(--muted);font-size:.72rem}
 .entries .when{color:var(--magenta);font-size:.68rem;font-family:var(--mono)}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem .9rem}
@@ -193,7 +192,7 @@ input:focus,select:focus,textarea:focus,button:focus{outline:none}
 
 
 
-.files td.note{color:#4a4a4a;max-width:22rem}
+.files td.note{color:#4a4a4a;width:100%}
 .rowedit{border:1px solid #d5d8e0;background:#fbfbfd;padding:.6rem .7rem;margin:0 0 .5rem}
 .rowedit .search-grid{margin:0}
 .rowedit .search-row{margin-top:.5rem;align-items:center;gap:.5rem}
@@ -736,3 +735,36 @@ table.manage input,table.manage select,table.manage button,
 
 /* the panels float here, over the table, so opening one moves nothing */
 .panelroom{position:relative}
+
+/* category listing */
+.cathead{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:.2rem}
+.cathead h1{margin:0 0 .15rem}
+.cathead-text{flex:1;min-width:0}
+.caticon{width:44px;height:44px;flex:0 0 44px;object-fit:contain;margin-top:.15rem}
+.caticon.blank{background:var(--navy-pale);border:1px solid var(--rule)}
+
+.catlist{margin:0;padding:0;list-style:none}
+.catlist.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem}
+.catrow{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem 0;
+  border-bottom:1px dotted var(--rule)}
+.catlist > .catrow:last-child{border-bottom:0}
+.catbody{flex:1;min-width:0}
+.cattop{display:flex;align-items:baseline;gap:.6rem}
+.cattitle{font-weight:700;font-size:.82rem;flex:1;min-width:0}
+.catcount{font-family:var(--mono);font-size:.64rem;color:var(--muted);white-space:nowrap}
+.cattags{display:flex;align-items:center;gap:.45rem;margin-top:.25rem}
+.cattags .pill{font:400 .62rem var(--body);letter-spacing:0;padding:0 .35rem;
+  background:var(--navy-pale);color:var(--navy-deep);border:1px solid var(--rule)}
+.cattags .pill:hover{background:var(--navy);color:#fff}
+.cattags .when{color:var(--magenta);font-size:.66rem;font-family:var(--mono)}
+
+/* a blurb fills two whole lines before it gives way, rather than stopping short */
+.lines2,.catblurb{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  line-clamp:2;overflow:hidden;white-space:normal;text-overflow:clip}
+.files td.note .lines2{color:#4a4a4a}
+.catblurb{margin:.2rem 0 0;color:var(--muted);font-size:.72rem;line-height:1.45}
+
+@media (max-width:700px){
+  .catlist.grid{grid-template-columns:1fr}
+  .cattop{flex-wrap:wrap;gap:.2rem .6rem}
+}

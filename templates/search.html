@@ -25,14 +25,19 @@
 {{#searched}}
   {{#hasResults}}
   <div class="bar">Software <small>{{resultCount}} found</small></div>
-  <ul class="entries">
+  <ul class="catlist">
   {{#results}}
-    <li>
-      <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
-      <span class="note">{{blurb}}
-        {{#publisher}}<a class="pill" href="/search?mode=advanced&amp;publisher={{publisher}}">{{publisher}}</a>{{/publisher}}
-        <span class="when">({{versions}} versions, latest {{latest}})</span>
-      </span>
+    <li class="catrow">
+      {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
+      {{^icon}}<span class="icon blank"></span>{{/icon}}
+      <div class="catbody">
+        <div class="cattop">
+          <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+          <span class="catcount">{{versionsLabel}}{{#latest}} &middot; latest {{latest}}{{/latest}}</span>
+        </div>
+        {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
+        {{#publisher}}<div class="cattags"><a class="pill" href="/search?mode=advanced&amp;publisher={{publisher}}">{{publisher}}</a></div>{{/publisher}}
+      </div>
     </li>
   {{/results}}
   </ul>

@@ -1,22 +1,33 @@
 {{> head}}
 <div class="crumbs"><a href="/">Index</a> &rsaquo; {{category.name}}</div>
-<h1>{{category.name}}</h1>
-<div class="prose">{{{summaryHtml}}}</div>
+
+<div class="cathead">
+  {{#categoryIcon}}<img class="caticon" src="{{categoryIcon}}" alt="">{{/categoryIcon}}
+  {{^categoryIcon}}<span class="caticon blank"></span>{{/categoryIcon}}
+  <div class="cathead-text">
+    <h1>{{category.name}}</h1>
+    <div class="prose">{{{summaryHtml}}}</div>
+  </div>
+</div>
 
 {{#hasSoftware}}
-<div class="bar">Titles <small>{{softwareCount}} held</small></div>
-<ul class="entries">
+<div class="bar">Titles <small>{{softwareLabel}}</small></div>
+<ul class="catlist">
 {{#software}}
-  <li class="withicon">
+  <li class="catrow">
     {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
     {{^icon}}<span class="icon blank"></span>{{/icon}}
-    <span>
-    <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
-    <span class="note">{{blurb}}
-      {{#publisher}}<a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a>{{/publisher}}
-      <span class="when">({{versions}} versions, latest {{latest}})</span>
-    </span>
-    </span>
+    <div class="catbody">
+      <div class="cattop">
+        <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+        <span class="catcount">{{versionsLabel}} &middot; {{filesLabel}} &middot; {{size}}</span>
+      </div>
+      {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
+      <div class="cattags">
+        {{#publisher}}<a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a>{{/publisher}}
+        {{#latest}}<span class="when">latest {{latest}}</span>{{/latest}}
+      </div>
+    </div>
   </li>
 {{/software}}
 </ul>

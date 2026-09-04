@@ -15,12 +15,18 @@
 </div>
 
 {{#hasCategories}}
-<div class="bar">Categories <small>{{categoryCount}} sections</small></div>
-<ul class="entries grid">
+<div class="bar">Categories <small>{{categoryLabel}}</small></div>
+<ul class="catlist grid">
 {{#categories}}
-  <li>
-    <a class="title" href="/{{slug}}/">{{name}}</a>
-    <span class="note">{{summaryText}} <span class="when">({{held}})</span></span>
+  <li class="catrow">
+    {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
+    {{^icon}}<span class="icon blank"></span>{{/icon}}
+    <div class="catbody">
+      <div class="cattop">
+        <a class="cattitle" href="/{{slug}}/">{{name}}</a>
+      </div>
+      {{#summaryText}}<p class="catblurb">{{summaryText}}</p>{{/summaryText}}
+    </div>
   </li>
 {{/categories}}
 </ul>
@@ -32,15 +38,19 @@
 
 {{#hasRecent}}
 <div class="bar red">Recently Added <small><a href="/recent">See All</a></small></div>
-<ul class="entries">
+<ul class="catlist">
 {{#recent}}
-  <li class="withicon">
+  <li class="catrow">
     {{#icon}}<img class="icon" src="{{icon}}" alt="">{{/icon}}
     {{^icon}}<span class="icon blank"></span>{{/icon}}
-    <span>
-      <a class="title" href="/{{category}}/{{slug}}/">{{name}}</a>
-      <span class="note">{{blurb}}
-        <span class="when">({{added}})</span>
+    <div class="catbody">
+      <div class="cattop">
+        <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+      </div>
+      {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
+      <div class="cattags">
+        <a class="pill" href="/{{category}}/">{{categoryName}}</a>
+        <span class="when">added {{added}}</span>
       </span>
     </span>
   </li>
