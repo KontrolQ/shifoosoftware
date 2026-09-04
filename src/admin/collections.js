@@ -389,6 +389,7 @@ export const COLLECTIONS = {
 // so they are described once and stamped out.
 const VOCABULARIES = [
   ["platforms", "Platforms", "platforms", "software_platforms", "platform_slug", "titles"],
+  ["devices", "Hardware", "devices", "file_devices", "device_slug", "files"],
   ["languages", "Languages", "languages", "file_languages", "language_slug", "files"],
   ["interfaces", "Interfaces", "interfaces", "software_interfaces", "interface_slug", "titles"],
   ["architectures", "Architectures", "architectures", "version_architectures", "architecture_slug", "versions"],

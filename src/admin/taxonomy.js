@@ -64,7 +64,7 @@ export const KINDS = {
       JOIN versions v ON v.id = f.version_id
       JOIN software s ON s.slug = v.software_slug
       WHERE fd.device_slug = ? ORDER BY s.name, f.display_name LIMIT 200`,
-    flag: "atDevices",
+    flag: "atHardware",
   },
   architectures: {
     table: "architectures",
