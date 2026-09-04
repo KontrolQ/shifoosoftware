@@ -571,12 +571,14 @@ export async function versionEdit(environment, root, manager, identifier, messag
     return goTo(`${root}/categories`);
   }
 
-  const architecture = held.architecture_slug
-    ? await database
-        .prepare("SELECT slug, name FROM architectures WHERE slug = ?")
-        .bind(held.architecture_slug)
-        .first()
-    : null;
+  const architectures = await rowsOf(
+    database
+      .prepare(`
+        SELECT a.slug, a.name FROM architectures a
+        JOIN version_architectures va ON va.architecture_slug = a.slug
+        WHERE va.version_id = ? ORDER BY a.sort_order, a.name`)
+      .bind(held.id)
+  );
 
   const platforms = await rowsOf(
     database
@@ -615,7 +617,8 @@ export async function versionEdit(environment, root, manager, identifier, messag
     version: held,
     platformValue: platforms.map((one) => one.slug).join(","),
     platformLabels: JSON.stringify(Object.fromEntries(platforms.map((one) => [one.slug, one.name]))),
-    architectureLabels: JSON.stringify(architecture ? { [architecture.slug]: architecture.name } : {}),
+    architectureValue: architectures.map((one) => one.slug).join(","),
+    architectureLabels: JSON.stringify(Object.fromEntries(architectures.map((one) => [one.slug, one.name]))),
     processorLabels: JSON.stringify(processor ? { [processor.slug]: processor.name } : {}),
     cpuSpeed: measureFieldFor("minimum_cpu_speed", "Minimum clock speed",
       held.minimum_cpu_speed, held.minimum_cpu_speed_unit, SPEED_UNITS),
@@ -685,12 +688,11 @@ export async function versionSave(environment, root, manager, identifier, form) 
 
   await database
     .prepare(`
-      UPDATE versions SET version = ?, slug = ?, architecture_slug = ?,
+      UPDATE versions SET version = ?, slug = ?,
         released_on = ?, notes = ?, minimum_cpu_slug = ?, minimum_cpu_speed = ?,
         minimum_cpu_speed_unit = ?, minimum_ram_size = ?, minimum_ram_unit = ?,
         minimum_disk_size = ?, minimum_disk_unit = ? WHERE id = ?`)
     .bind(wanted, slugFrom(form, "slug", ["version"]) ?? slugOf(wanted),
-          textFrom(form, "architecture_slug"),
           dateFrom(form, "released_on"), textFrom(form, "notes"),
           textFrom(form, "minimum_cpu_slug"),
           measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
@@ -700,6 +702,7 @@ export async function versionSave(environment, root, manager, identifier, form) 
     .run();
 
   await relink(database, "version_platforms", "version_id", held.id, "platform_slug", form.get("platforms"));
+  await relink(database, "version_architectures", "version_id", held.id, "architecture_slug", form.get("architecture"));
   await noteChange(database, manager, `path:${owner.category}/${held.software_slug}/${slugFrom(form, "slug", ["version"]) ?? slugOf(wanted)}`, "updated", null);
 
   return goTo(
@@ -726,13 +729,13 @@ export async function versionCreate(environment, root, manager, form) {
 
   await database
     .prepare(`
-      INSERT INTO versions (software_slug, slug, version, architecture_slug,
+      INSERT INTO versions (software_slug, slug, version,
                             released_on, notes, minimum_cpu_slug, minimum_cpu_speed,
                             minimum_cpu_speed_unit, minimum_ram_size, minimum_ram_unit,
                             minimum_disk_size, minimum_disk_unit, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999)
       ON CONFLICT(software_slug, slug) DO NOTHING`)
-    .bind(slug, versionSlug, version, textFrom(form, "architecture_slug"),
+    .bind(slug, versionSlug, version,
           dateFrom(form, "released_on"), textFrom(form, "notes"),
           textFrom(form, "minimum_cpu_slug"),
           measureFrom(form, "minimum_cpu_speed").size, measureFrom(form, "minimum_cpu_speed").unit,
@@ -748,6 +751,7 @@ export async function versionCreate(environment, root, manager, form) {
     .first();
 
   await relink(database, "version_platforms", "version_id", held.id, "platform_slug", form.get("platforms"));
+  await relink(database, "version_architectures", "version_id", held.id, "architecture_slug", form.get("architecture"));
   await noteChange(database, manager, `path:${owner?.category ?? ""}/${slug}/${versionSlug}`, "created", null);
 
   return goTo(
@@ -875,13 +879,14 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     ? await database.prepare("SELECT slug, name FROM hotlinks WHERE slug = ?").bind(held.hotlink_slug).first()
     : null;
 
-  // the file's own architecture, not the one it inherits from its release
-  const architecture = held.own_architecture_slug
-    ? await database
-        .prepare("SELECT slug, name FROM architectures WHERE slug = ?")
-        .bind(held.own_architecture_slug)
-        .first()
-    : null;
+  const architectures = await rowsOf(
+    database
+      .prepare(`
+        SELECT a.slug, a.name FROM architectures a
+        JOIN file_architectures fa ON fa.architecture_slug = a.slug
+        WHERE fa.file_id = ? ORDER BY a.sort_order, a.name`)
+      .bind(held.id)
+  );
 
   const labelled = (rows) => JSON.stringify(Object.fromEntries(rows.map((one) => [one.slug, one.name])));
 
@@ -895,7 +900,8 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     atCategories: true,
     file: held,
     here: `${root}/browse/${held.category}/${held.software_slug}/${held.version_slug}/${held.slug}`,
-    architectureLabels: JSON.stringify(architecture ? { [architecture.slug]: architecture.name } : {}),
+    architectureValue: architectures.map((one) => one.slug).join(","),
+    architectureLabels: JSON.stringify(Object.fromEntries(architectures.map((one) => [one.slug, one.name]))),
     filePick: {
       objectField: "object_key",
       hotlinkField: "hotlink_slug",
@@ -991,17 +997,18 @@ export async function fileSave(environment, root, manager, identifier, form) {
   await database
     .prepare(`
       UPDATE files SET version_id = ?, slug = ?, display_name = ?, file_type_slug = ?,
-        architecture_slug = ?, object_key = ?, hotlink_slug = ?, size_bytes = ?,
+        object_key = ?, hotlink_slug = ?, size_bytes = ?,
         checksum = ?, checksum_algorithm = ?, notes = ?, published = ?
       WHERE id = ?`)
     .bind(landing.id, wantedSlug, displayName, fileTypeSlug ?? null,
-          textFrom(form, "architecture_slug"), objectKey, hotlinkSlug ?? null,
+          objectKey, hotlinkSlug ?? null,
           sizeBytes, digest, algorithm, textFrom(form, "notes"),
           textFrom(form, "published") === "0" ? 0 : 1, held.id)
     .run();
 
   await relink(database, "file_languages", "file_id", held.id, "language_slug", form.get("language"));
   await relink(database, "file_platforms", "file_id", held.id, "platform_slug", form.get("platform"));
+  await relink(database, "file_architectures", "file_id", held.id, "architecture_slug", form.get("architecture"));
   await noteChange(database, manager, `file:${wantedSlug}`, hotlinkSlug ? "hotlinked" : "updated", null);
 
   const landed = await database
@@ -1089,17 +1096,16 @@ export async function fileCreate(environment, root, manager, form) {
 
   await database
     .prepare(`
-      INSERT INTO files (version_id, slug, display_name, file_type_slug, architecture_slug,
+      INSERT INTO files (version_id, slug, display_name, file_type_slug,
                          object_key, hotlink_slug, size_bytes, checksum, checksum_algorithm, notes)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(version_id, slug) DO UPDATE SET
         display_name = excluded.display_name, file_type_slug = excluded.file_type_slug,
-        architecture_slug = excluded.architecture_slug,
         object_key = excluded.object_key, hotlink_slug = excluded.hotlink_slug,
         size_bytes = excluded.size_bytes, checksum = excluded.checksum,
         checksum_algorithm = excluded.checksum_algorithm`)
     .bind(belongsTo.id, fileSlug, displayName, fileTypeSlug ?? null,
-          textFrom(form, "architecture_slug"), restingKey, hotlinkSlug ?? null,
+          restingKey, hotlinkSlug ?? null,
           sizeBytes, digest, algorithmFor(digest), textFrom(form, "notes"))
     .run();
 
@@ -1111,6 +1117,7 @@ export async function fileCreate(environment, root, manager, form) {
   if (made) {
     await relink(database, "file_languages", "file_id", made.id, "language_slug", form.get("language"));
     await relink(database, "file_platforms", "file_id", made.id, "platform_slug", form.get("platform"));
+    await relink(database, "file_architectures", "file_id", made.id, "architecture_slug", form.get("architecture"));
   }
 
   await noteChange(database, manager, `file:${fileSlug}`, hotlinkSlug ? "hotlinked" : "added", null);

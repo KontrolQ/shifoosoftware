@@ -60,9 +60,9 @@
     </div>
     <div>
       <label>Architecture <span class="hintmark">blank follows the release</span></label>
-      <div class="linkpick" data-pick="architecture" data-many="0" data-verb="Use"
+      <div class="linkpick" data-pick="architecture" data-many="1" data-verb="Use"
            data-labels="{{architectureLabels}}" data-make-url="{{root}}/make">
-        <input type="hidden" name="architecture_slug" value="{{file.own_architecture_slug}}" data-pick-value>
+        <input type="hidden" name="architecture" value="{{architectureValue}}" data-pick-value>
         <div class="chosenrow">
           <span data-pick-chosen class="tags"></span>
           <button type="button" data-pick-open>Choose an architecture</button>

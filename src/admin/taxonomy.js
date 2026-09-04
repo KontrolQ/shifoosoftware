@@ -54,13 +54,15 @@ export const KINDS = {
     singular: "An Architecture",
     slugHint: "x86",
     nameHint: "x86",
-    countTable: "versions",
+    countTable: "version_architectures",
     countColumn: "architecture_slug",
     usedBy: `
       SELECT s.category || '/' || s.slug || '/' || v.slug AS path, v.version AS label,
              v.version, s.name AS software_name
-      FROM versions v JOIN software s ON s.slug = v.software_slug
-      WHERE v.architecture_slug = ? ORDER BY s.name, v.version LIMIT 200`,
+      FROM version_architectures va
+      JOIN versions v ON v.id = va.version_id
+      JOIN software s ON s.slug = v.software_slug
+      WHERE va.architecture_slug = ? ORDER BY s.name, v.version LIMIT 200`,
     flag: "atArchitectures",
   },
   filetypes: {

@@ -142,7 +142,6 @@ CREATE TABLE versions (
     software_slug TEXT NOT NULL REFERENCES software (slug) ON DELETE CASCADE,
     slug TEXT NOT NULL,
     version TEXT NOT NULL,
-    architecture_slug TEXT REFERENCES architectures (slug) ON DELETE SET NULL,
     released_on TEXT,
     notes TEXT,
     minimum_cpu_slug TEXT REFERENCES processors (slug) ON DELETE SET NULL,
@@ -179,7 +178,6 @@ CREATE TABLE files (
     slug TEXT NOT NULL,
     display_name TEXT NOT NULL,
     file_type_slug TEXT REFERENCES file_types (slug) ON DELETE SET NULL,
-    architecture_slug TEXT REFERENCES architectures (slug) ON DELETE SET NULL,
     object_key TEXT,
     hotlink_slug TEXT REFERENCES hotlinks (slug) ON DELETE SET NULL,
     size_bytes INTEGER,
@@ -190,6 +188,18 @@ CREATE TABLE files (
     downloads INTEGER NOT NULL DEFAULT 0,
     sort_order INTEGER NOT NULL DEFAULT 100,
     UNIQUE (version_id, slug)
+);
+
+CREATE TABLE version_architectures (
+    version_id INTEGER NOT NULL REFERENCES versions (id) ON DELETE CASCADE,
+    architecture_slug TEXT NOT NULL REFERENCES architectures (slug) ON DELETE CASCADE,
+    PRIMARY KEY (version_id, architecture_slug)
+);
+
+CREATE TABLE file_architectures (
+    file_id INTEGER NOT NULL REFERENCES files (id) ON DELETE CASCADE,
+    architecture_slug TEXT NOT NULL REFERENCES architectures (slug) ON DELETE CASCADE,
+    PRIMARY KEY (file_id, architecture_slug)
 );
 
 CREATE TABLE file_platforms (
@@ -352,8 +362,9 @@ SELECT
     v.id,
     v.slug,
     v.version,
-    v.architecture_slug,
-    (SELECT a.name FROM architectures a WHERE a.slug = v.architecture_slug) AS architecture,
+    (SELECT group_concat(a.name, ', ')
+     FROM version_architectures va JOIN architectures a ON a.slug = va.architecture_slug
+     WHERE va.version_id = v.id) AS architecture,
     (SELECT group_concat(p.name, ', ')
      FROM version_platforms vp JOIN platforms p ON p.slug = vp.platform_slug
      WHERE vp.version_id = v.id) AS platform_names,
@@ -410,10 +421,9 @@ SELECT
     v.slug AS version_slug,
     v.version,
     -- a file carries its own architecture where it differs from the release's
-    COALESCE(f.architecture_slug, v.architecture_slug) AS architecture_slug,
-    f.architecture_slug AS own_architecture_slug,
-    (SELECT a.name FROM architectures a
-     WHERE a.slug = COALESCE(f.architecture_slug, v.architecture_slug)) AS architecture,
+    (SELECT group_concat(a.name, ', ')
+     FROM file_architectures fa JOIN architectures a ON a.slug = fa.architecture_slug
+     WHERE fa.file_id = f.id) AS architecture,
     v.software_slug,
     s.name AS software_name,
     s.category AS category_slug,

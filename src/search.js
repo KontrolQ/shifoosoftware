@@ -251,7 +251,7 @@ export async function searchSoftware(database, filters) {
      "s.platform_names", "s.interface_names", "s.minimum_cpu_name"],
     `EXISTS (SELECT 1 FROM versions v WHERE v.software_slug = s.slug
              AND (v.version LIKE ?t ESCAPE '~' OR v.slug LIKE ?t ESCAPE '~'
-                  OR v.notes LIKE ?t ESCAPE '~' OR v.architecture_slug LIKE ?t ESCAPE '~'))
+                  OR v.notes LIKE ?t ESCAPE '~'))
      OR EXISTS (SELECT 1 FROM files f JOIN versions v ON v.id = f.version_id
                 WHERE v.software_slug = s.slug AND f.published = 1
                 AND (f.display_name LIKE ?t ESCAPE '~' OR f.slug LIKE ?t ESCAPE '~'

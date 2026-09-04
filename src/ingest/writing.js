@@ -101,14 +101,13 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
 
   await database
     .prepare(`
-      INSERT INTO versions (software_slug, slug, version, architecture_slug,
+      INSERT INTO versions (software_slug, slug, version,
                             released_on, notes, minimum_cpu_slug, minimum_cpu_speed,
                             minimum_cpu_speed_unit, minimum_ram_size, minimum_ram_unit,
                             minimum_disk_size, minimum_disk_unit, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(software_slug, slug) DO UPDATE SET
-        version = excluded.version, architecture_slug = excluded.architecture_slug,
-        released_on = excluded.released_on,
+        version = excluded.version, released_on = excluded.released_on,
         notes = excluded.notes, minimum_cpu_slug = excluded.minimum_cpu_slug,
         minimum_cpu_speed = excluded.minimum_cpu_speed,
         minimum_cpu_speed_unit = excluded.minimum_cpu_speed_unit,
@@ -116,7 +115,6 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
         minimum_disk_size = excluded.minimum_disk_size,
         minimum_disk_unit = excluded.minimum_disk_unit, sort_order = excluded.sort_order`)
     .bind(softwareSlug, slug, version,
-          await slugFor(database, manager, "architecture", offered.architecture, report),
           text(offered.releasedOn), text(offered.notes),
           await slugFor(database, manager, "processor", offered.minimumCpu, report),
           cpu.size, cpu.unit, ram.size, ram.unit, disk.size, disk.unit,
@@ -130,6 +128,12 @@ export async function upsertVersion(database, manager, softwareSlug, offered, re
 
   // a release names the systems it runs on, and "platform" alone is still taken
   const offeredPlatforms = offered.platforms ?? offered.platform;
+  const offeredArchitectures = offered.architectures ?? offered.architecture;
+
+  if (offeredArchitectures != null) {
+    await relinked(database, "version_architectures", "version_id", held.id,
+      "architecture_slug", await slugsFor(database, manager, "architecture", offeredArchitectures, report));
+  }
 
   if (offeredPlatforms != null) {
     await relinked(database, "version_platforms", "version_id", held.id,
@@ -172,18 +176,17 @@ export async function upsertFile(database, manager, version, offered, report) {
 
   await database
     .prepare(`
-      INSERT INTO files (version_id, slug, display_name, file_type_slug, architecture_slug,
+      INSERT INTO files (version_id, slug, display_name, file_type_slug,
                          object_key, hotlink_slug, size_bytes, checksum, checksum_algorithm,
                          notes, published, sort_order)
-      VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?, ?)
       ON CONFLICT(version_id, slug) DO UPDATE SET
         display_name = excluded.display_name, file_type_slug = excluded.file_type_slug,
-        architecture_slug = excluded.architecture_slug, hotlink_slug = excluded.hotlink_slug,
+        hotlink_slug = excluded.hotlink_slug,
         checksum = excluded.checksum, checksum_algorithm = excluded.checksum_algorithm,
         notes = excluded.notes, published = excluded.published, sort_order = excluded.sort_order`)
     .bind(version.id, slug, displayName,
           await slugFor(database, manager, "filetype", offered.fileType, report),
-          await slugFor(database, manager, "architecture", offered.architecture, report),
           linked.slug, checksum, text(offered.checksumAlgorithm) ?? algorithmFor(checksum),
           text(offered.notes), flagged(offered.published, 1), Number(offered.order) || 100)
     .run();
@@ -200,6 +203,20 @@ export async function upsertFile(database, manager, version, offered, report) {
 
   // A file can run in fewer places than the release that carries it, so it keeps its own
   // list. Saying nothing means it runs wherever the release does.
+  const wantedArchitectures = offered.architectures ?? offered.architecture;
+
+  if (wantedArchitectures != null) {
+    await relinked(database, "file_architectures", "file_id", held.id,
+      "architecture_slug", await slugsFor(database, manager, "architecture", wantedArchitectures, report));
+  } else if (!standing) {
+    await database
+      .prepare(`
+        INSERT OR IGNORE INTO file_architectures (file_id, architecture_slug)
+        SELECT ?, va.architecture_slug FROM version_architectures va WHERE va.version_id = ?`)
+      .bind(held.id, version.id)
+      .run();
+  }
+
   if (offered.platforms != null) {
     await relinked(database, "file_platforms", "file_id", held.id,
       "platform_slug", await slugsFor(database, manager, "platform", offered.platforms, report));

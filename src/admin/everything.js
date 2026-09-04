@@ -75,7 +75,7 @@ const EVERYTHING = [
   vocabularyBranch("Platforms", "platforms", "platforms", 5, "software_platforms", "platform_slug"),
   vocabularyBranch("Languages", "languages", "languages", 6, "file_languages", "language_slug"),
   vocabularyBranch("Interfaces", "interfaces", "interfaces", 7, "software_interfaces", "interface_slug"),
-  vocabularyBranch("Architectures", "architectures", "architectures", 8, "versions", "architecture_slug"),
+  vocabularyBranch("Architectures", "architectures", "architectures", 8, "version_architectures", "architecture_slug"),
   vocabularyBranch("File Types", "filetypes", "file_types", 9, "files", "file_type_slug"),
   vocabularyBranch("Processors", "processors", "processors", 10, "software", "minimum_cpu_slug"),
   vocabularyBranch("Publishers", "publishers", "publishers", 11, "software_publishers", "publisher_slug"),

@@ -40,7 +40,7 @@ const FACET_SOURCES = {
 };
 
 const VOCABULARY_SOURCES = {
-        architecture: { table: "architectures", used: "versions", column: "architecture_slug" },
+        architecture: { table: "architectures", used: "version_architectures", column: "architecture_slug" },
         filetype: { table: "file_types", used: "files", column: "file_type_slug" },
         processor: { table: "processors", used: "software", column: "minimum_cpu_slug" },
 };

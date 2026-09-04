@@ -110,7 +110,8 @@ export const COLLECTIONS = {
                 JOIN file_types t ON t.slug = f.file_type_slug
                WHERE f.software_slug = s.slug) AS file_type_names,
              (SELECT GROUP_CONCAT(DISTINCT a.name) FROM catalogue_versions v
-                JOIN architectures a ON a.slug = v.architecture_slug
+                JOIN version_architectures va ON va.version_id = v.id
+                JOIN architectures a ON a.slug = va.architecture_slug
                WHERE v.software_slug = s.slug) AS architecture_names
            FROM catalogue_software s`,
     search: ["name", "slug", "publisher_names", "description", "category_name",
@@ -155,7 +156,8 @@ export const COLLECTIONS = {
         GROUP BY t.slug ORDER BY held DESC, t.name`),
       countedBy("architecture", "Architecture", `
         SELECT a.slug AS value, a.name AS label, COUNT(DISTINCT v.software_slug) AS held
-        FROM catalogue_versions v JOIN architectures a ON a.slug = v.architecture_slug
+        FROM catalogue_versions v JOIN version_architectures va ON va.version_id = v.id
+        JOIN architectures a ON a.slug = va.architecture_slug
         GROUP BY a.slug ORDER BY held DESC, a.name`),
       yesNo("live", "Published", "published = 1"),
       yesNo("hasfiles", "Holds files", "file_count > 0"),
@@ -169,7 +171,8 @@ export const COLLECTIONS = {
       filetype: "EXISTS (SELECT 1 FROM catalogue_files f " +
         "WHERE f.software_slug = held.slug AND f.file_type_slug = ?)",
       architecture: "EXISTS (SELECT 1 FROM catalogue_versions v " +
-        "WHERE v.software_slug = held.slug AND v.architecture_slug = ?)",
+        "WHERE v.software_slug = held.slug AND EXISTS (SELECT 1 FROM version_architectures va " +
+        "WHERE va.version_id = v.id AND va.architecture_slug = ?))",
       publisher: "EXISTS (SELECT 1 FROM software_publishers j " +
         "WHERE j.software_slug = held.slug AND j.publisher_slug = ?)",
       platform: "EXISTS (SELECT 1 FROM software_platforms j " +
@@ -244,7 +247,8 @@ export const COLLECTIONS = {
         GROUP BY p.slug ORDER BY held DESC, p.name`),
       countedBy("architecture", "Architecture", `
         SELECT a.slug AS value, a.name AS label, COUNT(*) AS held
-        FROM versions v JOIN architectures a ON a.slug = v.architecture_slug
+        FROM versions v JOIN version_architectures va ON va.version_id = v.id
+        JOIN architectures a ON a.slug = va.architecture_slug
         GROUP BY a.slug ORDER BY held DESC, a.name`),
       countedBy("category", "Category", `
         SELECT c.slug AS value, c.name AS label, COUNT(v.id) AS held
@@ -263,7 +267,8 @@ export const COLLECTIONS = {
       software: "software_slug = ?",
       platform: "EXISTS (SELECT 1 FROM version_platforms j " +
         "WHERE j.version_id = held.id AND j.platform_slug = ?)",
-      architecture: "architecture_slug = ?",
+      architecture: "EXISTS (SELECT 1 FROM version_architectures j " +
+        "WHERE j.version_id = held.id AND j.architecture_slug = ?)",
       category: "category_slug = ?",
       publisher: "EXISTS (SELECT 1 FROM software_publishers j " +
         "WHERE j.software_slug = held.software_slug AND j.publisher_slug = ?)",
@@ -275,8 +280,7 @@ export const COLLECTIONS = {
         href: (root, held) => `${root}/browse/${held.category_slug}/${held.software_slug}` }),
       col("released", "Released", "released_on", "date", { on: true,
         cell: (held) => ({ text: describedDate(held.released_on), muted: true }) }),
-      col("architecture", "Architecture", "architecture", "text", { on: true, width: "9rem",
-        href: (root, held) => `${root}/architectures/${held.architecture_slug}` }),
+      col("architecture", "Architecture", "architecture", "text", { on: true, width: "9rem" }),
       col("platform", "Platforms", "platform_names", "text", { width: "11rem" }),
       col("notes", "Notes", "notes", "text",
         { cell: (held) => ({ text: plain(held.notes, Infinity), muted: true }) }),
@@ -328,7 +332,8 @@ export const COLLECTIONS = {
         GROUP BY p.slug ORDER BY held DESC, p.name`),
       countedBy("architecture", "Architecture", `
         SELECT a.slug AS value, a.name AS label, COUNT(f.id) AS held
-        FROM architectures a JOIN catalogue_files f ON f.architecture_slug = a.slug
+        FROM architectures a JOIN file_architectures fa ON fa.architecture_slug = a.slug
+        JOIN catalogue_files f ON f.id = fa.file_id
         GROUP BY a.slug ORDER BY held DESC, a.name`),
       yesNo("live", "Published", "published = 1"),
       yesNo("hotlinked", "Hotlinked", "is_external = 1"),
@@ -340,7 +345,8 @@ export const COLLECTIONS = {
       language: "EXISTS (SELECT 1 FROM file_languages j WHERE j.file_id = held.id " +
         "AND j.language_slug = ?)",
       category: "category_slug = ?",
-      architecture: "architecture_slug = ?",
+      architecture: "EXISTS (SELECT 1 FROM file_architectures j " +
+        "WHERE j.file_id = held.id AND j.architecture_slug = ?)",
       publisher: "EXISTS (SELECT 1 FROM software_publishers j " +
         "WHERE j.software_slug = held.software_slug AND j.publisher_slug = ?)",
     },
@@ -385,7 +391,7 @@ const VOCABULARIES = [
   ["platforms", "Platforms", "platforms", "software_platforms", "platform_slug", "titles"],
   ["languages", "Languages", "languages", "file_languages", "language_slug", "files"],
   ["interfaces", "Interfaces", "interfaces", "software_interfaces", "interface_slug", "titles"],
-  ["architectures", "Architectures", "architectures", "versions", "architecture_slug", "versions"],
+  ["architectures", "Architectures", "architectures", "version_architectures", "architecture_slug", "versions"],
   ["filetypes", "File Types", "file_types", "files", "file_type_slug", "files"],
   ["processors", "Processors", "processors", "software", "minimum_cpu_slug", "titles"],
   ["publishers", "Publishers", "publishers", "software_publishers", "publisher_slug", "titles"],
@@ -742,7 +748,8 @@ COLLECTIONS.find = {
       GROUP BY i.slug ORDER BY held DESC, i.name`),
     countedBy("architecture", "Architecture", `
       SELECT a.slug AS value, a.name AS label, COUNT(*) AS held
-      FROM versions v JOIN architectures a ON a.slug = v.architecture_slug
+      FROM versions v JOIN version_architectures va ON va.version_id = v.id
+      JOIN architectures a ON a.slug = va.architecture_slug
       GROUP BY a.slug ORDER BY held DESC, a.name`),
     countedBy("processor", "Processor", `
       SELECT p.slug AS value, p.name AS label, COUNT(*) AS held
