@@ -24,7 +24,7 @@ a:hover{color:var(--red)}
 
 /* a display rule of ours must never outrank the hidden attribute */
 [hidden]{display:none !important}
-.page{width:1010px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-top:3px solid var(--navy)}
+.page{width:1180px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-top:3px solid var(--navy)}
 
 
 
@@ -92,6 +92,29 @@ h1{font:900 1.15rem var(--body);margin:0 0 .1rem;color:var(--navy-deep)}
 .pill{display:inline-block;padding:0 .35rem;border:1px solid var(--rule);background:var(--navy-pale);
   font-size:.62rem;color:var(--navy-deep);border-radius:2px}
 .get{color:var(--red);font-weight:700}
+
+.azbar{display:flex;flex-wrap:wrap;gap:.15rem;margin:0 0 .7rem;font-family:var(--mono);font-size:.7rem}
+.azbar a,.azbar span{display:block;min-width:1.55rem;padding:.15rem 0;text-align:center;
+  border:1px solid var(--rule);background:var(--navy-pale);color:var(--navy-deep);text-decoration:none}
+.azbar a:hover{background:var(--navy);color:#fff}
+.azbar a.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.azbar span{color:#b4b4b4;background:transparent;border-color:#e4e4e4}
+
+.gauge.split{display:flex;overflow:hidden}
+.gauge.split span{display:block;height:100%}
+.gauge.split .ours{background:var(--navy)}
+.gauge.split .others{background:#6f8fb8}
+.gauge.split .elsewhere{background:#c9b48a}
+.gauge.split .free{background:#e8e8e8}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:.2rem 1.1rem;margin:.45rem 0 1rem;padding:0;
+  font-size:.72rem;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:.35rem}
+.legend b{color:var(--ink);font-family:var(--mono);font-size:.7rem}
+.legend i{width:.6rem;height:.6rem;border:1px solid var(--rule)}
+.legend .ours{background:var(--navy)}
+.legend .others{background:#6f8fb8}
+.legend .elsewhere{background:#c9b48a}
+.legend .free{background:#e8e8e8}
 
 .pills a{display:inline-block;margin:0 .25rem .15rem 0;padding:0 .35rem;border:1px solid var(--rule);
   background:var(--navy-pale);font-size:.62rem;color:var(--navy-deep);border-radius:2px;
@@ -179,7 +202,6 @@ h1{font:900 1.15rem var(--body);margin:0 0 .1rem;color:var(--navy-deep)}
 .files .get{display:inline-block;padding:.1rem .55rem;background:var(--red);color:#fff;border-radius:2px;font-size:.7rem}
 .files .get:hover{background:var(--navy);color:#fff;text-decoration:none}
 
-.adminbody .page{width:1180px}
 .adminbar{background:var(--navy);color:#fff;padding:.5rem .9rem;display:flex;gap:1rem;align-items:baseline}
 .adminbar b{font:900 .95rem var(--body)}
 .adminbar span{font-size:.7rem;opacity:.75;font-family:var(--mono)}
