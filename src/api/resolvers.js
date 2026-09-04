@@ -34,6 +34,9 @@ const FACET_SOURCES = {
         language: `SELECT l.slug AS value, l.name AS label,
                      (SELECT COUNT(*) FROM file_languages j WHERE j.language_slug = l.slug) AS held
                    FROM languages l`,
+        device: `SELECT d.slug AS value, d.name AS label,
+                     (SELECT COUNT(*) FROM file_devices j WHERE j.device_slug = d.slug) AS held
+                   FROM devices d`,
         filetype: `SELECT t.slug AS value, t.name AS label,
                      (SELECT COUNT(*) FROM files f WHERE f.file_type_slug = t.slug) AS held
                    FROM file_types t`,

@@ -22,6 +22,7 @@ export const CHOICE_FACETS = [
   { key: "platform", label: "Platform", of: "software" },
   { key: "interface", label: "User interface", of: "software" },
   { key: "processor", label: "Minimum processor", of: "software" },
+  { key: "device", label: "Hardware", of: "file" },
   { key: "language", label: "Language", of: "file" },
   { key: "filetype", label: "File type", of: "file" },
 ];
@@ -205,6 +206,11 @@ function softwareConditions(filters, conditions, bindings, askedOfRelease) {
     filters.chosen.interface, conditions, bindings
   );
 
+  existsAnyOf(
+    "EXISTS (SELECT 1 FROM software_devices sd WHERE sd.software_slug = s.slug AND sd.device_slug IN (?list))",
+    filters.chosen.device, conditions, bindings
+  );
+
   anyOf("s.minimum_cpu_slug", filters.chosen.processor, conditions, bindings);
 
   betweenDates("s.released_on", filters.from, filters.to, conditions, bindings);
@@ -311,6 +317,11 @@ export async function searchFiles(database, filters) {
   existsAnyOf(
     "EXISTS (SELECT 1 FROM file_platforms fp WHERE fp.file_id = f.id AND fp.platform_slug IN (?list))",
     filters.chosen.platform, conditions, bindings
+  );
+
+  existsAnyOf(
+    "EXISTS (SELECT 1 FROM file_devices fd WHERE fd.file_id = f.id AND fd.device_slug IN (?list))",
+    filters.chosen.device, conditions, bindings
   );
 
   anyOf("f.file_type_slug", filters.chosen.filetype, conditions, bindings);
