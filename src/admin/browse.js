@@ -875,6 +875,14 @@ export async function fileEdit(environment, root, manager, identifier, message) 
       .bind(held.id)
   );
 
+  const devices = await rowsOf(
+    database
+      .prepare(`
+        SELECT d.slug, d.name FROM devices d JOIN file_devices fd ON fd.device_slug = d.slug
+        WHERE fd.file_id = ? ORDER BY d.sort_order, d.name`)
+      .bind(held.id)
+  );
+
   const linked = held.hotlink_slug
     ? await database.prepare("SELECT slug, name FROM hotlinks WHERE slug = ?").bind(held.hotlink_slug).first()
     : null;
@@ -918,6 +926,8 @@ export async function fileEdit(environment, root, manager, identifier, message) 
     isHotlinked: Boolean(held.hotlink_slug),
     platformValue: platforms.map((one) => one.slug).join(","),
     platformLabels: labelled(platforms),
+    deviceValue: devices.map((one) => one.slug).join(","),
+    deviceLabels: labelled(devices),
     fileTypeLabels: JSON.stringify(
       held.file_type_slug && held.file_type ? { [held.file_type_slug]: held.file_type } : {}
     ),
@@ -1009,6 +1019,7 @@ export async function fileSave(environment, root, manager, identifier, form) {
   await relink(database, "file_languages", "file_id", held.id, "language_slug", form.get("language"));
   await relink(database, "file_platforms", "file_id", held.id, "platform_slug", form.get("platform"));
   await relink(database, "file_architectures", "file_id", held.id, "architecture_slug", form.get("architecture"));
+  await relink(database, "file_devices", "file_id", held.id, "device_slug", form.get("device"));
   await noteChange(database, manager, `file:${wantedSlug}`, hotlinkSlug ? "hotlinked" : "updated", null);
 
   const landed = await database
@@ -1118,6 +1129,7 @@ export async function fileCreate(environment, root, manager, form) {
     await relink(database, "file_languages", "file_id", made.id, "language_slug", form.get("language"));
     await relink(database, "file_platforms", "file_id", made.id, "platform_slug", form.get("platform"));
     await relink(database, "file_architectures", "file_id", made.id, "architecture_slug", form.get("architecture"));
+    await relink(database, "file_devices", "file_id", made.id, "device_slug", form.get("device"));
   }
 
   await noteChange(database, manager, `file:${fileSlug}`, hotlinkSlug ? "hotlinked" : "added", null);

@@ -67,6 +67,7 @@ export async function upsertSoftware(database, manager, offered, report) {
     ["publisher", "software_publishers", "publisher_slug", offered.publishers],
     ["platform", "software_platforms", "platform_slug", offered.platforms],
     ["interface", "software_interfaces", "interface_slug", offered.interfaces],
+    ["device", "software_devices", "device_slug", offered.devices],
   ]) {
     if (holds == null) {
       continue;
@@ -220,6 +221,12 @@ export async function upsertFile(database, manager, version, offered, report) {
   if (offered.platforms != null) {
     await relinked(database, "file_platforms", "file_id", held.id,
       "platform_slug", await slugsFor(database, manager, "platform", offered.platforms, report));
+  }
+
+  // the hardware this package drives, where the software is a driver
+  if (offered.devices != null) {
+    await relinked(database, "file_devices", "file_id", held.id,
+      "device_slug", await slugsFor(database, manager, "device", offered.devices, report));
   } else if (!standing) {
     await database
       .prepare(`

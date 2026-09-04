@@ -48,6 +48,24 @@ export const KINDS = {
       WHERE j.interface_slug = ? ORDER BY s.name LIMIT 200`,
     flag: "atInterfaces",
   },
+  devices: {
+    table: "devices",
+    label: "Hardware",
+    singular: "A Device",
+    slugHint: "voodoo-3",
+    nameHint: "3dfx Voodoo 3",
+    countTable: "file_devices",
+    countColumn: "device_slug",
+    usedBy: `
+      SELECT s.category || '/' || s.slug || '/' || v.slug AS path, f.display_name AS label,
+             v.version, s.name AS software_name
+      FROM file_devices fd
+      JOIN files f ON f.id = fd.file_id
+      JOIN versions v ON v.id = f.version_id
+      JOIN software s ON s.slug = v.software_slug
+      WHERE fd.device_slug = ? ORDER BY s.name, f.display_name LIMIT 200`,
+    flag: "atDevices",
+  },
   architectures: {
     table: "architectures",
     label: "Architectures",

@@ -33,6 +33,13 @@ const SHAPES = {
       value: one.slug, label: one.name, note: one.fileCount + " files",
     })),
   },
+  device: {
+    query: `query{Page(perPage:200){vocabulary(kind:"device"){slug name used}}}`,
+    local: true,
+    rows: (data) => data.Page.vocabulary.map((one) => ({
+      value: one.slug, label: one.name, note: one.used + " files",
+    })),
+  },
   language: {
     query: `query{Page(perPage:200){languages{slug name fileCount}}}`,
     local: true,

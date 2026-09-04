@@ -10,6 +10,7 @@ const TABLES = {
   architecture: "architectures",
   processor: "processors",
   filetype: "file_types",
+  device: "devices",
 };
 
 // A document names its vocabulary rather than addressing it, because the sender

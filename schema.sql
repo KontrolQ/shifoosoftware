@@ -190,6 +190,34 @@ CREATE TABLE files (
     UNIQUE (version_id, slug)
 );
 
+CREATE TABLE device_kinds (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 100
+);
+
+CREATE TABLE devices (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    vendor_slug TEXT REFERENCES publishers (slug) ON DELETE SET NULL,
+    kind_slug TEXT REFERENCES device_kinds (slug) ON DELETE SET NULL,
+    released_on TEXT,
+    notes TEXT,
+    sort_order INTEGER NOT NULL DEFAULT 100
+);
+
+CREATE TABLE file_devices (
+    file_id INTEGER NOT NULL REFERENCES files (id) ON DELETE CASCADE,
+    device_slug TEXT NOT NULL REFERENCES devices (slug) ON DELETE CASCADE,
+    PRIMARY KEY (file_id, device_slug)
+);
+
+CREATE TABLE software_devices (
+    software_slug TEXT NOT NULL REFERENCES software (slug) ON DELETE CASCADE,
+    device_slug TEXT NOT NULL REFERENCES devices (slug) ON DELETE CASCADE,
+    PRIMARY KEY (software_slug, device_slug)
+);
+
 CREATE TABLE version_architectures (
     version_id INTEGER NOT NULL REFERENCES versions (id) ON DELETE CASCADE,
     architecture_slug TEXT NOT NULL REFERENCES architectures (slug) ON DELETE CASCADE,
@@ -347,6 +375,9 @@ SELECT
     (SELECT group_concat(i.name, ', ')
      FROM software_interfaces si JOIN interfaces i ON i.slug = si.interface_slug
      WHERE si.software_slug = s.slug) AS interface_names,
+    (SELECT group_concat(d.name, ', ')
+     FROM software_devices sd JOIN devices d ON d.slug = sd.device_slug
+     WHERE sd.software_slug = s.slug) AS device_names,
     (SELECT COUNT(*) FROM versions v WHERE v.software_slug = s.slug) AS version_count,
     (SELECT COUNT(*) FROM files f JOIN versions v ON v.id = f.version_id
      WHERE v.software_slug = s.slug) AS file_count,
@@ -431,6 +462,9 @@ SELECT
     (SELECT group_concat(p.name, ', ')
      FROM file_platforms fp JOIN platforms p ON p.slug = fp.platform_slug
      WHERE fp.file_id = f.id) AS platform_names,
+    (SELECT group_concat(d.name, ', ')
+     FROM file_devices fd JOIN devices d ON d.slug = fd.device_slug
+     WHERE fd.file_id = f.id) AS device_names,
     (SELECT group_concat(l.name, ', ') FROM file_languages fl JOIN languages l ON l.slug = fl.language_slug
      WHERE fl.file_id = f.id) AS language_names
 FROM files f

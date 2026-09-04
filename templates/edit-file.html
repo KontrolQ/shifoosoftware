@@ -77,6 +77,24 @@
       </div>
     </div>
     <div>
+      <label>Hardware</label>
+      <div class="linkpick" data-pick="device" data-many="1" data-verb="Use"
+           data-labels="{{deviceLabels}}" data-make-url="{{root}}/make">
+        <input type="hidden" name="device" value="{{deviceValue}}" data-pick-value>
+        <div class="chosenrow">
+          <span data-pick-chosen class="tags"></span>
+          <button type="button" data-pick-open>Add a device</button>
+        </div>
+        <div data-pick-drawer hidden>
+          <div class="pickhead">
+            <input type="search" data-pick-search placeholder="Search hardware" aria-label="Search hardware" autocomplete="off">
+            <button type="button" data-pick-make>Add new</button>
+          </div>
+          <ul data-pick-list></ul>
+        </div>
+      </div>
+    </div>
+    <div>
       <label>Platform</label>
       <div class="linkpick" data-pick="platform" data-many="1" data-verb="Use"
            data-labels="{{platformLabels}}" data-make-url="{{root}}/make">
