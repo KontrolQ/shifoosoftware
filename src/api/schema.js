@@ -39,6 +39,7 @@ export const PUBLIC_DEFINITIONS = `
     id: Int!
     slug: String!
     version: String!
+    architecture: String
     releasedOn: PartialDate
     notes: String
     notesHtml: String
@@ -51,6 +52,7 @@ export const PUBLIC_DEFINITIONS = `
     id: Int!
     slug: String!
     displayName: String!
+    architecture: String
     fileType: String
     sizeBytes: Int
     checksum: String
