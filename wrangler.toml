@@ -2,6 +2,9 @@ name = "shifoosoftware"
 main = "src/index.js"
 compatibility_date = "2026-08-01"
 
+# the libsql client reaches for node:diagnostics_channel
+compatibility_flags = ["nodejs_compat"]
+
 workers_dev = false
 
 [[routes]]

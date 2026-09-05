@@ -2,7 +2,9 @@
 // Rather than rewrite each of them, this hands back the same shape over libSQL: a
 // statement that binds and then answers, with rows under `results` the way D1 does.
 
-import { createClient } from "@libsql/client/web";
+// The http entry point, not web: web carries a websocket transport a worker cannot
+// open, and pulls node built-ins in with it.
+import { createClient } from "@libsql/client/http";
 
 function rowsFrom(answer) {
   return answer.rows.map((row) =>
