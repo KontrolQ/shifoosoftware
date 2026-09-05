@@ -28,7 +28,7 @@ export function categories(database) {
               WHERE s.category_slug = c.slug AND s.published = 1
                 AND (s.icon_key IS NOT NULL OR s.icon_hotlink_slug IS NOT NULL)
               ORDER BY s.sort_order, s.name LIMIT 1) AS icon_from
-      FROM categories c ORDER BY c.sort_order, c.name`)
+      FROM categories c ORDER BY c.name`)
   );
 }
 
@@ -43,7 +43,7 @@ export function stockedCategories(database) {
               ORDER BY s.sort_order, s.name LIMIT 1) AS icon_from
       FROM categories c
       WHERE (SELECT COUNT(*) FROM catalogue_software s WHERE s.category_slug = c.slug AND s.published = 1) > 0
-      ORDER BY c.sort_order, c.name`)
+      ORDER BY c.name`)
   );
 }
 
