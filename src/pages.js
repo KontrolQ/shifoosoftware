@@ -38,6 +38,40 @@ import { lettersHeld, rowsOf, softwareByLetter } from "./database.js";
 
 const RECENT_LIMIT = 3;
 
+// Link previews are built by machines that never sign in, so every page states in its
+// own head what it is. The addresses have to be absolute for those machines to follow.
+const SITE = "https://software.shi.foo";
+const SITE_NAME = "Shifoo's Software Archive";
+
+function absolute(path) {
+  return path && path.startsWith("/") ? `${SITE}${path}` : path;
+}
+
+// One or two sentences, plain, under what a preview will show of it.
+export function trimmedTo(text, howMany = 200) {
+  const held = String(text ?? "").replace(/\s+/g, " ").trim();
+
+  if (held.length <= howMany) {
+    return held;
+  }
+
+  const cut = held.slice(0, howMany);
+  const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
+
+  return `${cut.slice(0, stop > 60 ? stop : howMany).trim()}…`;
+}
+
+function metadata(base, { path, title, description, image, kind }) {
+  return {
+    canonical: `${SITE}${path}`,
+    pageDescription: trimmedTo(description) || SITE_NAME,
+    ogTitle: title,
+    ogType: kind ?? "website",
+    ogImage: absolute(image) ?? null,
+    siteName: SITE_NAME,
+  };
+}
+
 async function shell(database) {
   const held = await stockedCategories(database);
   const counted = await heldCount(database);
@@ -147,6 +181,13 @@ export async function home(database) {
 
   return htmlResponse("home", {
     ...base,
+    ...metadata(base, {
+      path: "/",
+      title: "Shifoo's Software Archive",
+      description: `An archive of ${base.count} titles and ${base.filesHeld} files of retro `
+        + `software — operating systems, drivers and utilities, each with its platform, its `
+        + `language, its size and a SHA-256 checksum.`,
+    }),
     title: "Shifoo's Software Archive",
     categories: base.stocked.map((row) => ({
       ...row,
@@ -178,6 +219,13 @@ export async function category(database, slug) {
 
   return htmlResponse("category", {
     ...base,
+    ...metadata(base, {
+      path: `/${slug}/`,
+      title: held.name,
+      description: `${plain(held.summary, 200) || held.name}. `
+        + `${counted(software.length, "title")} in this section of the archive.`,
+      image: held.icon_from ? `/icon/${held.icon_from}` : null,
+    }),
     title: held.name,
     category: held,
     categoryIcon: held.icon_from ? `/icon/${held.icon_from}` : null,
@@ -221,6 +269,12 @@ export async function directory(database, letter, page) {
 
   return htmlResponse("directory", {
     ...base,
+    ...metadata(base, {
+      path: linkTo(asked, wanted),
+      title: asked === null ? "All Software" : `All Software — ${asked}`,
+      description: `Every title in the archive in one list, ${held.total} of them, `
+        + `sorted by name and filterable by first letter.`,
+    }),
     title: "All Software",
     letters: [{ label: "All", value: null, held: true, chosen: asked === null, href: linkTo(null, 1) }]
       .concat(
@@ -277,6 +331,15 @@ export async function software(database, categorySlug, slug) {
 
   return htmlResponse("software", {
     ...base,
+    ...metadata(base, {
+      path: `/${categorySlug}/${slug}/`,
+      title: held.name,
+      description: plain(held.description, 260)
+        || `${held.name}${held.publisher ? ` by ${held.publisher}` : ""} — `
+          + `${counted(versions.length, "version")} held in the archive.`,
+      image: iconFor(held),
+      kind: "article",
+    }),
     title: held.name,
     software: { ...held, publisherSlug },
     descriptionHtml: rendered(held.description),
@@ -369,6 +432,13 @@ export async function version(database, categorySlug, slug, versionName) {
 
   return htmlResponse("version", {
     ...context,
+    ...metadata(context, {
+      path: `/${categorySlug}/${slug}/${versionName}/`,
+      title: `${context.software.name} ${context.version.version}`,
+      description: plain(context.version.notes, 260) || context.versionLede,
+      image: context.screenshots[0]?.src ?? context.icon,
+      kind: "article",
+    }),
     title: `${context.software.name} ${context.version.version}`,
   });
 }
@@ -382,6 +452,14 @@ export async function checksums(database, categorySlug, slug, versionName) {
 
   return htmlResponse("checksums", {
     ...context,
+    ...metadata(context, {
+      path: `/${categorySlug}/${slug}/${versionName}/checksums`,
+      title: `${context.software.name} ${context.version.version} checksums`,
+      description: `SHA-256 checksums for all ${counted(context.fileCount, "file")} of `
+        + `${context.software.name} ${context.version.version}, so a download can be `
+        + `checked against what the archive holds.`,
+      image: context.icon,
+    }),
     title: `${context.software.name} ${context.version.version} checksums`,
   });
 }
@@ -399,6 +477,11 @@ export async function requests(database, thanks) {
 
   return htmlResponse("requests", {
     ...base,
+    ...metadata(base, {
+      path: "/requests",
+      title: "Request something",
+      description: "Ask for a piece of software the archive does not hold yet.",
+    }),
     title: "Request something",
     thanks,
     count: counted?.held ?? 0,
@@ -411,7 +494,18 @@ export async function api(database) {
   const base = await shell(database);
   const { types, sample } = apiDescription();
 
-  return htmlResponse("api", { ...base, title: "API", types, sample });
+  return htmlResponse("api", {
+    ...base,
+    ...metadata(base, {
+      path: "/api",
+      title: "API",
+      description: "Everything in the archive is readable through one GraphQL endpoint. "
+        + "It takes GET or POST, needs no key, and allows requests from any origin.",
+    }),
+    title: "API",
+    types,
+    sample,
+  });
 }
 
 export async function recent(database) {
@@ -420,6 +514,11 @@ export async function recent(database) {
 
   return htmlResponse("recent", {
     ...base,
+    ...metadata(base, {
+      path: "/recent",
+      title: "Recently added",
+      description: "The newest titles in the archive, most recently added first.",
+    }),
     title: "Recently added",
     software: withCategoryNames(held, named(base.stocked)),
     hasSoftware: held.length > 0,
@@ -534,6 +633,15 @@ export async function search(database, filters) {
 
   return htmlResponse("search", {
     ...base,
+    ...metadata(base, {
+      path: "/search",
+      title: filters.query ? `Search — ${filters.query}` : "Search",
+      description: filters.query
+        ? `Titles and files in the archive matching “${filters.query}”.`
+        : "Search the archive by keyword, category, platform, hardware, language, "
+          + "publisher, file type and system requirements.",
+    }),
+    unlisted: true,
     title: "Search",
     query: filters.query ?? "",
     showSoftware: filters.show === "software",
@@ -587,6 +695,13 @@ export async function advancedSearch(database, filters) {
 
   return htmlResponse("advanced", {
     ...base,
+    ...metadata(base, {
+      path: "/search?mode=advanced",
+      title: "Advanced search",
+      description: "Narrow the archive by category, publisher, platform, hardware, "
+        + "architecture, language, file type, release date and system requirements.",
+    }),
+    unlisted: true,
     title: "Advanced search",
     query: filters.query ?? "",
     showSoftware: filters.show === "software",
@@ -644,5 +759,15 @@ export async function advancedSearch(database, filters) {
 }
 
 export async function missing(database) {
-  return htmlResponse("missing", { ...(await shell(database)), title: "Not found" }, 404);
+  const base = await shell(database);
+
+  return htmlResponse("missing", {
+    ...base,
+    ...metadata(base, {
+      path: "/",
+      title: "Not found",
+      description: "There is nothing at that address in the archive.",
+    }),
+    title: "Not found",
+  }, 404);
 }

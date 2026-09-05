@@ -4,6 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{title}}</title>
+<meta name="description" content="{{pageDescription}}">
+{{#canonical}}<link rel="canonical" href="{{{canonical}}}">{{/canonical}}
+{{#unlisted}}<meta name="robots" content="noindex,follow">{{/unlisted}}
+<meta property="og:site_name" content="{{siteName}}">
+<meta property="og:type" content="{{ogType}}">
+<meta property="og:title" content="{{ogTitle}}">
+<meta property="og:description" content="{{pageDescription}}">
+{{#canonical}}<meta property="og:url" content="{{{canonical}}}">{{/canonical}}
+{{#ogImage}}<meta property="og:image" content="{{{ogImage}}}">{{/ogImage}}
+<meta name="twitter:card" content="{{#ogImage}}summary_large_image{{/ogImage}}{{^ogImage}}summary{{/ogImage}}">
+<meta name="twitter:title" content="{{ogTitle}}">
+<meta name="twitter:description" content="{{pageDescription}}">
+{{#ogImage}}<meta name="twitter:image" content="{{{ogImage}}}">{{/ogImage}}
+<meta name="theme-color" content="#1f3864">
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="/static/js/pick.js" defer></script>
 <script src="/static/js/page.js" defer></script>
