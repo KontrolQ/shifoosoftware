@@ -107,9 +107,36 @@ function realDates(root) {
   });
 }
 
+// One theme puts the page over a moving backdrop. The video is fetched only when that
+// theme is on, which is why it is put in here rather than sitting in every page.
+function backdropFor(theme) {
+  if (theme !== "shifoo" || document.getElementById("backdrop")) {
+    return;
+  }
+
+  const veil = document.createElement("div");
+
+  veil.id = "backdrop-veil";
+
+  const film = document.createElement("video");
+
+  film.id = "backdrop";
+  film.autoplay = true;
+  film.muted = true;
+  film.loop = true;
+  film.playsInline = true;
+  film.preload = "auto";
+  film.src = "/static/video/backdrop.webm";
+
+  document.body.prepend(veil);
+  document.body.prepend(film);
+}
+
 // The sheet is chosen by cookie on the server; the box only has to agree with it.
 function themePicked(root) {
   const held = /(?:^|;)\s*theme=([a-z]+)/.exec(document.cookie);
+
+  backdropFor(held ? held[1] : "shifoo");
 
   root.querySelectorAll("[data-theme-pick]").forEach((box) => {
     if (held && [...box.options].some((one) => one.value === held[1])) {

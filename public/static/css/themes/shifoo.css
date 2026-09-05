@@ -1,6 +1,6 @@
-/* Shifoo — the look of shi.foo itself, carried over: black ground, thin white rules,
-   Mali for everything, periwinkle links that turn magenta, mint links inside the page,
-   and the scanlines drawn over the top of it all. */
+/* Shifoo — the archive dressed the way the v2 site is. Every value here was read off
+   that site running locally rather than guessed: the wavy section titles, the panel lids
+   in the sidebar with their outlined lettering, the glossy tag chips, both type faces. */
 
 @font-face{font-family:"Mali";font-weight:400;font-style:normal;font-display:swap;
   src:url(/static/fonts/mali/Mali-Regular.ttf) format("truetype")}
@@ -8,106 +8,149 @@
   src:url(/static/fonts/mali/Mali-Medium.ttf) format("truetype")}
 @font-face{font-family:"Mali";font-weight:700;font-style:normal;font-display:swap;
   src:url(/static/fonts/mali/Mali-Bold.ttf) format("truetype")}
+@font-face{font-family:"SweetFairy";font-weight:700;font-style:normal;font-display:swap;
+  src:url(/static/fonts/sweetfairy.otf) format("opentype")}
 
 :root {
-  --navy:#4444b1;--navy-deep:#8d8dff;--navy-pale:#12121c;
-  --red:#df23c4;--red-deep:#ff5ad9;--red-pale:#25102040;
-  --magenta:#df23c4;--magenta-pale:#1d0f1a;
+  --navy:#452673;--navy-deep:#c8b4ff;--navy-pale:#1a1230;
+  --red:#df23c4;--red-deep:#ff5ad9;--red-pale:#3a1b4f66;
+  --magenta:#ffb3ba;--magenta-pale:#2a1c33;
   --gold:#e8a33d;
-  --ink:#f4f4ff;--ink-soft:#dcdcea;--muted:#b0b0c8;--muted-more:#6a6a80;
-  --rule:#ffffff40;--rule-soft:#ffffff26;--rule-faint:#ffffff1a;--field-rule:#8d8dff66;
+  --ink:#ffffff;--ink-soft:#e4dcf5;--muted:#b6a8d8;--muted-more:#6d5f8a;
+  --rule:#ad8cff59;--rule-soft:#ad8cff33;--rule-faint:#ad8cff26;--field-rule:#ad8cff73;
+  --rule-warm:#ffb3ba40;
   --link:#8d8dff;--visited:#b48dff;
-  --stripe:#ffffff08;--sheet-soft:#ffffff0a;--field-off:#00000059;--rule-warm:#df23c433;
+  --stripe:#ad8cff0f;--sheet-soft:#ffffff0a;--field-off:#12091f;
   --on-fill:#ffffff;
-  --paper:#0000008c;--ground:#000000;
-  --bar-others:#4444b1;--bar-elsewhere:#8d8dff;--bar-free:#ffffff1a;
+  --paper:#00000073;--ground:#000000;
+  --bar-others:#5a338f;--bar-elsewhere:#ffb3ba;--bar-free:#ffffff14;
   --body:"Mali","Comic Sans MS",cursive,sans-serif;
   --mono:"DM Mono",ui-monospace,Consolas,monospace;
 }
 
-/* The page floats over the ground rather than sitting on paper, so the sheet and the
-   rail are translucent and the whole thing keeps the black behind it. */
-body{background:var(--ground);font-size:12.5px;letter-spacing:.005em}
-.welcome,.prose{font-size:.86rem}
-.catblurb,.entries .note{font-size:.76rem}
-.page{border-color:#ffffff59;border-top-color:#8d8dff;backdrop-filter:blur(2px)}
-.rail{background:#ffffff0a}
-.rail .group a:hover{background:#8d8dff1f}
+/* The backdrop everything floats over. The page script puts the video in only when this
+   theme is on, so the other two never fetch it. */
+body{background:var(--ground);font-size:12px}
+#backdrop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  min-width:100%;min-height:100%;object-fit:cover;z-index:-100;pointer-events:none}
+#backdrop-veil{position:fixed;inset:0;background:#000;opacity:.78;z-index:-99;pointer-events:none;
+  backdrop-filter:blur(1px)}
 
-/* Links go green inside the page proper and cyan on hover, as they do on shi.foo. */
+.page{border:0;border-top:1px solid #fff;border-top-left-radius:14px;background:none}
+.rail{background:none;border-right:0;padding:.9rem .4rem}
+.body{border-left:1px solid #ffffff40;background:#00000059}
+.welcome,.prose{font-size:.85rem;text-align:justify}
+.catblurb,.entries .note{font-size:.75rem}
+
+a,a:link,a:visited{color:#8d8dff;text-decoration:none}
+a:hover,a:active{color:#df23c4;text-decoration:underline}
 .body a,.body a:visited{color:#95f695}
 .body a:hover{color:#9ae4f1}
-.rail a,.rail a:visited{color:#8d8dff}
-.rail a:hover{color:#df23c4}
 
-/* A section is named and ruled off rather than filled in, which is how the site marks
-   its own. The rule takes the colour the filled bar used to have. */
-.bar{background:transparent;color:#fff;font-size:.95rem;letter-spacing:.04em;
-  padding:.1rem 0 .25rem;border-bottom:1px solid #8d8dff;margin:1.4rem 0 .6rem}
-.bar.red,.bar.magenta{background:transparent;border-bottom-color:#df23c4}
-.bar small{color:#8d8dff;opacity:1;font-size:.7rem}
-.bar small a{color:#8d8dff}
-.barmake,.barmake:visited{border:1px solid #8d8dff;color:#8d8dff;font-size:.62rem;
-  padding:.05rem .5rem;margin-top:.1rem}
-.barmake:hover{background:#8d8dff;color:#000}
+/* A section is titled, not boxed: white, large, underlined with a violet wave. */
+.bar{background:none;color:#fff;font:700 1.5rem var(--body);letter-spacing:normal;
+  padding:0;margin:1.6rem 0 .6rem;
+  text-decoration:underline;text-decoration-style:wavy;text-decoration-color:#8d8dff;
+  text-underline-offset:.22rem}
+.bar.red,.bar.magenta{background:none;text-decoration-color:#df23c4}
+.bar small{color:#c8b4ff;opacity:1;font-size:.7rem;font-weight:400;text-decoration:none}
+.bar small a{color:#8d8dff;text-decoration:none}
+.barmake,.barmake:visited{border:1px solid #5a338f;color:#fff;font-size:.62rem;
+  text-decoration:none;background:linear-gradient(145deg,#452673,#311b4f);border-radius:4px}
+.barmake:hover{background:linear-gradient(145deg,#512c85,#3d2361);color:#fff}
 
-th{background:#ffffff0f;color:#8d8dff;border-bottom-color:#8d8dff66}
-td{border-bottom:1px dotted #ffffff2e}
-.entries li{border-bottom:1px dotted #ffffff2e}
-.rail .group b{color:#8d8dff;border-bottom-color:#ffffff26}
-.rail .group a::before{color:#df23c4}
-.crumbs,.lede,.muted,.legend{color:#b0b0c8}
-.facts b,.facts dt{color:#8d8dff}
-.sha{color:#9fa8c4}
-h1{color:#fff;font-size:1.3rem}
-.pill,.pills a,.azbar a,.azbar span{background:#ffffff0f;color:#c8c8ff}
-.pills a:hover,.azbar a:hover,.azbar a.on{background:#8d8dff;color:#000}
-.search-panel{background:#ffffff0a}
-.search-panel input,.search-panel select,.search-panel textarea{background:#00000059;color:#fff}
-/* Buttons are indigo and turn magenta under the pointer, never the other way round.
-   A facet name is a button only so that it can be pressed; it is not one to look at,
-   so it keeps the plain ground the structure gives it. */
-button,.search-panel button,.quick button,.themepick button,.files .get{background:#4444b1;color:#fff}
+/* Each block in the rail is a panel: a violet lid with outlined lettering, a darker body
+   beneath it, and a hairline of violet, pink and cyan between the two. */
+.rail .group{position:relative;margin:0 0 .8rem;padding:0;
+  background:linear-gradient(135deg,#140f1ee6 0%,#190f2dd9 100%);
+  border:1px solid #ad8cff66;border-top:0;border-radius:0 0 8px 8px;
+  box-shadow:inset 0 0 6px #ad8cff66;backdrop-filter:blur(1px)}
+.rail .group b{display:block;position:relative;margin:0 -1px;padding:6px 6px 6px 10px;
+  background:linear-gradient(180deg,#1e1432d9 0%,#0f0a19e6 100%);
+  border:1px solid #ad8cffb3;border-radius:8px 8px 0 0;
+  box-shadow:0 3px 5px -2px #8857d299,inset 0 0 8px #945dff40;
+  font:700 1.05rem "SweetFairy","Mali",sans-serif;letter-spacing:.5px;color:#623795;
+  filter:drop-shadow(2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(-2px 0 0 #fff)
+    drop-shadow(0 -2px 0 #fff) drop-shadow(0 1px 1px #623795) drop-shadow(0 1px 1px #623795)}
+.rail .group b::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;
+  background:linear-gradient(to right,#ad8cff66,#ffb3ba80,#54f2f280,#ad8cff66)}
+.rail .group a{display:block;margin:3px 4px;padding:2px 2px 2px 1rem;border-radius:4px;
+  transition:transform .2s ease,background-color .2s ease}
+.rail .group a:hover{transform:translateX(3px);background:#ad8cff2e;
+  box-shadow:inset 0 0 3px #54f2f233;text-decoration:none;color:#fff}
+.rail .group a::before{left:.35rem;color:#54f2f2}
+.rail .group a.offsite::after{color:#ffb3ba}
+.rail .group form,.rail .group .stats{padding:6px}
+.brand{border-bottom:1px solid #ffffff40;margin-bottom:.8rem}
+
+/* Chips are raised and glossy, exactly as the site's own tags are. */
+.pill,.pills a,.azbar a,.cattags .pill{
+  border-radius:10px;padding:2px 10px;border:1px solid #5a338f;color:#fff;font-size:.68rem;
+  background:linear-gradient(145deg,#452673,#311b4f);
+  box-shadow:inset 0 1px 1px #ffffff66,inset 0 -1px 1px #00000066,
+    0 0 5px #45267380,0 2px 4px #00000033;
+  text-shadow:0 -1px 0 #00000080;transition:all .2s ease}
+.pills a:hover,.azbar a:hover,.cattags .pill:hover{color:#fff;text-decoration:none;
+  background:linear-gradient(145deg,#512c85,#3d2361);
+  box-shadow:inset 0 1px 1px #ffffff66,inset 0 -1px 1px #00000066,
+    0 0 10px #452673cc,0 2px 4px #00000033}
+.azbar a.on{background:linear-gradient(145deg,#6b3fae,#4a2a78)}
+.azbar span{border-radius:10px;background:none;border:1px solid #ad8cff26;color:#6d5f8a}
+
+/* Buttons are the site's own: indigo, rounded, magenta under the pointer. */
+button,.search-panel button,.quick button,.themepick button,.toolbar button[type=submit],
+.sift button,.files .get,a.pill{background:#4444b1;color:#fff;border:0;border-radius:4px;
+  text-shadow:none;box-shadow:none}
 button:hover,.search-panel button:hover,.quick button:hover,.themepick button:hover,
-.files .get:hover{background:#df23c4;color:#fff}
-/* Anything red in the light scheme is an accent here, not an alarm, so it takes the
-   indigo the site uses for its own controls. */
-.toolbar button[type=submit],.sift button{background:#4444b1;color:#fff}
-.toolbar button[type=submit]:hover,.sift button:hover{background:#df23c4}
-.toolbar button.mild{background:#ffffff0f;border-color:#8d8dff66;color:#c8c8ff}
-.toolbar button.mild:hover{background:#8d8dff;color:#000}
+.toolbar button[type=submit]:hover,.sift button:hover,.files .get:hover,a.pill:hover{
+  background:#df23c4;color:#fff;text-decoration:none}
+button:active,.search-panel button:active{background:#8d8dff}
+.toolbar button.mild{background:#ffffff0f;border:1px solid #ad8cff66;color:#c8b4ff}
+.toolbar button.mild:hover{background:#ad8cff;color:#160d24}
 
-/* A control has to be visible before it can be used. */
-tr.filterrow th{background:#ffffff0a}
-tr.filterrow select,tr.filterrow input{background:#00000073;border-color:#8d8dff59;color:#f4f4ff}
-tr.filterrow select option{background:#12121c;color:#f4f4ff}
-.search-panel select option,.quick select option{background:#12121c;color:#f4f4ff}
+input,select,textarea,.search-panel input,.search-panel select,.search-panel textarea,
+.quick input,.quick select,tr.filterrow select,tr.filterrow input{
+  background:#0d0718b3;border:1px solid #ad8cff59;color:#fff;border-radius:4px}
+select option{background:#160d24;color:#fff}
 
-/* The strip is only a rule under the tabs, not a band across the page. */
-.viewtabs{background:none;border:0;border-bottom:1px solid #ffffff26;padding-bottom:1px}
-.viewtabs a{background:#ffffff0a;color:#c8c8ff}
-.viewtabs a:hover{background:#8d8dff1f;color:#fff}
-.viewtabs a.on{background:#4444b1;color:#fff}
+/* A facet name is pressed, not admired. */
+.facetnames button,.facetpanel .facetnames button{background:none;border:0;color:#c8b4ff;
+  box-shadow:none;text-shadow:none;border-radius:0}
+.facetnames button:hover,.facetpanel .facetnames button:hover{background:#ad8cff2e;color:#fff}
+.facetnames button.on,.facetpanel .facetnames button.on{background:#ad8cff3d;color:#fff}
+.facetpane,.facetpanel{background:#0f0a1acc;border-color:#ad8cff40;border-radius:8px}
+.facetnames{background:none;border-right-color:#ad8cff33}
 
-.facetnames button,.facetpanel .facetnames button{background:none;color:#8d8dff}
-.facetnames button:hover,.facetpanel .facetnames button:hover{background:#8d8dff1f;color:#fff}
-.facetnames button.on,.facetpanel .facetnames button.on{background:#8d8dff2e;color:#fff}
-.body .get{color:#fff}
-/* A row under the pointer lifts off the ground rather than bleaching. */
+th{background:#ad8cff1a;color:#c8b4ff;border-bottom-color:#ad8cff59}
+.files th{background:linear-gradient(180deg,#2a1a45,#1c1130);color:#fff}
+td{border-bottom:1px dotted #ad8cff33}
+.entries li{border-bottom:1px dotted #ad8cff33}
 .files tbody tr:hover,.files tbody tr:hover td,table.rows tr:hover td,
-table.apidocs tr:hover td{background:#8d8dff1a;color:inherit}
-.empty{background:#ffffff08}
-.foot{background:#ffffff0a;border-top-color:#8d8dff}
-h1,.sitename{color:#fff}
+table.apidocs tr:hover td{background:#ad8cff1f;color:inherit}
+tr.filterrow th{background:#ffffff08}
+.viewtabs{background:none;border:0;border-bottom:1px solid #ad8cff33;padding-bottom:1px}
+.viewtabs a{background:#ffffff0a;color:#c8b4ff;border-radius:6px 6px 0 0}
+.viewtabs a:hover{background:#ad8cff2e;color:#fff;text-decoration:none}
+.viewtabs a.on{background:linear-gradient(180deg,#452673,#311b4f);color:#fff}
 
-/* An icon drawn for white paper needs a ground of its own, but a hard white block is
-   worse than the problem: it gets a soft plate and a thin rule instead. */
-img.icon,img.bigicon,img.caticon{background:#dcdad6;border:1px solid #ffffff33;
-  border-radius:3px;padding:1px}
+.crumbs,.lede,.muted,.legend{color:#b6a8d8}
+.facts b,.facts dt{color:#c8b4ff}
+.sha{color:#a89ac8}
+h1{color:#fff;font:700 1.5rem var(--body)}
+.sitename{color:#fff}
+.empty{background:#ffffff08;border-color:#ad8cff33;border-radius:8px}
+.foot{background:none;border-top:1px solid #fff;color:#b6a8d8}
+.search-panel{background:linear-gradient(135deg,#140f1ee6,#190f2dd9);
+  border:1px solid #ad8cff59;border-radius:8px;box-shadow:inset 0 0 6px #ad8cff40}
+
+/* A picture drawn for white paper gets a plate of its own. */
+img.icon,img.bigicon,img.caticon{background:#e4e0ec;border:1px solid #ad8cff66;
+  border-radius:4px;padding:1px;box-shadow:0 0 4px #62379566}
 
 /* The scanlines, over everything and catching nothing. */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.18;
-  background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.4) 50%);background-size:100% 4px}
+  background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.4) 50%);
+  background-size:100% 4px}
 
 @media (prefers-reduced-motion:no-preference){
   body::after{animation:scanlines .2s linear infinite}

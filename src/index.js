@@ -48,14 +48,25 @@ async function themeSheet(request, environment, url) {
   return answered;
 }
 
+// The reader is put back where they were, but only if that is a page of ours: a
+// prefix test would accept software.shi.foo.example.com, so the origin is compared.
+function backTo(request, url) {
+  try {
+    const held = new URL(request.headers.get("referer") ?? "", url.origin);
+
+    return held.origin === url.origin ? `${held.pathname}${held.search}` : "/";
+  } catch (unreadable) {
+    return "/";
+  }
+}
+
 function themeChosen(request, form, url) {
   const wanted = String(form.get("theme") ?? "");
-  const back = request.headers.get("referer") ?? "/";
 
   return new Response(null, {
     status: 303,
     headers: {
-      location: back.startsWith(url.origin) ? back : "/",
+      location: backTo(request, url),
       "set-cookie": `theme=${THEMES.includes(wanted) ? wanted : THEMES[0]}` +
         "; Path=/; Max-Age=31536000; SameSite=Lax",
     },
