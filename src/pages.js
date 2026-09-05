@@ -36,7 +36,7 @@ import { plain, rendered } from "./markdown.js";
 import { apiDescription } from "./api/documented.js";
 import { lettersHeld, rowsOf, softwareByLetter } from "./database.js";
 
-const RECENT_LIMIT = 3;
+const RECENT_LIMIT = 12;
 
 // A browsed list is read, not scanned, so it is shorter than a page of search results.
 const BROWSE_PER_PAGE = 24;
