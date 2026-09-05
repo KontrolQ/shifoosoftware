@@ -17,7 +17,8 @@
 {{/hasSecret}}
 
 <dl class="facts">
-  {{^hasSecret}}<dt>Begins</dt><dd class="key">{{key.opening}}&hellip; <span class="hintmark">minted before keys were kept, so the rest is gone</span></dd>{{/hasSecret}}
+  {{^hasSecret}}<dt>Begins</dt><dd class="key">{{key.opening}}&hellip;
+    <span class="hintmark">{{#hiddenSecret}}the key acts as somebody else, so only its owner may read it{{/hiddenSecret}}{{^hiddenSecret}}minted before keys were kept, so the rest is gone{{/hiddenSecret}}</span></dd>{{/hasSecret}}
   <dt>Acts as</dt><dd>{{key.manager_email}}</dd>
   <dt>Role</dt><dd>{{key.role_name}}</dd>
   <dt>Created</dt><dd><span data-when="{{key.created_at}}">{{made}}</span></dd>

@@ -40,6 +40,14 @@ export async function keyView(environment, root, manager, identifier, message, s
     return goTo(`${root}/keys`);
   }
 
+  const mayRead = held.manager_id === manager.id || can(manager, "*");
+
+  // The page carries the whole key, so opening it is handing the credential over and
+  // the log should say so.
+  if (mayRead && held.secret) {
+    await noteChange(database, manager, `key:${held.name}`, "read", null);
+  }
+
   return htmlPage(database, "browse-key", {
     root,
     manager,
@@ -53,8 +61,11 @@ export async function keyView(environment, root, manager, identifier, message, s
     live: !held.revoked_at,
     lastUsed: (held.last_used_at ?? "").replace("T", " ").slice(0, 16) || "never",
     made: (held.created_at ?? "").replace("T", " ").slice(0, 16),
-    secret: held.secret,
-    hasSecret: Boolean(held.secret),
+    // A key acts as its owner, so reading it whole is the same as becoming them. Only
+    // the person it acts as, or whoever holds the wildcard, gets to see it.
+    secret: mayRead ? held.secret : null,
+    hasSecret: Boolean(mayRead && held.secret),
+    hiddenSecret: Boolean(held.secret) && !mayRead,
     mayRevoke: can(manager, "keys.delete") && !held.revoked_at,
   });
 }
