@@ -66,10 +66,17 @@ function authorized(token) {
   return { authorization: /^(Basic|Bearer) /i.test(token) ? token : `Bearer ${token}` };
 }
 
-async function pipelined(where, token, statements) {
+// A server holding several databases picks between them by the first label of the
+// address it was asked on, which would make ours the name of its own hostname. Naming
+// the one we want outright settles it, and a server holding only one ignores it.
+function addressed(token, namespace) {
+  return { "content-type": "application/json", "x-namespace": namespace, ...authorized(token) };
+}
+
+async function pipelined(where, headers, statements) {
   const answer = await fetch(`${where}${PIPELINE}`, {
     method: "POST",
-    headers: { "content-type": "application/json", ...authorized(token) },
+    headers,
     body: JSON.stringify({
       requests: [
         ...statements.map(({ sql, args }) => ({
@@ -108,12 +115,12 @@ async function pipelined(where, token, statements) {
 // those are separate requests, each paying for its own connection to a database that is
 // not nearby. Everything asked for in the same tick is therefore gathered and sent as
 // one pipeline, so a page costs a single round trip rather than one per query.
-function gatheringFrom(where, token) {
+function gatheringFrom(where, headers) {
   let waiting = null;
 
   async function flush(batch) {
     try {
-      const held = await pipelined(where, token, batch.map((one) => one.asked));
+      const held = await pipelined(where, headers, batch.map((one) => one.asked));
 
       batch.forEach((one, at) => one.settle(held[at]));
     } catch (failed) {
@@ -137,12 +144,12 @@ function gatheringFrom(where, token) {
   });
 }
 
-function statement(gather, where, token, sql, args) {
+function statement(gather, sql, args) {
   const asked = { sql, args };
 
   return {
     ...asked,
-    bind: (...bound) => statement(gather, where, token, sql, bound),
+    bind: (...bound) => statement(gather, sql, bound),
     first: async () => (await gather(asked)).rows[0] ?? null,
     all: async () => ({ results: (await gather(asked)).rows, success: true }),
     run: async () => ({ success: true, meta: { changes: (await gather(asked)).changes } }),
@@ -160,14 +167,14 @@ export function catalogueOn(environment) {
     throw new Error("TURSO_DATABASE_URL is not set");
   }
 
-  const token = environment.TURSO_AUTH_TOKEN;
-  const gather = gatheringFrom(where, token);
+  const headers = addressed(environment.TURSO_AUTH_TOKEN, environment.TURSO_NAMESPACE || "default");
+  const gather = gatheringFrom(where, headers);
 
   return {
-    prepare: (sql) => statement(gather, where, token, sql, []),
+    prepare: (sql) => statement(gather, sql, []),
     // An explicit batch is already one round trip and is sent as it stands, rather than
     // being gathered with whatever else the page happens to be asking for.
     batch: (statements) =>
-      pipelined(where, token, statements.map((one) => ({ sql: one.sql, args: one.args }))),
+      pipelined(where, headers, statements.map((one) => ({ sql: one.sql, args: one.args }))),
   };
 }
