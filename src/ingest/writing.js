@@ -48,14 +48,21 @@ export async function upsertSoftware(database, manager, offered, report) {
                             minimum_ram_size, minimum_ram_unit, minimum_disk_size, minimum_disk_unit,
                             published, sort_order, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 9999, ?, ?)
+      -- A document that says nothing about a field leaves it as it was, so a sender may
+      -- send only what it knows without wiping the rest of the record.
       ON CONFLICT(slug) DO UPDATE SET
-        name = excluded.name, category = excluded.category, description = excluded.description,
-        homepage = excluded.homepage, released_on = excluded.released_on,
-        end_of_life = excluded.end_of_life, minimum_cpu_slug = excluded.minimum_cpu_slug,
-        minimum_cpu_speed = excluded.minimum_cpu_speed,
-        minimum_cpu_speed_unit = excluded.minimum_cpu_speed_unit,
-        minimum_ram_size = excluded.minimum_ram_size, minimum_ram_unit = excluded.minimum_ram_unit,
-        minimum_disk_size = excluded.minimum_disk_size, minimum_disk_unit = excluded.minimum_disk_unit,
+        name = excluded.name, category = excluded.category,
+        description = COALESCE(excluded.description, software.description),
+        homepage = COALESCE(excluded.homepage, software.homepage),
+        released_on = COALESCE(excluded.released_on, software.released_on),
+        end_of_life = COALESCE(excluded.end_of_life, software.end_of_life),
+        minimum_cpu_slug = COALESCE(excluded.minimum_cpu_slug, software.minimum_cpu_slug),
+        minimum_cpu_speed = COALESCE(excluded.minimum_cpu_speed, software.minimum_cpu_speed),
+        minimum_cpu_speed_unit = COALESCE(excluded.minimum_cpu_speed_unit, software.minimum_cpu_speed_unit),
+        minimum_ram_size = COALESCE(excluded.minimum_ram_size, software.minimum_ram_size),
+        minimum_ram_unit = COALESCE(excluded.minimum_ram_unit, software.minimum_ram_unit),
+        minimum_disk_size = COALESCE(excluded.minimum_disk_size, software.minimum_disk_size),
+        minimum_disk_unit = COALESCE(excluded.minimum_disk_unit, software.minimum_disk_unit),
         published = excluded.published, updated_at = excluded.updated_at`)
     .bind(slug, name, category, text(offered.description), text(offered.homepage),
           text(offered.releasedOn), text(offered.endOfLife), processor,
