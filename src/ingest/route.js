@@ -1,4 +1,5 @@
 import { upsertFile, upsertSoftware, upsertVersion } from "./writing.js";
+import { storeIcon } from "./icons.js";
 import { can } from "../admin/permissions.js";
 
 const NEEDED = ["software.create", "versions.create", "files.create", "hotlinks.create"];
@@ -44,6 +45,8 @@ export async function ingestRoute(request, environment, manager) {
   // leaves what it already wrote. The report says what landed rather than pretending.
   try {
     const softwareSlug = await upsertSoftware(database, manager, document.software, report);
+
+    await storeIcon(environment, database, manager, softwareSlug, document.software.icon, report);
 
     for (const offered of document.versions ?? []) {
       const version = await upsertVersion(database, manager, softwareSlug, offered, report);
