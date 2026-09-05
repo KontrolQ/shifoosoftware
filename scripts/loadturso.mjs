@@ -1,13 +1,12 @@
-// Loads a SQLite dump into Turso. Used once, to carry the catalogue over from D1.
+// Loads a SQLite dump into a libSQL server over its HTTP pipeline, the same way the
+// worker talks to it.
 //
 //   node scripts/loadturso.mjs <dump.sql>
 //
-// Reads the credentials from the environment, so the token never lands in a file
-// that is read back by anything else.
+// Reads TURSO_DATABASE_URL and TURSO_AUTH_TOKEN from the environment. The token may be
+// a bearer token or a complete header such as "Basic ...".
 
 import { readFileSync } from "node:fs";
-
-import { createClient } from "@libsql/client";
 
 const dump = process.argv[2];
 
@@ -16,18 +15,21 @@ if (!dump) {
   process.exit(1);
 }
 
-const url = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const where = (process.env.TURSO_DATABASE_URL ?? "")
+  .replace(/^libsql:\/\//, "https://")
+  .replace(/\/+$/, "");
+const token = process.env.TURSO_AUTH_TOKEN ?? "";
 
-if (!url || !authToken) {
-  console.error("TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set");
+if (!where) {
+  console.error("TURSO_DATABASE_URL must be set");
   process.exit(1);
 }
 
-// A semicolon inside a string literal does not end a statement, and SQLite writes a
-// quote inside one by doubling it, so the split has to read the quotes rather than
-// just look for the separator.
-function statementsIn(sql) {
+const authorization = /^(Basic|Bearer) /i.test(token) ? token : `Bearer ${token}`;
+
+// A semicolon inside a string literal does not end a statement, and SQLite doubles a
+// quote to put one inside a string, so the split has to read the quotes.
+export function statementsIn(sql) {
   const found = [];
   let held = "";
   let quoted = false;
@@ -61,43 +63,52 @@ function statementsIn(sql) {
 
   const last = held.trim();
 
-  if (last) {
-    found.push(last);
-  }
-
-  return found;
+  return last ? [...found, last] : found;
 }
 
-const client = createClient({ url, authToken });
+async function run(statements) {
+  const answer = await fetch(`${where}/v2/pipeline`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization },
+    body: JSON.stringify({
+      requests: [
+        ...statements.map((sql) => ({ type: "execute", stmt: { sql } })),
+        { type: "close" },
+      ],
+    }),
+  });
+
+  if (!answer.ok) {
+    throw new Error(`${answer.status}: ${(await answer.text()).slice(0, 200)}`);
+  }
+
+  const held = await answer.json();
+
+  for (const [at, one] of (held.results ?? []).entries()) {
+    if (one.type !== "ok") {
+      throw new Error(`${one.error?.message ?? "failed"} on: ${statements[at]?.slice(0, 140)}`);
+    }
+  }
+}
+
 const statements = statementsIn(readFileSync(dump, "utf8"))
   .filter((one) => !/^PRAGMA\b/i.test(one));
 
-console.log(`${statements.length} statements to run`);
+console.log(`${statements.length} statements to run against ${where}`);
 
 const PER_BATCH = 100;
-let done = 0;
 
 for (let at = 0; at < statements.length; at += PER_BATCH) {
-  const chunk = statements.slice(at, at + PER_BATCH);
-
   try {
-    await client.batch(chunk, "write");
-    done += chunk.length;
+    await run(statements.slice(at, at + PER_BATCH));
   } catch (failed) {
-    console.error(`\nfailed around statement ${at}: ${String(failed).slice(0, 200)}`);
-    console.error(`first of the failing chunk: ${chunk[0].slice(0, 160)}`);
+    console.error(`\nfailed around statement ${at}: ${String(failed).slice(0, 300)}`);
     process.exit(1);
   }
 
-  if (done % 1000 < PER_BATCH) {
-    console.log(`  ${done}/${statements.length}`);
+  if ((at + PER_BATCH) % 1000 < PER_BATCH) {
+    console.log(`  ${Math.min(at + PER_BATCH, statements.length)}/${statements.length}`);
   }
 }
 
-console.log(`\nloaded ${done} statements`);
-
-const tables = await client.execute(
-  "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '__turso%' ORDER BY name"
-);
-
-console.log(`${tables.rows.length} tables now present`);
+console.log(`\nloaded ${statements.length} statements`);

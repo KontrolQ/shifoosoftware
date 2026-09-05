@@ -56,13 +56,20 @@ function heldValue(one) {
   }
 }
 
+// A token may arrive as a bearer token or as a whole header, so a scheme already on
+// the front of it is left alone.
+function authorized(token) {
+  if (!token) {
+    return {};
+  }
+
+  return { authorization: /^(Basic|Bearer) /i.test(token) ? token : `Bearer ${token}` };
+}
+
 async function pipelined(where, token, statements) {
   const answer = await fetch(`${where}${PIPELINE}`, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "content-type": "application/json", ...authorized(token) },
     body: JSON.stringify({
       requests: [
         ...statements.map(({ sql, args }) => ({
