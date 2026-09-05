@@ -41,6 +41,10 @@ const RECENT_LIMIT = 12;
 // A browsed list is read, not scanned, so it is shorter than a page of search results.
 const BROWSE_PER_PAGE = 24;
 
+// A blurb is cut off by the two lines it is given, not by a count of characters: cutting
+// it here first would end the second line early, wherever the page happens to be wide.
+const BLURB_ROOM = 1000;
+
 // Link previews are built by machines that never sign in, so every page states in its
 // own head what it is. The addresses have to be absolute for those machines to follow.
 const SITE = "https://software.shi.foo";
@@ -185,7 +189,7 @@ function withCategoryNames(rows, lookup) {
     ...row,
     categoryName: lookup.get(row.category) ?? row.category,
     added: (row.created_at ?? "").slice(0, 10),
-    blurb: plain(row.description, 320),
+    blurb: plain(row.description, BLURB_ROOM),
     icon: iconFor(row),
     publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
@@ -208,7 +212,7 @@ export async function home(database) {
     title: "Shifoo's Software Archive",
     categories: base.stocked.map((row) => ({
       ...row,
-      summaryText: plain(row.summary, 320),
+      summaryText: plain(row.summary, BLURB_ROOM),
       icon: row.icon_from ? `/icon/${row.icon_from}` : null,
     })),
     categoryCount: base.stocked.length,
@@ -252,7 +256,7 @@ export async function category(database, slug, wanted) {
   const software = found.rows.map((row) => ({
     ...row,
     icon: iconFor(row),
-    blurb: plain(row.description, 320),
+    blurb: plain(row.description, BLURB_ROOM),
     size: describedSize(row.bytes_held),
     publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
@@ -332,7 +336,7 @@ export async function directory(database, letter, page) {
     software: withCategoryNames(held.rows, lookup).map((row) => ({
       ...row,
       icon: iconFor(row),
-      blurb: plain(row.description, 320),
+      blurb: plain(row.description, BLURB_ROOM),
     })),
     softwareLabel: counted(held.total, "title"),
     hasSoftware: held.rows.length > 0,
@@ -365,7 +369,7 @@ export async function software(database, categorySlug, slug) {
     softwareSlug: slug,
     released: describedDate(row.released_on),
     size: describedSize(row.total_bytes),
-    blurb: plain(row.notes, 320),
+    blurb: plain(row.notes, BLURB_ROOM),
   }));
 
   const facts = statedFacts(held);
@@ -412,7 +416,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
     ...row,
     href: `/${categorySlug}/${slug}/${versionName}/${downloadName(row.slug, row.extension)}`,
     size: describedSize(row.size_bytes),
-    blurb: plain(row.notes, 320),
+    blurb: plain(row.notes, BLURB_ROOM),
     savesAs: downloadName(row.slug, row.extension),
     platforms: linkedFacts(row.platform, null, "platform"),
     devices: linkedFacts(row.device_names, null, "device"),
@@ -430,7 +434,7 @@ async function versionContext(database, categorySlug, slug, versionName) {
       category: categorySlug,
       softwareSlug: slug,
       released: describedDate(row.released_on),
-      blurb: plain(row.notes, 320),
+      blurb: plain(row.notes, BLURB_ROOM),
       size: describedSize(row.total_bytes),
     }));
 
