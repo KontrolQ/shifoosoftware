@@ -21,8 +21,7 @@
   <li class="withact">
     <a class="title" href="{{root}}/browse/{{path}}">{{display_name}}</a>
     <span class="note">{{language_name}}{{#is_external}} · hotlink{{/is_external}}
-      <span class="when">({{#is_external}}hotlink{{/is_external}}{{^is_external}}{{size}}{{/is_external}},
-        {{downloads}} downloads{{^published}}, hidden{{/published}})</span>
+      <span class="when">({{size}}, {{downloads}} downloads{{^published}}, hidden{{/published}})</span>
     </span>
     {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{path}}/remove">Remove</a>{{/mayEdit}}
   </li>
