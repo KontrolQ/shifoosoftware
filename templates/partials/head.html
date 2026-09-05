@@ -23,6 +23,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/static/favicons/apple-touch-icon.png">
 <link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/theme.css">
 <script src="/static/js/pick.js" defer></script>
 <script src="/static/js/page.js" defer></script>
 </head>
@@ -56,6 +57,7 @@
         <a href="/search">Advanced Search</a>
         <a href="/requests">Request Something</a>
         <a href="/api">API</a>
+        <a href="https://shi.foo" class="offsite">Shifoo</a>
       </div>
 
       <div class="group">
@@ -72,6 +74,18 @@
           <dt>Downloads</dt><dd>{{downloads}}</dd>
           <dt>Visitors</dt><dd>{{visitors}}</dd>
         </dl>
+      </div>
+
+      <div class="group themepick">
+        <b>Theme</b>
+        <form method="post" action="/theme">
+          <select name="theme" aria-label="Choose a theme" data-theme-pick>
+            <option value="shifoo">Shifoo</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+          <button type="submit">Use</button>
+        </form>
       </div>
     </div>
     <div class="body">

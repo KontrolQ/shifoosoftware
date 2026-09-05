@@ -1,0 +1,17 @@
+/* Light — the archive as it was drawn first: white paper, navy rules, a red accent. */
+
+:root {
+  --navy:#2b4a80;--navy-deep:#1e3560;--navy-pale:#e8eef8;
+  --red:#d92b3a;--red-deep:#a81d2a;--red-pale:#fdeaec;
+  --magenta:#a3356e;--magenta-pale:#faeaf3;
+  --gold:#e8a33d;
+  --ink:#23201f;--ink-soft:#4a4a4a;--muted:#6f6a66;--muted-more:#b4b4b4;
+  --rule:#d5cdc4;--rule-soft:#c8d5e8;--rule-faint:#e4e4e4;--field-rule:#a8b8d0;
+  --link:#1a3fa0;--visited:#6b3fa0;
+  --stripe:#fbfaf8;--sheet-soft:#fbfbfd;--field-off:#eef0f4;--rule-warm:#f3d4d8;
+  --on-fill:#ffffff;
+  --paper:#ffffff;--ground:#f2eee8;
+  --bar-others:#6f8fb8;--bar-elsewhere:#c9b48a;--bar-free:#e8e8e8;
+  --body:"Zen Kaku","Hiragino Kaku Gothic Pro","MS PGothic",Verdana,sans-serif;
+  --mono:"DM Mono",ui-monospace,Consolas,monospace;
+}

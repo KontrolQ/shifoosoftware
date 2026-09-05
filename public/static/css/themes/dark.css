@@ -1,0 +1,22 @@
+/* Dark — the same archive after hours. The structure does not move; the paper goes
+   dark, the rules lift off it, and the navy that was a heading colour becomes a
+   surface, so the bars still read as bars. */
+
+:root {
+  --navy:#3a5c96;--navy-deep:#9db6e0;--navy-pale:#1c2434;
+  --red:#e05664;--red-deep:#f0808c;--red-pale:#2e1c20;
+  --magenta:#c46a9c;--magenta-pale:#2a1c25;
+  --gold:#e8a33d;
+  --ink:#ddd8d2;--ink-soft:#b6b0a9;--muted:#8f8a85;--muted-more:#5a5650;
+  --rule:#3a3630;--rule-soft:#2c3546;--rule-faint:#312d28;--field-rule:#46536b;
+  --link:#8fb4f0;--visited:#c0a0e8;
+  --stripe:#1e1c1a;--sheet-soft:#201e1b;--field-off:#26231f;--rule-warm:#3a2b2e;
+  --on-fill:#f2efec;
+  --paper:#191715;--ground:#100f0e;
+  --bar-others:#4a6a92;--bar-elsewhere:#8a7a5a;--bar-free:#2a2724;
+  --body:"Zen Kaku","Hiragino Kaku Gothic Pro","MS PGothic",Verdana,sans-serif;
+  --mono:"DM Mono",ui-monospace,Consolas,monospace;
+}
+
+/* A picture drawn for white paper is too bright against this one. */
+img.icon,img.bigicon,img.caticon{background:#e8e6e3}

@@ -24,6 +24,44 @@ import { filesFor } from "./storage/bucket.js";
 
 const STATIC_PREFIX = "static";
 
+// The look is chosen by the reader and kept in a cookie. Rather than thread that
+// choice through every page, one stylesheet is served at a fixed address and its
+// contents depend on the cookie — so the right theme arrives with the first paint
+// and nothing flashes.
+const THEMES = ["shifoo", "light", "dark"];
+
+function themeIn(request) {
+  const held = /(?:^|;)\s*theme=([a-z]+)/.exec(request.headers.get("cookie") ?? "");
+
+  return THEMES.includes(held?.[1]) ? held[1] : THEMES[0];
+}
+
+async function themeSheet(request, environment, url) {
+  const wanted = new URL(`/static/css/themes/${themeIn(request)}.css`, url.origin);
+  const held = await environment.ASSETS.fetch(new Request(wanted, { headers: request.headers }));
+  const answered = new Response(held.body, held);
+
+  answered.headers.set("content-type", "text/css; charset=utf-8");
+  answered.headers.set("vary", "cookie");
+  answered.headers.set("cache-control", "no-cache");
+
+  return answered;
+}
+
+function themeChosen(request, form, url) {
+  const wanted = String(form.get("theme") ?? "");
+  const back = request.headers.get("referer") ?? "/";
+
+  return new Response(null, {
+    status: 303,
+    headers: {
+      location: back.startsWith(url.origin) ? back : "/",
+      "set-cookie": `theme=${THEMES.includes(wanted) ? wanted : THEMES[0]}` +
+        "; Path=/; Max-Age=31536000; SameSite=Lax",
+    },
+  });
+}
+
 function segments(pathname) {
   return pathname
     .split("/")
@@ -123,6 +161,14 @@ async function route(request, environment, url) {
 
   if (parts[0] === STATIC_PREFIX) {
     return environment.ASSETS.fetch(request);
+  }
+
+  if (parts[0] === "theme.css") {
+    return themeSheet(request, environment, url);
+  }
+
+  if (parts[0] === "theme" && request.method === "POST") {
+    return themeChosen(request, await request.formData(), url);
   }
 
   if (parts[0] === "graphql") {

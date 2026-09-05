@@ -107,7 +107,21 @@ function realDates(root) {
   });
 }
 
+// The sheet is chosen by cookie on the server; the box only has to agree with it.
+function themePicked(root) {
+  const held = /(?:^|;)\s*theme=([a-z]+)/.exec(document.cookie);
+
+  root.querySelectorAll("[data-theme-pick]").forEach((box) => {
+    if (held && [...box.options].some((one) => one.value === held[1])) {
+      box.value = held[1];
+    }
+
+    box.addEventListener("change", () => box.form.submit());
+  });
+}
+
 localise(document);
+themePicked(document);
 reveal(document);
 copying(document);
 realDates(document);

@@ -1,0 +1,100 @@
+/* Shifoo — the look of shi.foo itself, carried over: black ground, thin white rules,
+   Mali for everything, periwinkle links that turn magenta, mint links inside the page,
+   and the scanlines drawn over the top of it all. */
+
+@font-face{font-family:"Mali";font-weight:400;font-style:normal;font-display:swap;
+  src:url(/static/fonts/mali/Mali-Regular.ttf) format("truetype")}
+@font-face{font-family:"Mali";font-weight:500;font-style:normal;font-display:swap;
+  src:url(/static/fonts/mali/Mali-Medium.ttf) format("truetype")}
+@font-face{font-family:"Mali";font-weight:700;font-style:normal;font-display:swap;
+  src:url(/static/fonts/mali/Mali-Bold.ttf) format("truetype")}
+
+:root {
+  --navy:#4444b1;--navy-deep:#8d8dff;--navy-pale:#12121c;
+  --red:#df23c4;--red-deep:#ff5ad9;--red-pale:#25102040;
+  --magenta:#df23c4;--magenta-pale:#1d0f1a;
+  --gold:#e8a33d;
+  --ink:#f4f4ff;--ink-soft:#dcdcea;--muted:#b0b0c8;--muted-more:#6a6a80;
+  --rule:#ffffff40;--rule-soft:#ffffff26;--rule-faint:#ffffff1a;--field-rule:#8d8dff66;
+  --link:#8d8dff;--visited:#b48dff;
+  --stripe:#ffffff08;--sheet-soft:#ffffff0a;--field-off:#00000059;--rule-warm:#df23c433;
+  --on-fill:#ffffff;
+  --paper:#0000008c;--ground:#000000;
+  --bar-others:#4444b1;--bar-elsewhere:#8d8dff;--bar-free:#ffffff1a;
+  --body:"Mali","Comic Sans MS",cursive,sans-serif;
+  --mono:"DM Mono",ui-monospace,Consolas,monospace;
+}
+
+/* The page floats over the ground rather than sitting on paper, so the sheet and the
+   rail are translucent and the whole thing keeps the black behind it. */
+body{background:var(--ground);font-size:12.5px;letter-spacing:.005em}
+.welcome,.prose{font-size:.86rem}
+.catblurb,.entries .note{font-size:.76rem}
+.page{border-color:#ffffff59;border-top-color:#8d8dff;backdrop-filter:blur(2px)}
+.rail{background:#ffffff0a}
+.rail .group a:hover{background:#8d8dff1f}
+
+/* Links go green inside the page proper and cyan on hover, as they do on shi.foo. */
+.body a,.body a:visited{color:#95f695}
+.body a:hover{color:#9ae4f1}
+.rail a,.rail a:visited{color:#8d8dff}
+.rail a:hover{color:#df23c4}
+
+/* A section is named and ruled off rather than filled in, which is how the site marks
+   its own. The rule takes the colour the filled bar used to have. */
+.bar{background:transparent;color:#fff;font-size:.95rem;letter-spacing:.04em;
+  padding:.1rem 0 .25rem;border-bottom:1px solid #8d8dff;margin:1.4rem 0 .6rem}
+.bar.red,.bar.magenta{background:transparent;border-bottom-color:#df23c4}
+.bar small{color:#8d8dff;opacity:1;font-size:.7rem}
+.bar small a{color:#8d8dff}
+.barmake,.barmake:visited{border:1px solid #8d8dff;color:#8d8dff;font-size:.62rem;
+  padding:.05rem .5rem;margin-top:.1rem}
+.barmake:hover{background:#8d8dff;color:#000}
+
+th{background:#ffffff0f;color:#8d8dff;border-bottom-color:#8d8dff66}
+td{border-bottom:1px dotted #ffffff2e}
+.entries li{border-bottom:1px dotted #ffffff2e}
+.rail .group b{color:#8d8dff;border-bottom-color:#ffffff26}
+.rail .group a::before{color:#df23c4}
+.crumbs,.lede,.muted,.legend{color:#b0b0c8}
+.facts b,.facts dt{color:#8d8dff}
+.sha{color:#9fa8c4}
+h1{color:#fff;font-size:1.3rem}
+.pill,.pills a,.azbar a,.azbar span{background:#ffffff0f;color:#c8c8ff}
+.pills a:hover,.azbar a:hover,.azbar a.on{background:#8d8dff;color:#000}
+.search-panel{background:#ffffff0a}
+.search-panel input,.search-panel select,.search-panel textarea{background:#00000059;color:#fff}
+/* Buttons are indigo and turn magenta under the pointer, never the other way round.
+   A facet name is a button only so that it can be pressed; it is not one to look at,
+   so it keeps the plain ground the structure gives it. */
+button,.search-panel button,.quick button,.themepick button,.files .get{background:#4444b1;color:#fff}
+button:hover,.search-panel button:hover,.quick button:hover,.themepick button:hover,
+.files .get:hover{background:#df23c4;color:#fff}
+.facetnames button,.facetpanel .facetnames button{background:none;color:#8d8dff}
+.facetnames button:hover,.facetpanel .facetnames button:hover{background:#8d8dff1f;color:#fff}
+.facetnames button.on,.facetpanel .facetnames button.on{background:#8d8dff2e;color:#fff}
+.body .get{color:#fff}
+/* A row under the pointer lifts off the ground rather than bleaching. */
+.files tbody tr:hover,.files tbody tr:hover td,table.rows tr:hover td,
+table.apidocs tr:hover td{background:#8d8dff1a;color:inherit}
+.empty{background:#ffffff08}
+.foot{background:#ffffff0a;border-top-color:#8d8dff}
+h1,.sitename{color:#fff}
+
+/* An icon drawn for white paper needs a ground of its own, but a hard white block is
+   worse than the problem: it gets a soft plate and a thin rule instead. */
+img.icon,img.bigicon,img.caticon{background:#dcdad6;border:1px solid #ffffff33;
+  border-radius:3px;padding:1px}
+
+/* The scanlines, over everything and catching nothing. */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.18;
+  background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.4) 50%);background-size:100% 4px}
+
+@media (prefers-reduced-motion:no-preference){
+  body::after{animation:scanlines .2s linear infinite}
+}
+
+@keyframes scanlines{
+  from{background-position:0 0}
+  to{background-position:0 4px}
+}
