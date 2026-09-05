@@ -571,10 +571,13 @@ td.desc .clip *{display:inline}
 .facetcount:not(:empty){display:inline-block;flex:0 0 auto;width:auto;min-width:1.1rem;text-align:center;
   background:var(--red);color:#fff;border-radius:.6rem;padding:0 .3rem;font-size:.6rem;font-weight:700}
 
-.facetoptions{min-width:0;padding:.5rem .6rem}
-.facetbody{min-width:0}
-.facetsearch{width:100%;margin-bottom:.4rem}
-.optionlist{list-style:none;margin:0;padding:0;max-height:15rem;overflow-y:auto;overflow-x:hidden}
+.facetoptions{min-width:0;min-height:0;padding:.5rem .6rem;display:flex;flex-direction:column}
+.facetbody{min-width:0;min-height:0;display:flex;flex-direction:column;flex:1 1 auto}
+.facetsearch{width:100%;margin-bottom:.4rem;flex:0 0 auto}
+/* the options fill the panel the list of facets already makes tall, rather than
+   scrolling inside a short box of their own */
+.optionlist{list-style:none;margin:0;padding:0;flex:1 1 auto;min-height:12rem;
+  overflow-y:auto;overflow-x:hidden}
 .optionlist li{margin:0;padding:0}
 .optionrow{display:flex;align-items:center;gap:.45rem;padding:.16rem .2rem;min-width:0;cursor:pointer}
 .optionrow:hover{background:var(--navy-pale)}

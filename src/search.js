@@ -254,7 +254,7 @@ export async function searchSoftware(database, filters) {
   applyMatch(
     filters.query,
     ["s.name", "s.slug", "s.publisher_names", "s.description", "s.category_name",
-     "s.platform_names", "s.interface_names", "s.minimum_cpu_name"],
+     "s.platform_names", "s.interface_names", "s.minimum_cpu_name", "s.device_names"],
     `EXISTS (SELECT 1 FROM versions v WHERE v.software_slug = s.slug
              AND (v.version LIKE ?t ESCAPE '~' OR v.slug LIKE ?t ESCAPE '~'
                   OR v.notes LIKE ?t ESCAPE '~'))
@@ -301,7 +301,7 @@ export async function searchFiles(database, filters) {
     // platform and language are asked for by facet, and matching them here made a bare
     // "9" hit every file that runs on Windows 95
     ["f.display_name", "f.slug", "f.notes", "f.software_name", "f.version", "f.architecture",
-     "f.file_type", "f.hotlink_name"],
+     "f.file_type", "f.hotlink_name", "f.device_names"],
     `EXISTS (SELECT 1 FROM catalogue_software cs WHERE cs.slug = f.software_slug
              AND (cs.publisher_names LIKE ?t ESCAPE '~' OR cs.category_name LIKE ?t ESCAPE '~'))`,
     conditions,
