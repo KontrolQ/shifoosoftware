@@ -321,7 +321,7 @@ table.manage td.open{width:1%}
 .facts.stacked dt{color:var(--navy-deep);font-weight:700;font-size:.66rem;letter-spacing:.06em;
   text-transform:uppercase;padding-top:.12rem}
 .facts.stacked dd{margin:0}
-.prose{font-size:.8rem;line-height:1.7;margin:.4rem 0 1rem}
+.prose{font-size:.8rem;line-height:1.7;margin:.4rem 0 1rem;max-width:74ch}
 .prose p{margin:0 0 .6rem}
 .prose h3,.prose h4{font:700 .82rem var(--body);color:var(--navy-deep);margin:.8rem 0 .3rem}
 .prose ul,.prose ol{margin:.2rem 0 .6rem 1.1rem;padding:0}

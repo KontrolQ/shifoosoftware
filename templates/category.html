@@ -22,7 +22,7 @@
         <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
       </div>
       {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
-      {{#publisher}}<div class="cattags"><a class="pill" href="/search?publisher={{publisher}}&amp;show=software">{{publisher}}</a></div>{{/publisher}}
+      {{#publishers}}{{/publishers}}<div class="cattags">{{#publishers}}<a class="pill" href="{{href}}">{{name}}</a>{{/publishers}}</div>
     </div>
   </li>
 {{/software}}

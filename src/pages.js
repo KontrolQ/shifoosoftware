@@ -150,6 +150,8 @@ function slugOfName(name) {
 function statedFacts(row) {
   return [
     { label: "First released", value: describedDate(row.released_on) },
+    { label: "Publisher", value: row.publisher_names ?? row.publisher,
+      links: linkedFacts(row.publisher_names ?? row.publisher, null, "publisher") },
     { label: "Platform", value: row.platform_names, links: linkedFacts(row.platform_names, null, "platform") },
     { label: "Architecture", value: row.architecture_names },
     { label: "Interface", value: row.interface_names, links: linkedFacts(row.interface_names, null, "interface") },
@@ -185,6 +187,7 @@ function withCategoryNames(rows, lookup) {
     added: (row.created_at ?? "").slice(0, 10),
     blurb: plain(row.description, 320),
     icon: iconFor(row),
+    publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
 }
 
@@ -251,6 +254,7 @@ export async function category(database, slug, wanted) {
     icon: iconFor(row),
     blurb: plain(row.description, 320),
     size: describedSize(row.bytes_held),
+    publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
   const pager = pagesOf(`/${slug}/`, found.total, page);
 
@@ -365,7 +369,6 @@ export async function software(database, categorySlug, slug) {
   }));
 
   const facts = statedFacts(held);
-  const publisherSlug = slugOfName(String(held.publisher ?? "").split(",")[0]);
 
   return htmlResponse("software", {
     ...base,
@@ -379,7 +382,7 @@ export async function software(database, categorySlug, slug) {
       kind: "article",
     }),
     title: held.name,
-    software: { ...held, publisherSlug },
+    software: held,
     descriptionHtml: rendered(held.description),
     icon: iconFor(held),
     categoryName: named(base.stocked).get(categorySlug) ?? categorySlug,
@@ -435,10 +438,10 @@ async function versionContext(database, categorySlug, slug, versionName) {
 
   return {
     ...base,
-    software: {
-      ...heldSoftware,
-      publisherSlug: slugOfName(String(heldSoftware.publisher ?? "").split(",")[0]),
-    },
+    software: heldSoftware,
+    publishers: linkedFacts(heldSoftware.publisher, null, "publisher"),
+    platforms: linkedFacts(heldVersion.platform_names, null, "platform"),
+    hasPlatforms: Boolean(heldVersion.platform_names),
     icon: iconFor(heldSoftware),
     categoryName: named(base.stocked).get(categorySlug) ?? categorySlug,
     version: heldVersion,
