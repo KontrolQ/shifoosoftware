@@ -557,9 +557,12 @@ td.desc .clip *{display:inline}
 
 /* Advanced search browser. Every class here is prefixed so it cannot collide with
    the admin's own .tally, .name or .search-panel input rules. */
+/* the panel keeps one height whichever facet is open: a facet with three hundred
+   options scrolls inside it rather than growing the page under the reader */
 .facetpane{display:grid;grid-template-columns:14rem minmax(0,1fr);margin-top:.6rem;
-  border:1px solid var(--rule);background:#fff}
-.facetnames{list-style:none;margin:0;padding:0;border-right:1px solid var(--rule);background:var(--navy-pale)}
+  height:27.5rem;border:1px solid var(--rule);background:#fff}
+.facetnames{list-style:none;margin:0;padding:0;border-right:1px solid var(--rule);
+  background:var(--navy-pale);overflow-y:auto}
 .facetnames li{margin:0}
 .facetnames button{display:flex;justify-content:space-between;align-items:center;gap:.4rem;width:100%;
   text-align:left;font:.72rem var(--body);padding:.32rem .55rem;background:none;border:0;
@@ -576,7 +579,7 @@ td.desc .clip *{display:inline}
 .facetsearch{width:100%;margin-bottom:.4rem;flex:0 0 auto}
 /* the options fill the panel the list of facets already makes tall, rather than
    scrolling inside a short box of their own */
-.optionlist{list-style:none;margin:0;padding:0;flex:1 1 auto;min-height:12rem;
+.optionlist{list-style:none;margin:0;padding:0;flex:1 1 auto;min-height:0;
   overflow-y:auto;overflow-x:hidden}
 .optionlist li{margin:0;padding:0}
 .optionrow{display:flex;align-items:center;gap:.45rem;padding:.16rem .2rem;min-width:0;cursor:pointer}
