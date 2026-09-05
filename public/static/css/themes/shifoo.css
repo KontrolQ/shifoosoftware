@@ -70,6 +70,25 @@ h1{color:#fff;font-size:1.3rem}
 button,.search-panel button,.quick button,.themepick button,.files .get{background:#4444b1;color:#fff}
 button:hover,.search-panel button:hover,.quick button:hover,.themepick button:hover,
 .files .get:hover{background:#df23c4;color:#fff}
+/* Anything red in the light scheme is an accent here, not an alarm, so it takes the
+   indigo the site uses for its own controls. */
+.toolbar button[type=submit],.sift button{background:#4444b1;color:#fff}
+.toolbar button[type=submit]:hover,.sift button:hover{background:#df23c4}
+.toolbar button.mild{background:#ffffff0f;border-color:#8d8dff66;color:#c8c8ff}
+.toolbar button.mild:hover{background:#8d8dff;color:#000}
+
+/* A control has to be visible before it can be used. */
+tr.filterrow th{background:#ffffff0a}
+tr.filterrow select,tr.filterrow input{background:#00000073;border-color:#8d8dff59;color:#f4f4ff}
+tr.filterrow select option{background:#12121c;color:#f4f4ff}
+.search-panel select option,.quick select option{background:#12121c;color:#f4f4ff}
+
+/* The strip is only a rule under the tabs, not a band across the page. */
+.viewtabs{background:none;border:0;border-bottom:1px solid #ffffff26;padding-bottom:1px}
+.viewtabs a{background:#ffffff0a;color:#c8c8ff}
+.viewtabs a:hover{background:#8d8dff1f;color:#fff}
+.viewtabs a.on{background:#4444b1;color:#fff}
+
 .facetnames button,.facetpanel .facetnames button{background:none;color:#8d8dff}
 .facetnames button:hover,.facetpanel .facetnames button:hover{background:#8d8dff1f;color:#fff}
 .facetnames button.on,.facetpanel .facetnames button.on{background:#8d8dff2e;color:#fff}

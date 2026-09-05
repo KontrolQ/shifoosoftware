@@ -18,5 +18,8 @@
   --mono:"DM Mono",ui-monospace,Consolas,monospace;
 }
 
+/* The tab strip is a rule under the tabs rather than a band across the page. */
+.viewtabs{background:none;border:0;border-bottom:1px solid var(--rule);padding-bottom:1px}
+
 /* A picture drawn for white paper is too bright against this one. */
 img.icon,img.bigicon,img.caticon{background:#e8e6e3}
