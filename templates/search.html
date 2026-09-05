@@ -32,7 +32,7 @@
       {{^icon}}<span class="icon blank"></span>{{/icon}}
       <div class="catbody">
         <div class="cattop">
-          <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+          <a class="cattitle" style="--hue:{{hue}}" href="/{{category}}/{{slug}}/">{{name}}</a>
         </div>
         {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
         <div class="cattags">{{#publishers}}<a class="pill" href="{{href}}">{{name}}</a>{{/publishers}}</div>
@@ -52,7 +52,7 @@
 
   {{#hasMatchedFiles}}
   <div class="bar red">Files <small>{{fileCount}} found</small></div>
-  <table>
+  <table class="results">
     <thead><tr><th>File</th><th>Title</th><th>Platform</th>{{#anyHardware}}<th>Hardware</th>{{/anyHardware}}<th class="right">Size</th></tr></thead>
     <tbody>
     {{#matchedFiles}}

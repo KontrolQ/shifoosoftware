@@ -23,7 +23,7 @@
     {{^icon}}<span class="icon blank"></span>{{/icon}}
     <div class="catbody">
       <div class="cattop">
-        <a class="cattitle" href="/{{slug}}/">{{name}}</a>
+        <a class="cattitle" style="--hue:{{hue}}" href="/{{slug}}/">{{name}}</a>
       </div>
       {{#summaryText}}<p class="catblurb">{{summaryText}}</p>{{/summaryText}}
     </div>
@@ -45,7 +45,7 @@
     {{^icon}}<span class="icon blank"></span>{{/icon}}
     <div class="catbody">
       <div class="cattop">
-        <a class="cattitle" href="/{{category}}/{{slug}}/">{{name}}</a>
+        <a class="cattitle" style="--hue:{{hue}}" href="/{{category}}/{{slug}}/">{{name}}</a>
       </div>
       {{#blurb}}<p class="catblurb">{{blurb}}</p>{{/blurb}}
     </div>

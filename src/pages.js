@@ -33,6 +33,7 @@ import {
 } from "./search.js";
 import { describedDate, describedMeasure, describedSize, downloadName, htmlResponse } from "./rendering.js";
 import { plain, rendered } from "./markdown.js";
+import { swatchFor } from "./palette.js";
 import { apiDescription } from "./api/documented.js";
 import { lettersHeld, rowsOf, softwareByLetter } from "./database.js";
 
@@ -98,8 +99,13 @@ async function shell(database) {
   const seen = await visitorTotal(database);
   const updated = await lastUpdated(database);
 
+  const listed = held.map((row) => ({
+    ...row,
+    icon: row.icon_from ? `/icon/${row.icon_from}` : "/static/images/icons/folder.gif",
+  }));
+
   return {
-    railCategories: held,
+    railCategories: listed,
     railCategoryLabels: labelsFor(held, "slug", "name"),
     count: (counted ? counted.held : 0).toLocaleString("en"),
     filesHeld: (stored ? stored.total : 0).toLocaleString("en"),
@@ -192,6 +198,7 @@ function withCategoryNames(rows, lookup) {
     added: (row.created_at ?? "").slice(0, 10),
     blurb: plain(row.description, BLURB_ROOM),
     icon: iconFor(row),
+    hue: swatchFor(row.slug),
     publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
 }
@@ -215,6 +222,7 @@ export async function home(database) {
       ...row,
       summaryText: plain(row.summary, BLURB_ROOM),
       icon: row.icon_from ? `/icon/${row.icon_from}` : null,
+      hue: swatchFor(row.slug),
     })),
     categoryCount: base.stocked.length,
     categoryLabel: counted(base.stocked.length, "section"),
@@ -258,6 +266,7 @@ export async function category(database, slug, wanted) {
     ...row,
     icon: iconFor(row),
     blurb: plain(row.description, BLURB_ROOM),
+    hue: swatchFor(row.slug),
     size: describedSize(row.bytes_held),
     publishers: linkedFacts(row.publisher, null, "publisher"),
   }));
@@ -530,7 +539,7 @@ export async function requests(database, thanks) {
     }),
     title: "Request something",
     thanks,
-    count: counted?.held ?? 0,
+    askedFor: counted?.held ?? 0,
     open: open.map((row) => ({ ...row, when: (row.happened_at ?? "").slice(0, 10) })),
     hasOpen: open.length > 0,
   });
