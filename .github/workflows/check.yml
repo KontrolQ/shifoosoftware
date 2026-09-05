@@ -25,4 +25,5 @@ jobs:
         run: npm run build
 
       - name: Bundle without publishing
-        run: npx wrangler deploy --cwd build --minify --dry-run --outdir dist
+        working-directory: build
+        run: npx wrangler deploy --minify --dry-run --outdir ../dist

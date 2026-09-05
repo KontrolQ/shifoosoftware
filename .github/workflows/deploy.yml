@@ -39,12 +39,15 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: d1 migrations apply shifoosoftware --remote
 
+      # Published from inside build/, not with --cwd: the flag reports the minified
+      # tree and then bundles the sources anyway.
       - name: Publish the worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --cwd build --minify
+          workingDirectory: build
+          command: deploy --minify
 
       - name: Give it its secrets
         uses: cloudflare/wrangler-action@v3

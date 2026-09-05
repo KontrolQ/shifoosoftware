@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wrangler dev --local --port 8788",
     "build": "node scripts/build.mjs",
-    "deploy": "npm run build && wrangler deploy --cwd build --minify"
+    "deploy": "npm run build && cd build && wrangler deploy --minify"
   },
   "dependencies": {
     "graphql": "^17.0.2",
