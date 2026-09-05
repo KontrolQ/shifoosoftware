@@ -40,21 +40,34 @@ body::before{content:"";position:fixed;inset:0;background:#000;opacity:.72;
    backdrop. Its white hairline across the top of them belongs under a header banner
    with a sprite sitting on the line — there is no banner here, so the rule is left off
    rather than hung on nothing. */
-.page,.page.wide{width:1020px;border:0;background:none;box-shadow:none}
+.page,.page.wide{border:0;background:none;box-shadow:none}
 .shell{align-items:flex-start}
 .rail{width:200px;flex:0 0 200px;background:none;border:0;padding:.9rem 0 0}
 .body{flex:1 1 auto;background:none;border:0;padding:.9rem 0 2rem 20px}
 .foot{width:100%;margin-top:8px;padding:8px 0;text-align:center;border-top:1px solid #fff}
-.welcome,.prose{font-size:.85rem;text-align:justify}
-.catblurb,.entries .note{font-size:.75rem}
+body,.rail,.body{line-height:1.5}
+.welcome,.prose,.catblurb,.entries .note,.lede,.crumbs,.facts,.facts dd,.facts dt,
+.body p,.body li,.body td,.body th,.pagedesc,.empty,table.rows td,table.rows th{
+  font-size:12px;line-height:1.5}
+.welcome,.prose{text-align:justify}
+.foot,.foot a,.stats dt,.stats dd,.bar small,.bar small a,small,.catcount,.sha,.legend,
+.pagerat,.pager,.muted,.crumbs,.viewtabs a{font-size:11px;line-height:1.5}
+.body .cattitle{font-size:18px;line-height:27px}
+.bar{font-size:24px;line-height:36px}
+h1{font-size:32px;line-height:48px}
 
 a,a:link,a:visited{color:#8d8dff;text-decoration:none}
 a:hover,a:active{color:#df23c4;text-decoration:underline}
 .body a,.body a:visited{color:#95f695}
 .body a:hover{color:#9ae4f1}
 
+/* A title is drawn from the archive's own palette by its slug, so it keeps the same
+   colour wherever it is listed. */
+.body .cattitle,.body .cattitle:visited{color:var(--hue,#95f695)}
+.body .cattitle:hover{color:#9ae4f1}
+
 /* A section is titled, not boxed: white, large, underlined with a violet wave. */
-.bar{background:none;color:#fff;font:700 1.5rem var(--body);letter-spacing:normal;
+.bar{background:none;color:#fff;font:700 24px/36px var(--body);letter-spacing:normal;
   padding:0;margin:1.6rem 0 .6rem;
   text-decoration:underline;text-decoration-style:wavy;text-decoration-color:#8d8dff;
   text-underline-offset:.22rem}
@@ -67,64 +80,156 @@ a:hover,a:active{color:#df23c4;text-decoration:underline}
 
 /* Each block in the rail is a panel: a violet lid with outlined lettering, a darker body
    beneath it, and a hairline of violet, pink and cyan between the two. */
-.rail .group{position:relative;margin:0 0 .8rem;padding:0;
+.rail .group{position:relative;margin:24px 0;padding:0 0 6px;
   background:linear-gradient(135deg,#140f1ee6 0%,#190f2dd9 100%);
   border:1px solid #ad8cff66;border-top:0;border-radius:0 0 8px 8px;
   box-shadow:inset 0 0 6px #ad8cff66;backdrop-filter:blur(1px)}
-.rail .group b{display:block;position:relative;margin:0 -1px;padding:6px 6px 6px 10px;
+.rail .group b{display:block;position:relative;margin:0 -1px 6px;padding:6px 6px 6px 10px;
   background:linear-gradient(180deg,#1e1432d9 0%,#0f0a19e6 100%);
   border:1px solid #ad8cffb3;border-radius:8px 8px 0 0;
   box-shadow:0 3px 5px -2px #8857d299,inset 0 0 8px #945dff40;
   font:700 18px/27px "SweetFairy","Mali",sans-serif;letter-spacing:.5px;color:#623795;
-  filter:drop-shadow(2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(-2px 0 0 #fff)
-    drop-shadow(0 -2px 0 #fff) drop-shadow(0 1px 1px #623795) drop-shadow(0 1px 1px #623795)}
+  text-shadow:2px 0 0 #fff,-2px 0 0 #fff,0 2px 0 #fff,0 -2px 0 #fff,
+    1px 1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,-1px -1px 0 #fff,
+    2px 2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,-2px -2px 0 #fff,
+    0 3px 2px #623795}
 .rail .group b::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;
   background:linear-gradient(to right,#ad8cff66,#ffb3ba80,#54f2f280,#ad8cff66)}
-.rail .group a{display:block;margin:3px 4px;padding:2px 2px 2px 1rem;border-radius:4px;
+.rail .group a,.rail .group a.ico{margin:3px 6px;padding:2px;border-radius:4px;
   font-size:12px;color:#8d8dff;
   transition:transform .2s ease,background-color .2s ease}
 .rail .group a:hover{transform:translateX(3px);background:#ad8cff2e;
-  box-shadow:inset 0 0 3px #54f2f233;text-decoration:none;color:#fff}
-.rail .group a::before{left:.35rem;color:#54f2f2}
+  box-shadow:inset 0 0 3px #54f2f233;color:#df23c4;text-decoration:underline}
 .rail .group a.offsite::after{color:#ffb3ba}
-.rail .group form,.rail .group .stats{padding:6px}
+.rail .group a.ico img{display:block;filter:drop-shadow(0 0 1px #54f2f2b3)}
+.rail .group form{padding:0 6px}
+
+/* The pointer is announced by a chevron that slides in from off the panel. */
+.rail .group a::before,.rail .group a.ico::before{content:"";position:absolute;top:50%;left:-15px;
+  transform:translateY(-50%);width:0;height:0;opacity:0;
+  border-top:6px solid transparent;border-bottom:6px solid transparent;
+  border-left:10px solid #ad8cff;
+  filter:drop-shadow(0 0 2px #ad8cff80);transition:all .3s ease}
+.rail .group a:hover::before,.rail .group a.ico:hover::before{opacity:1;left:-10px}
 .brand{border-bottom:1px solid #ffffff40;margin-bottom:.8rem}
 
 /* Chips are raised and glossy, exactly as the site's own tags are. */
-.pill,.pills a,.azbar a,.cattags .pill{
-  border-radius:10px;padding:2px 10px;border:1px solid #5a338f;color:#fff;font-size:.68rem;
+.pill,.pills a,.azbar a,.cattags .pill,
+.body .pill,.body .pills a,.body .azbar a,.body .cattags .pill{
+  border-radius:10px;padding:2px 10px;border:1px solid #5a338f;color:#fff;
+  font-size:11px;line-height:16.5px;
   background:linear-gradient(145deg,#452673,#311b4f);
   box-shadow:inset 0 1px 1px #ffffff66,inset 0 -1px 1px #00000066,
     0 0 5px #45267380,0 2px 4px #00000033;
   text-shadow:0 -1px 0 #00000080;transition:all .2s ease}
+.pill,.pills a,.azbar a,.cattags .pill{position:relative;overflow:hidden}
 .pills a:hover,.azbar a:hover,.cattags .pill:hover{color:#fff;text-decoration:none;
   background:linear-gradient(145deg,#512c85,#3d2361);
   box-shadow:inset 0 1px 1px #ffffff66,inset 0 -1px 1px #00000066,
     0 0 10px #452673cc,0 2px 4px #00000033}
+.pills a:active,.azbar a:active,.cattags .pill:active{transform:translateY(1px);
+  background:linear-gradient(145deg,#311b4f,#452673);
+  box-shadow:inset 0 2px 4px #00000066,0 0 5px #45267380}
+
+/* A chip catches the light as the pointer rests on it. */
+.pills a:hover::after,.azbar a:hover::after,.cattags .pill:hover::after{
+  content:"";position:absolute;top:-50%;left:-150%;width:200%;height:200%;
+  transform:rotate(45deg);animation:shine 4s linear infinite;
+  background:linear-gradient(45deg,transparent 0%,#ffffff1a 45%,#ffffff80 50%,
+    #ffffff1a 55%,transparent 100%)}
+
+@keyframes shine{
+  from{left:-150%}
+  to{left:150%}
+}
 .azbar a.on{background:linear-gradient(145deg,#6b3fae,#4a2a78)}
 .azbar span{border-radius:10px;background:none;border:1px solid #ad8cff26;color:#6d5f8a}
 
-/* Buttons are the site's own: indigo, rounded, magenta under the pointer. */
+/* A button is the chip the site puts its own controls in: lilac over violet, edged
+   in a heavier violet, with a block of pink and a block of cyan stacked behind it.
+   It presses by sliding onto its own shadows. */
 button,.search-panel button,.quick button,.themepick button,.toolbar button[type=submit],
-.sift button,.files .get,a.pill{background:#4444b1;color:#fff;border:0;border-radius:4px;
-  text-shadow:none;box-shadow:none}
+.sift button,.files .get,a.pill,.doing button,.doorway button,.person button,
+.keeper button,ul.picker button,ol.reorder button,.linkpick .chosenrow button,
+.linkpick li button,button.danger,button.wipe{
+  border:2px solid #ad8cff;border-radius:6px;padding:3px 10px;
+  background:linear-gradient(135deg,#f4b7fff2 0%,#ad80ecf2 100%);
+  box-shadow:2px 2px 0 #ffb3ba,4px 4px 0 #54f2f2,0 0 15px #ad8cff80;
+  color:#4a0080;font-weight:700;letter-spacing:normal;text-shadow:none;position:relative;
+  margin:0 5px 5px 0;transition:box-shadow .12s ease,transform .12s ease,background .2s ease}
 button:hover,.search-panel button:hover,.quick button:hover,.themepick button:hover,
-.toolbar button[type=submit]:hover,.sift button:hover,.files .get:hover,a.pill:hover{
-  background:#df23c4;color:#fff;text-decoration:none}
-button:active,.search-panel button:active{background:#8d8dff}
-.toolbar button.mild{background:#ffffff0f;border:1px solid #ad8cff66;color:#c8b4ff}
-.toolbar button.mild:hover{background:#ad8cff;color:#160d24}
+.toolbar button[type=submit]:hover,.sift button:hover,.files .get:hover,a.pill:hover,
+.doing button:hover,.doorway button:hover,.person button:hover,.keeper button:hover,
+ul.picker button:hover,ol.reorder button:hover,.linkpick .chosenrow button:hover,
+.linkpick li button:hover,button.danger:hover,button.wipe:hover{
+  background:#ffdfba;border-color:#fb91d1;color:#4a0080;text-decoration:none;
+  box-shadow:inset 0 0 5px #fb91d14d,2px 2px 0 #ffb3ba,4px 4px 0 #54f2f2,0 0 15px #ad8cff80}
+button:active,.search-panel button:active,.quick button:active,.files .get:active,
+a.pill:active,.themepick button:active{
+  background:linear-gradient(135deg,#c9a3ff 0%,#8f63cc 100%);
+  box-shadow:inset 0 2px 4px #00000059,2px 2px 0 #ffb3ba,4px 4px 0 #54f2f2}
+button.danger,button.wipe{border-color:#ff8fb0;
+  background:linear-gradient(135deg,#ffd0dcf2 0%,#e07a9ef2 100%);color:#5a0020;
+  box-shadow:2px 2px 0 #54f2f2,4px 4px 0 #ffb3ba,0 0 15px #ff8fb080}
+.toolbar button.mild{background:linear-gradient(135deg,#dfd3f5f2 0%,#9d92c8f2 100%)}
 
+/* A field is the editor's: near-black, square, edged in a thin violet, and lit at
+   that edge when it has the caret. */
 input,select,textarea,.search-panel input,.search-panel select,.search-panel textarea,
-.quick input,.quick select,tr.filterrow select,tr.filterrow input{
-  background:#0d0718b3;border:1px solid #ad8cff59;color:#fff;border-radius:4px}
-select option{background:#160d24;color:#fff}
+.quick input,.quick select,.sift input,.sift select,tr.filterrow select,tr.filterrow input,
+table.manage input,table.manage select,.rail .filter input,.keeper input,.person select,
+.linkpick > input[type=search],#playground textarea{
+  background:#000000b3;border:1px solid #8d8dff4d;color:#fff;border-radius:0}
+input::placeholder,textarea::placeholder,.search-panel input::placeholder{color:#888}
+input:focus,select:focus,textarea:focus{border-color:#ffffff66;outline:none}
+input[readonly],.rowedit input[readonly]{background:#0000004d;color:#888}
+select,.search-panel select,.quick select,.sift select,tr.filterrow select,
+table.manage select,.person select,.themepick select{
+  appearance:none;-webkit-appearance:none;padding-right:22px;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%238d8dff'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;background-size:9px 6px}
+select option{background:#0c0a14;color:#fff}
+
+/* In the rail a field, a dropdown and a button stand the same height, spaced so the
+   blocks behind a button have somewhere to fall. */
+.quick{display:grid;gap:8px;padding:10px}
+.quick input,.quick select,.quick button,.themepick select,.themepick button{
+  box-sizing:border-box;padding:0 10px;font-size:12px;margin:0}
+.quick input,.quick select,.themepick select{height:30px}
+.quick select,.themepick select{background-position:right 8px center}
+.themepick form{display:flex;gap:8px;align-items:flex-start;padding:2px 10px 10px}
+.themepick select{flex:1 1 auto;min-width:0}
+.rail .group .stats{padding:2px 10px 8px}
+
+/* A panel is a closed box: what a button throws stays inside its walls. A button is
+   three layers deep, so its own box gives up the four pixels the blocks behind it
+   need and the stack ends level with the fields above. */
+.quick button,.themepick button{
+  box-shadow:2px 2px 0 #ffb3ba,4px 4px 0 #54f2f2,0 0 8px #ad8cff59;
+  height:26px;min-height:0;margin:0 4px 4px 0}
+.quick button:hover,.themepick button:hover{
+  box-shadow:inset 0 0 5px #fb91d14d,2px 2px 0 #ffb3ba,4px 4px 0 #54f2f2,0 0 8px #ad8cff59}
+.linkpick,.pickhead,ul.picker{background:#000000b3;border-color:#8d8dff4d}
+
+/* The bars a reader drags are the site's violet, and thinner than the system's. */
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:#00000059}
+*::-webkit-scrollbar-thumb{background:#8d8dff}
+*::-webkit-scrollbar-thumb:hover{background:#c8b4ff}
 
 /* A facet name is pressed, not admired. */
-.facetnames button,.facetpanel .facetnames button{background:none;border:0;color:#c8b4ff;
-  box-shadow:none;text-shadow:none;border-radius:0}
-.facetnames button:hover,.facetpanel .facetnames button:hover{background:#ad8cff2e;color:#fff}
-.facetnames button.on,.facetpanel .facetnames button.on{background:#ad8cff3d;color:#fff}
+.facetnames button,.facetpanel .facetnames button,
+.facetnames button:active,.facetpanel .facetnames button:active{
+  background:none;border:0;color:#c8b4ff;margin:0;height:auto;
+  box-shadow:none;text-shadow:none;border-radius:0;font-weight:400}
+.facetnames button:hover,.facetpanel .facetnames button:hover{
+  background:#ad8cff1f;color:#df23c4}
+.facetnames button.on,.facetpanel .facetnames button.on,
+.facetnames button.on:hover,.facetpanel .facetnames button.on:hover{
+  background:#ad8cff2e;color:#fff;font-weight:700;
+  box-shadow:inset 2px 0 0 #8d8dff}
+.optionrow:hover,.facetpanel .optionrow:hover{background:#ad8cff1f}
+.optionrow:hover .label,.facetpanel .optionrow:hover .label{color:#fff}
 .facetpane,.facetpanel{background:#0f0a1acc;border-color:#ad8cff40;border-radius:8px}
 .facetnames{background:none;border-right-color:#ad8cff33}
 
@@ -143,7 +248,7 @@ tr.filterrow th{background:#ffffff08}
 .crumbs,.lede,.muted,.legend{color:#b6a8d8}
 .facts b,.facts dt{color:#c8b4ff}
 .sha{color:#a89ac8}
-h1{color:#fff;font:700 1.5rem var(--body)}
+h1{color:#fff;font:700 32px/48px "SweetFairy",var(--body);letter-spacing:.5px}
 .sitename{color:#fff}
 .empty{background:#ffffff08;border-color:#ad8cff33;border-radius:8px}
 .foot{background:none;border-top:1px solid #fff;color:#b6a8d8}
