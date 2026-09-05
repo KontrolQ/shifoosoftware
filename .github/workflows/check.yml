@@ -21,5 +21,8 @@ jobs:
 
       - run: npm ci
 
+      - name: Minify into build/
+        run: npm run build
+
       - name: Bundle without publishing
-        run: npx wrangler deploy --dry-run --outdir dist
+        run: npx wrangler deploy --cwd build --minify --dry-run --outdir dist

@@ -26,6 +26,11 @@ jobs:
 
       - run: npm ci
 
+      # Everything published is minified: the templates, the stylesheets and the
+      # scripts here, and the worker bundle itself by wrangler.
+      - name: Minify into build/
+        run: npm run build
+
       # The schema goes first, so the worker never meets a database it predates.
       - name: Bring the database up to date
         uses: cloudflare/wrangler-action@v3
@@ -39,7 +44,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+          command: deploy --cwd build --minify
 
       - name: Give it its secrets
         uses: cloudflare/wrangler-action@v3

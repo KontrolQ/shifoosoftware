@@ -5,6 +5,9 @@
 /.wrangler/
 /dist/
 
+# The minified mirror the deploy is published from
+/build/
+
 # Secrets. Never commit these — the example file records the names only.
 *.vars
 .dev.vars.*
