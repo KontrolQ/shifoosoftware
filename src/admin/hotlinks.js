@@ -3,11 +3,12 @@ import { plain } from "../markdown.js";
 import { applyMatch } from "../searching.js";
 import { can, refuse } from "./permissions.js";
 import {
+  byteFieldFor,
+  bytesFrom,
   goTo,
   htmlPage,
   namedPath,
   noteChange,
-  numberFrom,
   rowsOf,
   textFrom,
 } from "./shared.js";
@@ -130,6 +131,7 @@ export async function hotlinkView(environment, root, manager, slug, message, sav
     address: `/hotlink/${held.slug}`,
     host: hostOf(held.target_url),
     size: held.size_bytes ? describedSize(held.size_bytes) : "",
+    sizeField: byteFieldFor("size", "Size", held.size_bytes),
     usedBy,
     isUsed: usedBy.length > 0,
     mayEdit: can(manager, "hotlinks.edit"),
@@ -151,6 +153,7 @@ export async function hotlinkNew(environment, root, manager, message) {
     heading: "Add a Hotlink",
     subheading: "a file that lives somewhere else",
     atHotlinks: true,
+    sizeField: byteFieldFor("size", "Size", null),
   });
 }
 
@@ -211,7 +214,7 @@ export async function hotlinkCreate(environment, root, manager, form) {
     .prepare(`
       INSERT INTO hotlinks (slug, name, target_url, size_bytes, notes, added_at)
       VALUES (?, ?, ?, ?, ?, ?)`)
-    .bind(slug, name, target, numberFrom(form, "size_bytes", 0) || null,
+    .bind(slug, name, target, bytesFrom(form, "size"),
           textFrom(form, "notes"), new Date().toISOString())
     .run();
 
@@ -245,7 +248,7 @@ export async function hotlinkSave(environment, root, manager, slug, form) {
     .prepare(`
       UPDATE hotlinks SET slug = ?, name = ?, target_url = ?, size_bytes = ?, notes = ?
       WHERE slug = ?`)
-    .bind(wanted, name, target, numberFrom(form, "size_bytes", 0) || null,
+    .bind(wanted, name, target, bytesFrom(form, "size"),
           textFrom(form, "notes"), slug)
     .run();
 

@@ -16,12 +16,11 @@
 {{#hasSoftware}}
 <ul class="entries">
 {{#software}}
-  <li class="withact">
+  <li>
     <a class="title" href="{{root}}/browse/{{category.slug}}/{{slug}}">{{name}}</a>
     <span class="note">{{publisher}}
       <span class="when">({{versions}} versions{{^published}}, hidden{{/published}})</span>
     </span>
-    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{category.slug}}/{{slug}}/remove">Remove</a>{{/mayEdit}}
   </li>
 {{/software}}
 </ul>

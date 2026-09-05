@@ -39,7 +39,7 @@ whoever keeps the archive. There is no account to make and nothing to sign.</p>
   const answer = await fetch("/graphql", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ query: "{ allSoftware(limit:200){ name } publishers { name } }" }),
+    body: JSON.stringify({ query: "{ Page(perPage: 500) { software { name } publishers { name } } }" }),
   }).then((one) => one.json()).catch(() => null);
 
   if (!answer || !answer.data) {
@@ -59,8 +59,8 @@ whoever keeps the archive. There is no account to make and nothing to sign.</p>
     }
   };
 
-  fill("known-titles", answer.data.allSoftware.map((one) => one.name));
-  fill("known-publishers", answer.data.publishers.map((one) => one.name));
+  fill("known-titles", answer.data.Page.software.map((one) => one.name));
+  fill("known-publishers", answer.data.Page.publishers.map((one) => one.name));
 })();
 </script>
 {{> foot}}

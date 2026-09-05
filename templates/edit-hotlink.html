@@ -17,8 +17,7 @@
     <label>Name<input name="name" value="{{hotlink.name}}" required></label>
     <label>Slug <span class="hintmark">leave blank to name it after the name</span>
       <input name="slug" value="{{hotlink.slug}}"></label>
-    <label>Size in bytes <span class="hintmark">optional</span>
-      <input name="size_bytes" value="{{hotlink.size_bytes}}" inputmode="numeric"></label>
+    {{#sizeField}}{{> measurefield}}{{/sizeField}}
   </div>
   <label class="wide">Points at<input name="target_url" value="{{hotlink.target_url}}" required></label>
   <label class="wide">Notes <span class="hintmark">Markdown allowed</span>

@@ -60,6 +60,54 @@ function copying(root) {
   });
 }
 
+// The server drops a day its month cannot hold, but a form should not let one be typed
+// in the first place.
+function daysIn(month, year) {
+  const lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const at = Number(month) - 1;
+
+  if (at < 0 || at > 11) {
+    return 31;
+  }
+
+  if (at === 1) {
+    const held = Number(year);
+    const leap = held % 4 === 0 && (held % 100 !== 0 || held % 400 === 0);
+
+    return year ? (leap ? 29 : 28) : 29;
+  }
+
+  return lengths[at];
+}
+
+function realDates(root) {
+  root.querySelectorAll(".datefield").forEach((field) => {
+    const day = field.querySelector("input[name$='_day']");
+    const month = field.querySelector("select[name$='_month']");
+    const year = field.querySelector("input[name$='_year']");
+
+    if (!day || !month || !year) {
+      return;
+    }
+
+    const trim = () => {
+      const allowed = daysIn(month.value, year.value);
+
+      day.max = String(allowed);
+
+      if (Number(day.value) > allowed) {
+        day.value = "";
+      }
+    };
+
+    month.addEventListener("change", trim);
+    year.addEventListener("change", trim);
+    day.addEventListener("change", trim);
+    trim();
+  });
+}
+
 localise(document);
 reveal(document);
 copying(document);
+realDates(document);

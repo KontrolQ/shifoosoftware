@@ -18,12 +18,11 @@
 {{#hasFiles}}
 <ul class="entries">
 {{#files}}
-  <li class="withact">
+  <li>
     <a class="title" href="{{root}}/browse/{{path}}">{{display_name}}</a>
     <span class="note">{{language_name}}{{#is_external}} · hotlink{{/is_external}}
       <span class="when">({{size}}, {{downloads}} downloads{{^published}}, hidden{{/published}})</span>
     </span>
-    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{path}}/remove">Remove</a>{{/mayEdit}}
   </li>
 {{/files}}
 </ul>

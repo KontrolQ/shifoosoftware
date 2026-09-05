@@ -30,10 +30,9 @@
 {{#hasVersions}}
 <ul class="entries">
 {{#versions}}
-  <li class="withact">
+  <li>
     <a class="title" href="{{root}}/browse/{{software.category}}/{{software.slug}}/{{slug}}">{{version}}</a>
     <span class="note">{{blurb}} <span class="when">({{files}} files{{#released_on}}, {{released_on}}{{/released_on}})</span></span>
-    {{#mayEdit}}<a class="act wipe" href="{{root}}/browse/{{software.category}}/{{software.slug}}/{{slug}}/remove">Remove</a>{{/mayEdit}}
   </li>
 {{/versions}}
 </ul>

@@ -1,4 +1,5 @@
 import { applyMatch } from "./searching.js";
+import { daysIn } from "./admin/shared.js";
 
 export const SORTS = [
   { value: "name", name: "Name", clause: "s.name ASC" },
@@ -64,7 +65,13 @@ function dateFrom(parameters, name) {
     return year;
   }
 
-  return day ? `${year}-${month}-${day}` : `${year}-${month}`;
+  const counted = Number(day);
+
+  if (!day || !Number.isInteger(counted) || counted < 1 || counted > daysIn(month, year)) {
+    return `${year}-${month}`;
+  }
+
+  return `${year}-${month}-${String(counted).padStart(2, "0")}`;
 }
 
 function measureFrom(parameters, name, units) {

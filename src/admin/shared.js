@@ -172,6 +172,27 @@ export function dateFieldFor(name, label, held) {
   };
 }
 
+// A month has the days it has. A form can be made to send any number at all, so the
+// date is trimmed here rather than trusted: a day past the end of its month is dropped
+// and the record keeps the month, which is true, instead of a day that never happened.
+export function daysIn(month, year) {
+  const lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const at = Number(month) - 1;
+
+  if (at < 0 || at > 11) {
+    return 0;
+  }
+
+  if (at === 1) {
+    const held = Number(year);
+    const leap = held % 4 === 0 && (held % 100 !== 0 || held % 400 === 0);
+
+    return leap ? 29 : 28;
+  }
+
+  return lengths[at];
+}
+
 export function dateFrom(form, name) {
   const year = textFrom(form, `${name}_year`);
   const month = textFrom(form, `${name}_month`);
@@ -185,11 +206,13 @@ export function dateFrom(form, name) {
     return year;
   }
 
-  if (!day) {
+  const counted = Number(day);
+
+  if (!day || !Number.isInteger(counted) || counted < 1 || counted > daysIn(month, year)) {
     return `${year}-${month}`;
   }
 
-  return `${year}-${month}-${String(day).padStart(2, "0")}`;
+  return `${year}-${month}-${String(counted).padStart(2, "0")}`;
 }
 
 export const SPEED_UNITS = ["MHz", "GHz"];
@@ -202,6 +225,29 @@ export function measureFieldFor(name, label, size, unit, units) {
     size: size ?? "",
     units: units.map((one) => ({ value: one, chosen: one === unit })),
   };
+}
+
+const IN_BYTES = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
+export const BYTE_UNITS = Object.keys(IN_BYTES);
+
+// Some sizes are kept as a single count of bytes rather than as a number and a unit.
+// They are still typed the way people say them, and folded back on the way in.
+export function bytesFrom(form, name) {
+  const size = textFrom(form, `${name}_size`);
+
+  if (!size || Number.isNaN(Number(size))) {
+    return null;
+  }
+
+  return Math.round(Number(size) * (IN_BYTES[textFrom(form, `${name}_unit`)] ?? 1));
+}
+
+export function byteFieldFor(name, label, bytes) {
+  const held = Number(bytes) || 0;
+  const unit = [...BYTE_UNITS].reverse().find((one) => held >= IN_BYTES[one]) ?? "B";
+  const size = held ? Number((held / IN_BYTES[unit]).toFixed(2)) : "";
+
+  return { name, label, size, units: BYTE_UNITS.map((one) => ({ value: one, chosen: one === unit })) };
 }
 
 export function measureFrom(form, name) {

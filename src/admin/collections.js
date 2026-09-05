@@ -491,7 +491,7 @@ COLLECTIONS.requests = {
   ],
   facets: [
     countedBy("state", "State", `
-      SELECT state AS value, state AS label, COUNT(*) AS held
+      SELECT state AS value, UPPER(SUBSTR(state, 1, 1)) || SUBSTR(state, 2) AS label, COUNT(*) AS held
       FROM requests GROUP BY state ORDER BY held DESC, state`),
   ],
   where: { state: "state = ?" },
@@ -776,7 +776,7 @@ COLLECTIONS.find = {
       name: "state",
       label: "State",
       kind: "choice",
-      sql: (manager) => `SELECT state AS value, state AS label, COUNT(*) AS held
+      sql: (manager) => `SELECT state AS value, UPPER(SUBSTR(state, 1, 1)) || SUBSTR(state, 2) AS label, COUNT(*) AS held
         FROM (${everythingFor(manager)}) WHERE state <> '' GROUP BY state ORDER BY held DESC, state`,
     },
     yesNo("linked", "Has a page", "(path IS NOT NULL AND path <> '')"),

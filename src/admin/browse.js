@@ -307,7 +307,7 @@ export async function softwareEdit(environment, root, manager, slug, message) {
       objectValue: held.icon_key ?? "",
       hotlinkValue: held.icon_hotlink_slug ?? "",
       opener: "Choose an icon",
-      prefix: `icons/${held.category}`,
+      prefix: `icons/${held.category}/${held.slug}`,
       labels: JSON.stringify({
         ...(held.icon_key ? { [held.icon_key]: held.icon_key } : {}),
         ...(linkedIcon ? { [linkedIcon.slug]: linkedIcon.name } : {}),
