@@ -174,7 +174,7 @@
       {{#cells}}
       <td class="{{#right}}right{{/right}}{{#muted}} muted{{/muted}}{{#warn}} warn{{/warn}}{{#tight}} tight{{/tight}}"
           style="{{styled}}" title="{{shown}}">
-        {{#rowHref}}<a href="{{rowHref}}">{{shown}}</a>{{/rowHref}}{{^rowHref}}<span>{{shown}}</span>{{/rowHref}}
+        {{#rowHref}}<a href="{{rowHref}}"{{#stamp}} data-when="{{stamp}}"{{/stamp}}>{{shown}}</a>{{/rowHref}}{{^rowHref}}<span{{#stamp}} data-when="{{stamp}}"{{/stamp}}>{{shown}}</span>{{/rowHref}}
       </td>
       {{/cells}}
     </tr>

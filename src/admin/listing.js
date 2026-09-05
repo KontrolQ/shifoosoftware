@@ -325,6 +325,8 @@ export async function listing(environment, root, manager, kind, url, saved) {
 
       return {
         shown: text,
+        // an instant is printed in the reader's own zone once the page opens
+        stamp: made.stamp ?? null,
         right: column.right,
         tight: column.tight,
         styled: column.width ? `max-width:${column.width}` : "",

@@ -55,6 +55,7 @@ async function shell(database) {
     downloads: (served ? served.total : 0).toLocaleString("en"),
     visitors: (seen ? seen.total : 0).toLocaleString("en"),
     updated: updated && updated.updated ? updated.updated.slice(0, 10) : "never",
+    updatedAt: updated?.updated ?? "",
     year: new Date().getUTCFullYear(),
     stocked: held,
   };
