@@ -91,13 +91,17 @@ function metadata(base, { path, title, description, image, kind }) {
   };
 }
 
+// None of these six depend on another, and the database is a network away, so they go
+// together: one round trip rather than six on every page of the archive.
 async function shell(database) {
-  const held = await stockedCategories(database);
-  const counted = await heldCount(database);
-  const served = await downloadTotal(database);
-  const stored = await fileTotal(database);
-  const seen = await visitorTotal(database);
-  const updated = await lastUpdated(database);
+  const [held, counted, served, stored, seen, updated] = await Promise.all([
+    stockedCategories(database),
+    heldCount(database),
+    downloadTotal(database),
+    fileTotal(database),
+    visitorTotal(database),
+    lastUpdated(database),
+  ]);
 
   const listed = held.map((row) => ({
     ...row,
@@ -204,9 +208,11 @@ function withCategoryNames(rows, lookup) {
 }
 
 export async function home(database) {
-  const base = await shell(database);
+  const [base, recent] = await Promise.all([
+    shell(database),
+    recentSoftware(database, RECENT_LIMIT),
+  ]);
   const lookup = named(base.stocked);
-  const recent = await recentSoftware(database, RECENT_LIMIT);
 
   return htmlResponse("home", {
     ...base,
@@ -564,8 +570,7 @@ export async function api(database) {
 }
 
 export async function recent(database) {
-  const base = await shell(database);
-  const held = await recentSoftware(database, 100);
+  const [base, held] = await Promise.all([shell(database), recentSoftware(database, 100)]);
 
   return htmlResponse("recent", {
     ...base,
@@ -681,8 +686,7 @@ function carriedFilters(filters) {
 }
 
 export async function search(database, filters) {
-  const base = await shell(database);
-  const found = await resultsFor(database, filters);
+  const [base, found] = await Promise.all([shell(database), resultsFor(database, filters)]);
   const carried = carriedFilters(filters);
   const { searched } = found;
 
@@ -711,8 +715,7 @@ export async function search(database, filters) {
 }
 
 export async function advancedSearch(database, filters) {
-  const base = await shell(database);
-  const found = await resultsFor(database, filters);
+  const [base, found] = await Promise.all([shell(database), resultsFor(database, filters)]);
   const carried = carriedFilters(filters);
   const { searched } = found;
 
