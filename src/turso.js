@@ -104,19 +104,48 @@ async function pipelined(where, token, statements) {
   });
 }
 
-function statement(where, token, sql, args) {
+// A page asks for several things at once and waits for all of them. Sent one at a time
+// those are separate requests, each paying for its own connection to a database that is
+// not nearby. Everything asked for in the same tick is therefore gathered and sent as
+// one pipeline, so a page costs a single round trip rather than one per query.
+function gatheringFrom(where, token) {
+  let waiting = null;
+
+  async function flush(batch) {
+    try {
+      const held = await pipelined(where, token, batch.map((one) => one.asked));
+
+      batch.forEach((one, at) => one.settle(held[at]));
+    } catch (failed) {
+      batch.forEach((one) => one.fail(failed));
+    }
+  }
+
+  return (asked) => new Promise((settle, fail) => {
+    if (!waiting) {
+      waiting = [];
+
+      queueMicrotask(() => {
+        const batch = waiting;
+
+        waiting = null;
+        flush(batch);
+      });
+    }
+
+    waiting.push({ asked, settle, fail });
+  });
+}
+
+function statement(gather, where, token, sql, args) {
   const asked = { sql, args };
 
   return {
     ...asked,
-    bind: (...bound) => statement(where, token, sql, bound),
-    first: async () => (await pipelined(where, token, [asked]))[0].rows[0] ?? null,
-    all: async () => ({ results: (await pipelined(where, token, [asked]))[0].rows, success: true }),
-    run: async () => {
-      const [held] = await pipelined(where, token, [asked]);
-
-      return { success: true, meta: { changes: held.changes } };
-    },
+    bind: (...bound) => statement(gather, where, token, sql, bound),
+    first: async () => (await gather(asked)).rows[0] ?? null,
+    all: async () => ({ results: (await gather(asked)).rows, success: true }),
+    run: async () => ({ success: true, meta: { changes: (await gather(asked)).changes } }),
   };
 }
 
@@ -132,10 +161,12 @@ export function catalogueOn(environment) {
   }
 
   const token = environment.TURSO_AUTH_TOKEN;
+  const gather = gatheringFrom(where, token);
 
   return {
-    prepare: (sql) => statement(where, token, sql, []),
-    // One round trip for the lot, which is the point of asking for a batch.
+    prepare: (sql) => statement(gather, where, token, sql, []),
+    // An explicit batch is already one round trip and is sent as it stands, rather than
+    // being gathered with whatever else the page happens to be asking for.
     batch: (statements) =>
       pipelined(where, token, statements.map((one) => ({ sql: one.sql, args: one.args }))),
   };
