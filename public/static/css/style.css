@@ -13,7 +13,7 @@ a:hover{color:var(--red)}
 
 /* a display rule of ours must never outrank the hidden attribute */
 [hidden]{display:none !important}
-.page{width:1180px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-top:3px solid var(--navy)}
+.page{width:1200px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-top:3px solid var(--navy)}
 
 
 
@@ -35,13 +35,16 @@ a:hover{color:var(--red)}
 
 
 .shell{display:flex;align-items:stretch}
-.rail{width:210px;flex:0 0 210px;background:var(--navy-pale);border-right:1px solid var(--rule);padding:.6rem 0}
+.rail{width:200px;flex:0 0 200px;background:var(--navy-pale);border-right:1px solid var(--rule);padding:.6rem 0}
 .rail .group b{display:block;font:700 .68rem var(--body);letter-spacing:.06em;color:var(--navy-deep);padding:.3rem .6rem;
   border-bottom:1px solid var(--rule-soft);margin-bottom:.2rem}
 .rail .group a{display:block;padding:.16rem .6rem .16rem 1.1rem;font-size:.74rem;text-decoration:none;position:relative}
 .rail .group a::before{content:"▸";position:absolute;left:.5rem;color:var(--red)}
 .rail .group a.offsite::after{content:"↗";margin-left:.3rem;font-size:.62rem;color:var(--muted)}
 .rail .group a:hover{background:var(--paper);text-decoration:underline}
+/* the pictures belong to the shifoo sheet; the others keep their bullet */
+.rail .group a.ico{display:flex;align-items:center;gap:8px}
+.rail .group a.ico img{width:20px;height:20px;flex:0 0 20px;object-fit:contain;display:none}
 .rail .group{margin-bottom:.7rem}
 
 .body{flex:1;min-width:0;padding:.7rem .9rem 1.4rem}
@@ -489,7 +492,7 @@ td.desc .clip *{display:inline}
 .search-grid .filterfield{min-width:0}
 
 .linkpick .tag.external{border-color:var(--red);background:var(--red-pale)}
-.linkpick .tag.external .label::before{content:'97';margin-right:.25rem;color:var(--red)}
+.linkpick .tag.external .label::before{content:"\2197";margin-right:.25rem;color:var(--red)}
 
 .shots{list-style:none;display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;padding:0}
 .shots li{width:13rem}
@@ -695,7 +698,7 @@ table.manage input,table.manage select,table.manage button,
 .rail .filter input,.quick input,.quick select{min-height:0}
 
 /* every page fits the window it is opened in, and they are all one width */
-.page{width:min(1180px,100%)}
+.page{width:min(1200px,100%)}
 .page.wide{width:min(1360px,100%)}
 
 /* a label the layout has no room for, still read aloud */
@@ -773,7 +776,7 @@ table.manage input,table.manage select,table.manage button,
 .catlist.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem}
 .catrow{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem 0;
   border-bottom:1px dotted var(--rule)}
-.catlist > .catrow:last-child{border-bottom:0}
+.catlist:not(.grid) > .catrow:last-child{border-bottom:0}
 .catbody{flex:1;min-width:0}
 .cattop{display:flex;align-items:baseline;gap:.6rem}
 .cattitle{font-weight:700;font-size:.82rem;flex:1;min-width:0}
@@ -794,6 +797,15 @@ table.manage input,table.manage select,table.manage button,
   .catlist.grid{grid-template-columns:1fr}
   .cattop{flex-wrap:wrap;gap:.2rem .6rem}
 }
+
+/* A file result gives its name and title room to read: hardware can run to dozens of
+   pills, and left to itself it takes the whole table and squeezes the rest to nothing. */
+table.results{table-layout:fixed;width:100%}
+table.results th,table.results td{overflow-wrap:anywhere}
+table.results th:nth-child(1),table.results td:nth-child(1){width:18%}
+table.results th:nth-child(2),table.results td:nth-child(2){width:20%}
+table.results th:nth-child(3),table.results td:nth-child(3){width:14%}
+table.results th.right,table.results td.right{width:8%}
 
 /* result paging */
 .pager{display:flex;align-items:center;gap:.9rem;margin:.5rem 0 1rem;font-size:.72rem;
