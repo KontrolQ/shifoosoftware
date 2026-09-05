@@ -1,25 +1,58 @@
-/* Dark — the same archive after hours. The structure does not move; the paper goes
-   dark, the rules lift off it, and the navy that was a heading colour becomes a
-   surface, so the bars still read as bars. */
+/* Dark — the colours Dark Reader renders over this archive, read off the running
+   extension and written down here, so the page looks that way without it.
+   Dark Reader treats a colour by the job it is doing rather than by its value: it
+   darkens a fill, holds a piece of text about where it was, and lifts a border a long
+   way. Where one token below does two jobs, the second is set again further down. */
 
 :root {
-  --navy:#3a5c96;--navy-deep:#9db6e0;--navy-pale:#1c2434;
-  --red:#e05664;--red-deep:#f0808c;--red-pale:#2e1c20;
-  --magenta:#c46a9c;--magenta-pale:#2a1c25;
-  --gold:#e8a33d;
-  --ink:#ddd8d2;--ink-soft:#b6b0a9;--muted:#8f8a85;--muted-more:#5a5650;
-  --rule:#3a3630;--rule-soft:#2c3546;--rule-faint:#312d28;--field-rule:#46536b;
-  --link:#8fb4f0;--visited:#c0a0e8;
-  --stripe:#1e1c1a;--sheet-soft:#201e1b;--field-off:#26231f;--rule-warm:#3a2b2e;
-  --on-fill:#f2efec;
-  --paper:#191715;--ground:#100f0e;
-  --bar-others:#4a6a92;--bar-elsewhere:#8a7a5a;--bar-free:#2a2724;
+  /* read off the extension */
+  --ground:#0b0c0d;        /* body */
+  --paper:#111313;         /* the page, and a field */
+  --ink:#cfcbc5;           /* body text, a table cell, a paragraph */
+  --muted:#9e9689;         /* a blurb, the crumbs, the footer, a fact's label */
+  --on-fill:#dedbd7;       /* lettering on a bar, a heading, a button */
+  --navy:#2e4a78;          /* a section bar, a table head */
+  --navy-deep:#94b9dd;     /* a panel lid, a figure, a chip's lettering */
+  --navy-pale:#161d2a;     /* the rail, the footer, a chip */
+  --red:#901b26;           /* a button */
+  --magenta:#c772a1;       /* the strapline */
+  --link:#84baee;          /* every link */
+  --rule:#7b7265;          /* a row's rule, a cell's rule, the rail's edge */
+  --rule-soft:#797164;     /* under a panel lid */
+  --field-rule:#6f675b;    /* a field's edge */
+  --stripe:#151718;        /* every second row */
+
+  /* the same transform, applied to the tokens the page had nowhere to show */
+  --ink-soft:#b6b0a7;
+  --muted-more:#6b645a;
+  --rule-faint:#6f6759;
+  --rule-warm:#7d6d70;
+  --sheet-soft:#171614;
+  --field-off:#1b1917;
+  --red-deep:#e8848f;
+  --red-pale:#211417;
+  --magenta-pale:#1e141b;
+  --gold:#dfa049;
+  --visited:#b79ce0;
+  --bar-others:#3c556f;
+  --bar-elsewhere:#6e6248;
+  --bar-free:#1f1d1b;
+
   --body:"Zen Kaku","Hiragino Kaku Gothic Pro","MS PGothic",Verdana,sans-serif;
   --mono:"DM Mono",ui-monospace,Consolas,monospace;
 }
 
+/* The page keeps the darker rule the extension left it, and the brighter navy on top. */
+.page{border-color:#3a3630;border-top-color:#36558b}
+
+/* Red fills a button, so the token holds the fill. These are the places it letters
+   instead, where the fill colour would be too dark to read. */
+a:hover,.get,.warn,button.wipe,.view button:hover,th.sortable a:hover,
+th.sorted a::after,.rail .group a::before{color:#dd5f6b}
+button.danger{border-color:#dd5f6b;color:#dd5f6b}
+
 /* The tab strip is a rule under the tabs rather than a band across the page. */
 .viewtabs{background:none;border:0;border-bottom:1px solid var(--rule);padding-bottom:1px}
 
-/* A picture drawn for white paper is too bright against this one. */
-img.icon,img.bigicon,img.caticon{background:#e8e6e3}
+/* A picture drawn for white paper gets a plate, dimmed to sit in the page. */
+img.icon,img.bigicon,img.caticon{background:#262a2b}
