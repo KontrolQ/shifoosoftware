@@ -47,6 +47,17 @@ function absolute(path) {
   return path && path.startsWith("/") ? `${SITE}${path}` : path;
 }
 
+// These are written into attributes unescaped, so that a preview reader sees a real
+// address rather than entities. Anything that could close the attribute is encoded
+// first — a screenshot's address is stored text and cannot be trusted as markup.
+function safeUrl(held) {
+  if (!held) {
+    return null;
+  }
+
+  return encodeURI(String(held)).replace(/["'<>]/g, (one) => encodeURIComponent(one));
+}
+
 // One or two sentences, plain, under what a preview will show of it.
 export function trimmedTo(text, howMany = 200) {
   const held = String(text ?? "").replace(/\s+/g, " ").trim();
@@ -63,11 +74,11 @@ export function trimmedTo(text, howMany = 200) {
 
 function metadata(base, { path, title, description, image, kind }) {
   return {
-    canonical: `${SITE}${path}`,
+    canonical: safeUrl(`${SITE}${path}`),
     pageDescription: trimmedTo(description) || SITE_NAME,
     ogTitle: title,
     ogType: kind ?? "website",
-    ogImage: absolute(image) ?? null,
+    ogImage: safeUrl(absolute(image)),
     siteName: SITE_NAME,
   };
 }
