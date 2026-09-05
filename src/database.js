@@ -105,12 +105,20 @@ export function releaseYears(database) {
   );
 }
 
-export function softwareInCategory(database, category) {
-  return rowsOf(
+export async function softwareInCategory(database, category, page, perPage) {
+  const counted = await database
+    .prepare("SELECT COUNT(*) AS total FROM catalogue_software s WHERE s.published = 1 AND s.category_slug = ?")
+    .bind(category)
+    .first();
+
+  const rows = await rowsOf(
     database
-      .prepare(`${COUNTED_SOFTWARE} WHERE s.published = 1 AND s.category_slug = ? ORDER BY s.name`)
-      .bind(category)
+      .prepare(`${COUNTED_SOFTWARE} WHERE s.published = 1 AND s.category_slug = ?
+                ORDER BY s.name LIMIT ? OFFSET ?`)
+      .bind(category, perPage, (page - 1) * perPage)
   );
+
+  return { rows, total: counted?.total ?? 0 };
 }
 
 // The directory is read a page at a time, and a letter with nothing behind it is

@@ -698,9 +698,8 @@ button,a.pill{display:inline-flex;align-items:center;justify-content:center}
 table.manage input,table.manage select,table.manage button,
 .rail .filter input,.quick input,.quick select{min-height:0}
 
-/* an admin page fits the window it is opened in */
-.page{width:min(1010px,100%)}
-.adminbody .page{width:min(1180px,100%)}
+/* every page fits the window it is opened in, and they are all one width */
+.page{width:min(1180px,100%)}
 .page.wide{width:min(1360px,100%)}
 
 /* a label the layout has no room for, still read aloud */

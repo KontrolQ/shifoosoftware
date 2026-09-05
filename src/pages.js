@@ -38,6 +38,9 @@ import { lettersHeld, rowsOf, softwareByLetter } from "./database.js";
 
 const RECENT_LIMIT = 3;
 
+// A browsed list is read, not scanned, so it is shorter than a page of search results.
+const BROWSE_PER_PAGE = 24;
+
 // Link previews are built by machines that never sign in, so every page states in its
 // own head what it is. The addresses have to be absolute for those machines to follow.
 const SITE = "https://software.shi.foo";
@@ -213,7 +216,27 @@ export async function home(database) {
   });
 }
 
-export async function category(database, slug) {
+// A pager for a list that is only ever narrowed one way, by the address it sits at.
+function pagesOf(path, total, wanted) {
+  const lastPage = Math.max(1, Math.ceil(total / BROWSE_PER_PAGE));
+  const page = Math.min(Math.max(1, wanted), lastPage);
+  const linkTo = (at) => (at > 1 ? `${path}?page=${at}` : path);
+
+  return {
+    page,
+    lastPage,
+    total,
+    from: total === 0 ? 0 : (page - 1) * BROWSE_PER_PAGE + 1,
+    to: Math.min(page * BROWSE_PER_PAGE, total),
+    hasMore: lastPage > 1,
+    hasBack: page > 1,
+    hasNext: page < lastPage,
+    backHref: linkTo(page - 1),
+    nextHref: linkTo(page + 1),
+  };
+}
+
+export async function category(database, slug, wanted) {
   const held = await categoryBySlug(database, slug);
 
   if (!held) {
@@ -221,12 +244,15 @@ export async function category(database, slug) {
   }
 
   const base = await shell(database);
-  const software = (await softwareInCategory(database, slug)).map((row) => ({
+  const page = Math.max(1, Number.parseInt(wanted, 10) || 1);
+  const found = await softwareInCategory(database, slug, page, BROWSE_PER_PAGE);
+  const software = found.rows.map((row) => ({
     ...row,
     icon: iconFor(row),
     blurb: plain(row.description, 320),
     size: describedSize(row.bytes_held),
   }));
+  const pager = pagesOf(`/${slug}/`, found.total, page);
 
   return htmlResponse("category", {
     ...base,
@@ -234,7 +260,7 @@ export async function category(database, slug) {
       path: `/${slug}/`,
       title: held.name,
       description: `${plain(held.summary, 200) || held.name}. `
-        + `${counted(software.length, "title")} in this section of the archive.`,
+        + `${counted(found.total, "title")} in this section of the archive.`,
       image: held.icon_from ? `/icon/${held.icon_from}` : null,
     }),
     title: held.name,
@@ -243,10 +269,11 @@ export async function category(database, slug) {
     summaryHtml: rendered(held.summary),
     categoryDescription: `${held.summary
       ? held.summary.charAt(0).toUpperCase() + held.summary.slice(1)
-      : held.name}. ${software.length} ${software.length === 1 ? "title" : "titles"} held in this category.`,
+      : held.name}. ${found.total} ${found.total === 1 ? "title" : "titles"} held in this category.`,
     software,
-    softwareCount: software.length,
-    softwareLabel: counted(software.length, "title"),
+    pager,
+    softwareCount: found.total,
+    softwareLabel: counted(found.total, "title"),
     hasSoftware: software.length > 0,
   });
 }
@@ -261,7 +288,7 @@ export async function directory(database, letter, page) {
     : null;
 
   const wanted = Math.max(1, Number.parseInt(page, 10) || 1);
-  const held = await softwareByLetter(database, asked, wanted, PER_PAGE);
+  const held = await softwareByLetter(database, asked, wanted, BROWSE_PER_PAGE);
   const lookup = named(base.stocked);
 
   const linkTo = (one, at) => {
@@ -275,7 +302,7 @@ export async function directory(database, letter, page) {
     return query ? `/software/?${query}` : "/software/";
   };
 
-  const lastPage = Math.max(1, Math.ceil(held.total / PER_PAGE));
+  const lastPage = Math.max(1, Math.ceil(held.total / BROWSE_PER_PAGE));
   const at = Math.min(wanted, lastPage);
 
   return htmlResponse("directory", {
@@ -309,8 +336,8 @@ export async function directory(database, letter, page) {
       page: at,
       lastPage,
       total: held.total,
-      from: held.total === 0 ? 0 : (at - 1) * PER_PAGE + 1,
-      to: Math.min(at * PER_PAGE, held.total),
+      from: held.total === 0 ? 0 : (at - 1) * BROWSE_PER_PAGE + 1,
+      to: Math.min(at * BROWSE_PER_PAGE, held.total),
       hasMore: lastPage > 1,
       hasBack: at > 1,
       hasNext: at < lastPage,

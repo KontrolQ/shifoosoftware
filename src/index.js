@@ -230,7 +230,7 @@ async function route(request, environment, url) {
   }
 
   if (parts.length === 1) {
-    return category(environment.CATALOGUE, parts[0]);
+    return category(environment.CATALOGUE, parts[0], url.searchParams.get("page"));
   }
 
   if (parts.length === 2) {

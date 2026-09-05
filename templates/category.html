@@ -27,6 +27,15 @@
   </li>
 {{/software}}
 </ul>
+
+{{#pager.hasMore}}
+<div class="pager">
+  <span class="pagerat">Showing {{pager.from}}&ndash;{{pager.to}} of {{pager.total}}</span>
+  {{#pager.hasBack}}<a href="{{pager.backHref}}">&larr; Previous</a>{{/pager.hasBack}}
+  <span class="pagerat">Page {{pager.page}} of {{pager.lastPage}}</span>
+  {{#pager.hasNext}}<a href="{{pager.nextHref}}">Next &rarr;</a>{{/pager.hasNext}}
+</div>
+{{/pager.hasMore}}
 {{/hasSoftware}}
 
 {{^hasSoftware}}
