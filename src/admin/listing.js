@@ -372,6 +372,10 @@ export async function listing(environment, root, manager, kind, url, saved) {
     [shape.flag]: true,
     listPath,
     newHref: shape.makes && can(manager, `${shape.permission}.create`) ? `${listPath}/new` : null,
+    // a collection may offer one job of its own, done to the whole of it rather than to a row
+    chore: shape.chore && can(manager, `${shape.permission}.edit`)
+      ? { ...shape.chore, href: `${root}/${shape.chore.path}` }
+      : null,
     kind,
     query,
     facets: [
@@ -428,17 +432,23 @@ export async function listing(environment, root, manager, kind, url, saved) {
       fixed: one.fixed,
     }))),
     chosenColumns: columnKeys,
-    filters: filters.filter((held) => shown.includes(held.column)).map((held) => ({
-      name: held.column.key,
-      label: held.column.label,
-      value: held.value,
-      styled: held.column.width ? `width:${held.column.width}` : "",
-      operators: operatorsFor(held.column.type).map((one) => ({
-        value: one.key,
-        label: one.label,
-        chosen: one.key === held.operator,
-      })),
-    })),
+    // the filter row is drawn column by column in the order the columns are shown, so
+    // that a box always sits under the heading it narrows however the columns are chosen
+    filters: shown.map((column) => {
+      const held = filters.find((one) => one.column === column);
+
+      return {
+        name: column.key,
+        label: column.label,
+        value: held?.value ?? "",
+        styled: column.width ? `width:${column.width}` : "",
+        operators: operatorsFor(column.type).map((one) => ({
+          value: one.key,
+          label: one.label,
+          chosen: one.key === held?.operator,
+        })),
+      };
+    }),
     rows: drawn.map((cells) => ({ cells })),
     hasRows: rows.length > 0,
     page,

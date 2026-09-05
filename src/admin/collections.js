@@ -445,6 +445,7 @@ COLLECTIONS.hotlinks = {
   path: "hotlinks",
   permission: "hotlinks",
   makes: true,
+  chore: { label: "Drop unused", path: "sweep-hotlinks" },
   flag: "atHotlinks",
   from: "SELECT * FROM catalogue_hotlinks",
   search: ["name", "slug", "target_url", "notes"],

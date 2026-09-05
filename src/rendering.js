@@ -16,7 +16,6 @@ import search from "../templates/search.html";
 import advanced from "../templates/advanced.html";
 import checksums from "../templates/checksums.html";
 import recent from "../templates/recent.html";
-import adminHotlinks from "../templates/admin-hotlinks.html";
 import browseScreenshots from "../templates/browse-screenshots.html";
 import editScreenshot from "../templates/edit-screenshot.html";
 import editHotlink from "../templates/edit-hotlink.html";
@@ -58,7 +57,6 @@ const PARTIALS = { head, foot, adminshell, adminfoot, pick, storagepick, datefie
 
 const TEMPLATES = {
   home, category, directory, software, version, search, advanced, recent, missing, checksums, requests, api,
-  "admin-hotlinks": adminHotlinks,
   "browse-screenshots": browseScreenshots,
   "edit-screenshot": editScreenshot,
   "edit-hotlink": editHotlink,

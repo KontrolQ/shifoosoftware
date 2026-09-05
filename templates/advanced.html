@@ -6,7 +6,7 @@
   <input type="hidden" name="mode" value="advanced">
 
   <div class="askrow">
-    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}">
+    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}" aria-label="Words to look for">
     <button type="submit">Search</button>
   </div>
 
@@ -34,7 +34,7 @@
       <div class="facetbody" data-body="ordering" hidden>
         <div class="ranges">
           <label>Order by
-            <select name="sort">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
+            <select name="sort" aria-label="Order the results by">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
           </label>
         </div>
       </div>
@@ -55,11 +55,11 @@
           {{#ends}}
           <span class="dateend">
             <b>{{label}}</b>
-            <select name="{{name}}_day"><option value="">Day</option>
+            <select name="{{name}}_day" aria-label="{{label}} day"><option value="">Day</option>
               {{#days}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/days}}</select>
-            <select name="{{name}}_month"><option value="">Month</option>
+            <select name="{{name}}_month" aria-label="{{label}} month"><option value="">Month</option>
               {{#months}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{label}}</option>{{/months}}</select>
-            <select name="{{name}}_year"><option value="">Year</option>
+            <select name="{{name}}_year" aria-label="{{label}} year"><option value="">Year</option>
               {{#years}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/years}}</select>
           </span>
           {{/ends}}
@@ -74,8 +74,8 @@
           {{#ends}}
           <span class="dateend">
             <b>{{label}}</b>
-            <input name="{{name}}" value="{{value}}" inputmode="numeric" size="6" placeholder="0">
-            <select name="{{name}}_unit">
+            <input name="{{name}}" value="{{value}}" inputmode="numeric" size="6" placeholder="0" aria-label="{{label}}">
+            <select name="{{name}}_unit" aria-label="{{label}} unit">
               {{#units}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{value}}</option>{{/units}}
             </select>
           </span>

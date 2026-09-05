@@ -4,8 +4,8 @@
 
 <form class="search-panel" action="/search" method="get">
   <div class="askrow">
-    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}">
-    <select name="sort">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
+    <input type="search" name="q" placeholder="Words from anywhere" value="{{query}}" aria-label="Words to look for">
+    <select name="sort" aria-label="Order the results by">{{#sorts}}<option value="{{value}}"{{#chosen}} selected{{/chosen}}>{{name}}</option>{{/sorts}}</select>
     <button type="submit">Search</button>
   </div>
 

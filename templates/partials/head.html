@@ -35,8 +35,8 @@
       <div class="group">
         <b>Search</b>
         <form class="quick" action="/search" method="get">
-          <input type="search" name="q" placeholder="Keyword">
-          <select name="category">
+          <input type="search" name="q" placeholder="Keyword" aria-label="Search the archive">
+          <select name="category" aria-label="Narrow to a category">
             <option value="">Any category</option>
             {{#railCategories}}<option value="{{slug}}">{{name}}</option>{{/railCategories}}
           </select>
