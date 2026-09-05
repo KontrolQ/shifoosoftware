@@ -23,6 +23,7 @@ export const CHOICE_FACETS = [
   { key: "platform", label: "Platform", of: "software" },
   { key: "interface", label: "User interface", of: "software" },
   { key: "processor", label: "Minimum processor", of: "software" },
+  { key: "architecture", label: "Architecture", of: "file" },
   { key: "device", label: "Hardware", of: "file" },
   { key: "language", label: "Language", of: "file" },
   { key: "filetype", label: "File type", of: "file" },
@@ -218,6 +219,12 @@ function softwareConditions(filters, conditions, bindings, askedOfRelease) {
     filters.chosen.device, conditions, bindings
   );
 
+  existsAnyOf(
+    `EXISTS (SELECT 1 FROM version_architectures va JOIN versions v ON v.id = va.version_id
+             WHERE v.software_slug = s.slug AND va.architecture_slug IN (?list))`,
+    filters.chosen.architecture, conditions, bindings
+  );
+
   anyOf("s.minimum_cpu_slug", filters.chosen.processor, conditions, bindings);
 
   betweenDates("s.released_on", filters.from, filters.to, conditions, bindings);
@@ -329,6 +336,11 @@ export async function searchFiles(database, filters) {
   existsAnyOf(
     "EXISTS (SELECT 1 FROM file_devices fd WHERE fd.file_id = f.id AND fd.device_slug IN (?list))",
     filters.chosen.device, conditions, bindings
+  );
+
+  existsAnyOf(
+    "EXISTS (SELECT 1 FROM file_architectures fa WHERE fa.file_id = f.id AND fa.architecture_slug IN (?list))",
+    filters.chosen.architecture, conditions, bindings
   );
 
   anyOf("f.file_type_slug", filters.chosen.filetype, conditions, bindings);

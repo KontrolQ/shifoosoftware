@@ -157,7 +157,8 @@ function statedFacts(row) {
     { label: "Publisher", value: row.publisher_names ?? row.publisher,
       links: linkedFacts(row.publisher_names ?? row.publisher, null, "publisher") },
     { label: "Platform", value: row.platform_names, links: linkedFacts(row.platform_names, null, "platform") },
-    { label: "Architecture", value: row.architecture_names },
+    { label: "Architecture", value: row.architecture_names,
+      links: linkedFacts(row.architecture_names, null, "architecture") },
     { label: "Interface", value: row.interface_names, links: linkedFacts(row.interface_names, null, "interface") },
     { label: "Hardware", value: row.device_names, links: linkedFacts(row.device_names, null, "device") },
     {
