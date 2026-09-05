@@ -265,9 +265,11 @@ export async function category(database, slug, wanted) {
     return null;
   }
 
-  const base = await shell(database);
   const page = Math.max(1, Number.parseInt(wanted, 10) || 1);
-  const found = await softwareInCategory(database, slug, page, BROWSE_PER_PAGE);
+  const [base, found] = await Promise.all([
+    shell(database),
+    softwareInCategory(database, slug, page, BROWSE_PER_PAGE),
+  ]);
   const software = found.rows.map((row) => ({
     ...row,
     icon: iconFor(row),
@@ -305,14 +307,17 @@ export async function category(database, slug, wanted) {
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export async function directory(database, letter, page) {
-  const base = await shell(database);
-  const counts = new Map((await lettersHeld(database)).map((row) => [row.letter, row.held]));
   const asked = letter && (letter === "#" || ALPHABET.includes(letter.toUpperCase()))
     ? (letter === "#" ? "#" : letter.toUpperCase())
     : null;
 
   const wanted = Math.max(1, Number.parseInt(page, 10) || 1);
-  const held = await softwareByLetter(database, asked, wanted, BROWSE_PER_PAGE);
+  const [base, lettered, held] = await Promise.all([
+    shell(database),
+    lettersHeld(database),
+    softwareByLetter(database, asked, wanted, BROWSE_PER_PAGE),
+  ]);
+  const counts = new Map(lettered.map((row) => [row.letter, row.held]));
   const lookup = named(base.stocked);
 
   const linkTo = (one, at) => {

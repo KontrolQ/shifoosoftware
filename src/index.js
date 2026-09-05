@@ -311,7 +311,7 @@ async function route(request, environment, url) {
 }
 
 export default {
-  async fetch(request, asked) {
+  async fetch(request, asked, context) {
     const url = new URL(request.url);
 
     // The catalogue is reached over libSQL rather than through a binding, so it is put
@@ -322,8 +322,16 @@ export default {
     const seenToday = (request.headers.get("cookie") ?? "").includes(`seen=${today}`);
     const counts = request.method === "GET" && !url.pathname.startsWith("/static") && !seenToday;
 
+    // Counting a visit is nobody's reason for waiting, so the page does not: the write
+    // is left running after the response has gone.
     if (counts) {
-      await noteVisit(environment.CATALOGUE, today);
+      const counting = noteVisit(environment.CATALOGUE, today);
+
+      if (context?.waitUntil) {
+        context.waitUntil(counting);
+      } else {
+        await counting;
+      }
     }
 
     const held = (await route(request, environment, url)) ?? (await missing(environment.CATALOGUE));
