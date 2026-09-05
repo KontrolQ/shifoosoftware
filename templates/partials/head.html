@@ -28,7 +28,7 @@
 <script src="/static/js/page.js" defer></script>
 </head>
 <body>
-<div class="page wide">
+<div class="page">
 
   <div class="shell">
     <div class="rail">
@@ -51,18 +51,18 @@
 
       <div class="group">
         <b>Menu</b>
-        <a href="/">Index</a>
-        <a href="/software/">All Software</a>
-        <a href="/recent">Recently Added</a>
-        <a href="/search">Advanced Search</a>
-        <a href="/requests">Request Something</a>
-        <a href="/api">API</a>
-        <a href="https://shi.foo" class="offsite">Shifoo</a>
+        <a class="ico" href="/"><img src="/static/images/icons/home.gif" alt="">Index</a>
+        <a class="ico" href="/software/"><img src="/static/images/icons/cabinet.gif" alt="">All Software</a>
+        <a class="ico" href="/recent"><img src="/static/images/icons/calendar.png" alt="">Recently Added</a>
+        <a class="ico" href="/search"><img src="/static/images/icons/research.png" alt="">Advanced Search</a>
+        <a class="ico" href="/requests"><img src="/static/images/icons/email.gif" alt="">Request Something</a>
+        <a class="ico" href="/api"><img src="/static/images/icons/setup.gif" alt="">API</a>
+        <a class="ico offsite" href="https://shi.foo"><img src="/static/images/icons/globe.gif" alt="">Shifoo</a>
       </div>
 
       <div class="group">
         <b>Categories</b>
-        {{#railCategories}}<a href="/{{slug}}/">{{name}}</a>{{/railCategories}}
+        {{#railCategories}}<a class="ico" href="/{{slug}}/"><img src="{{{icon}}}" alt="">{{name}}</a>{{/railCategories}}
       </div>
 
       <div class="group">

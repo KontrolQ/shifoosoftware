@@ -19,9 +19,11 @@
 {{/hasScreenshots}}
     <div class="facts">
       {{#released}}<span><b>Released</b> {{released}}</span>{{/released}}
-      {{#hasPlatforms}}<span><b>Platform</b> <span class="pills">{{#platforms}}<a href="{{href}}">{{name}}</a>{{/platforms}}</span></span>{{/hasPlatforms}}
+      {{#hasPlatforms}}<span><b>Platform</b><span
+        >{{#platforms}}<a href="{{href}}">{{name}}</a>{{^last}}, {{/last}}{{/platforms}}</span></span>{{/hasPlatforms}}
       {{#hasArchitecture}}<span><b>Architecture</b> {{architecture}}</span>{{/hasArchitecture}}
-      {{#publishers}}{{/publishers}}<span><b>Publisher</b> <span class="pills">{{#publishers}}<a href="{{href}}">{{name}}</a>{{/publishers}}</span></span>
+      {{#publishers.length}}<span><b>Publisher</b><span
+        >{{#publishers}}<a href="{{href}}">{{name}}</a>{{^last}}, {{/last}}{{/publishers}}</span></span>{{/publishers.length}}
       <span><b>Files</b> {{fileCount}}</span>
       <span><b>Total size</b> {{totalSize}}</span>
     </div>
