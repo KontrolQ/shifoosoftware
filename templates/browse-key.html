@@ -5,13 +5,24 @@
 {{#message}}<div class="empty warn">{{message}}</div>{{/message}}
 {{#saved}}<div class="empty">{{saved}}</div>{{/saved}}
 
+{{#hasSecret}}
+<div class="reveal">
+  <code class="answer secret" data-secret hidden>{{secret}}</code>
+  <code class="answer secret" data-masked>{{key.opening}}&hellip;</code>
+  <div class="search-row">
+    <button type="button" data-reveal>Show the key</button>
+    <button type="button" data-copy="{{secret}}">Copy</button>
+  </div>
+</div>
+{{/hasSecret}}
+
 <dl class="facts">
-  <dt>Begins</dt><dd class="key">{{key.opening}}&hellip;</dd>
+  {{^hasSecret}}<dt>Begins</dt><dd class="key">{{key.opening}}&hellip; <span class="hintmark">minted before keys were kept, so the rest is gone</span></dd>{{/hasSecret}}
   <dt>Acts as</dt><dd>{{key.manager_email}}</dd>
   <dt>Role</dt><dd>{{key.role_name}}</dd>
-  <dt>Created</dt><dd>{{made}}</dd>
-  <dt>Last used</dt><dd>{{lastUsed}}</dd>
-  {{^live}}<dt>Revoked</dt><dd>{{key.revoked_at}}</dd>{{/live}}
+  <dt>Created</dt><dd><span data-when="{{key.created_at}}">{{made}}</span></dd>
+  <dt>Last used</dt><dd><span data-when="{{key.last_used_at}}">{{lastUsed}}</span></dd>
+  {{^live}}<dt>Revoked</dt><dd><span data-when="{{key.revoked_at}}">{{key.revoked_at}}</span></dd>{{/live}}
 </dl>
 
 {{#mayRevoke}}

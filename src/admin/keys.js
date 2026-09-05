@@ -53,6 +53,8 @@ export async function keyView(environment, root, manager, identifier, message, s
     live: !held.revoked_at,
     lastUsed: (held.last_used_at ?? "").replace("T", " ").slice(0, 16) || "never",
     made: (held.created_at ?? "").replace("T", " ").slice(0, 16),
+    secret: held.secret,
+    hasSecret: Boolean(held.secret),
     mayRevoke: can(manager, "keys.delete") && !held.revoked_at,
   });
 }
@@ -74,9 +76,10 @@ export async function keyCreate(environment, root, manager, form) {
 
   await database
     .prepare(`
-      INSERT INTO api_keys (manager_id, name, opening, token_hash, created_at)
-      VALUES (?, ?, ?, ?, ?)`)
-    .bind(manager.id, name, secret.slice(0, OPENING_SHOWN), await hashOf(secret), new Date().toISOString())
+      INSERT INTO api_keys (manager_id, name, opening, token_hash, secret, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)`)
+    .bind(manager.id, name, secret.slice(0, OPENING_SHOWN), await hashOf(secret), secret,
+          new Date().toISOString())
     .run();
 
   const held = await database
