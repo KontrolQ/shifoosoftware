@@ -28,17 +28,23 @@
   --mono:"DM Mono",ui-monospace,Consolas,monospace;
 }
 
-/* The backdrop everything floats over. The page script puts the video in only when this
-   theme is on, so the other two never fetch it. */
-body{background:var(--ground);font-size:12px}
-#backdrop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-  min-width:100%;min-height:100%;object-fit:cover;z-index:-100;pointer-events:none}
-#backdrop-veil{position:fixed;inset:0;background:#000;opacity:.78;z-index:-99;pointer-events:none;
-  backdrop-filter:blur(1px)}
+/* The backdrop everything floats over — a frame of the site's own, held still, under a
+   black veil so the reading stays first. Only this sheet asks for it, so the other two
+   themes never fetch it. */
+body{background:#000 url(/static/images/backdrop.webp) center center / cover no-repeat fixed;
+  font-size:12px}
+body::before{content:"";position:fixed;inset:0;background:#000;opacity:.72;
+  z-index:-1;pointer-events:none}
 
-.page{border:0;border-top:1px solid #fff;border-top-left-radius:14px;background:none}
-.rail{background:none;border-right:0;padding:.9rem .4rem}
-.body{border-left:1px solid #ffffff40;background:#00000059}
+/* The site has no page box at all: fixed-width columns floating straight on the
+   backdrop. Its white hairline across the top of them belongs under a header banner
+   with a sprite sitting on the line — there is no banner here, so the rule is left off
+   rather than hung on nothing. */
+.page,.page.wide{width:1020px;border:0;background:none;box-shadow:none}
+.shell{align-items:flex-start}
+.rail{width:200px;flex:0 0 200px;background:none;border:0;padding:.9rem 0 0}
+.body{flex:1 1 auto;background:none;border:0;padding:.9rem 0 2rem 20px}
+.foot{width:100%;margin-top:8px;padding:8px 0;text-align:center;border-top:1px solid #fff}
 .welcome,.prose{font-size:.85rem;text-align:justify}
 .catblurb,.entries .note{font-size:.75rem}
 
@@ -69,12 +75,13 @@ a:hover,a:active{color:#df23c4;text-decoration:underline}
   background:linear-gradient(180deg,#1e1432d9 0%,#0f0a19e6 100%);
   border:1px solid #ad8cffb3;border-radius:8px 8px 0 0;
   box-shadow:0 3px 5px -2px #8857d299,inset 0 0 8px #945dff40;
-  font:700 1.05rem "SweetFairy","Mali",sans-serif;letter-spacing:.5px;color:#623795;
+  font:700 18px/27px "SweetFairy","Mali",sans-serif;letter-spacing:.5px;color:#623795;
   filter:drop-shadow(2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(-2px 0 0 #fff)
     drop-shadow(0 -2px 0 #fff) drop-shadow(0 1px 1px #623795) drop-shadow(0 1px 1px #623795)}
 .rail .group b::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;
   background:linear-gradient(to right,#ad8cff66,#ffb3ba80,#54f2f280,#ad8cff66)}
 .rail .group a{display:block;margin:3px 4px;padding:2px 2px 2px 1rem;border-radius:4px;
+  font-size:12px;color:#8d8dff;
   transition:transform .2s ease,background-color .2s ease}
 .rail .group a:hover{transform:translateX(3px);background:#ad8cff2e;
   box-shadow:inset 0 0 3px #54f2f233;text-decoration:none;color:#fff}
