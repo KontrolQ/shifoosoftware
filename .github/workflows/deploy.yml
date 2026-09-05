@@ -27,9 +27,10 @@ jobs:
       - run: npm ci
 
       # Everything published is minified: the templates, the stylesheets and the
-      # scripts here, and the worker bundle itself by wrangler.
-      - name: Minify into build/
-        run: npm run build
+      # scripts here, and the worker bundle itself by wrangler. The checkout is
+      # minified in place because wrangler bundles the tree it is standing in.
+      - name: Minify the checkout
+        run: node scripts/build.mjs --overwrite-sources
 
       # The schema goes first, so the worker never meets a database it predates.
       - name: Bring the database up to date
@@ -39,14 +40,11 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: d1 migrations apply shifoosoftware --remote
 
-      # Published from inside build/, not with --cwd: the flag reports the minified
-      # tree and then bundles the sources anyway.
       - name: Publish the worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: build
           command: deploy --minify
 
       - name: Give it its secrets

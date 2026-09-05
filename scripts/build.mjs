@@ -1,7 +1,10 @@
-// Builds a minified mirror of the project into build/, which is what gets published.
-// The sources stay readable; nothing here writes back over them. Paths inside
-// wrangler.toml are read relative to the file, so the copy in build/ points at the
-// minified templates and assets without a second configuration to keep in step.
+// Minifies every template, stylesheet and script.
+//
+// By default it writes a mirror into build/ so the result can be read and served
+// without touching the sources. With --overwrite-sources it writes each file back over
+// itself instead, which is what the deploy does: wrangler bundles the tree it is given
+// whatever a --cwd or a config copy says, so the only reliable way to publish minified
+// output is to hand it a checkout that is already minified. Never run that here.
 
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, sep } from "node:path";
@@ -191,15 +194,21 @@ async function present(path) {
 }
 
 async function build() {
-  await rm(BUILD, { recursive: true, force: true });
-  await mkdir(BUILD, { recursive: true });
+  const inPlace = process.argv.includes("--overwrite-sources");
 
-  // The worker's own modules go over as they are; wrangler bundles and minifies them.
-  await cp(join(ROOT, "src"), join(BUILD, "src"), { recursive: true });
-  await cp(join(ROOT, "wrangler.toml"), join(BUILD, "wrangler.toml"));
+  if (inPlace) {
+    console.log("minifying the checkout in place");
+  } else {
+    await rm(BUILD, { recursive: true, force: true });
+    await mkdir(BUILD, { recursive: true });
 
-  if (await present(join(ROOT, "migrations"))) {
-    await cp(join(ROOT, "migrations"), join(BUILD, "migrations"), { recursive: true });
+    // The worker's own modules go over as they are; wrangler minifies them itself.
+    await cp(join(ROOT, "src"), join(BUILD, "src"), { recursive: true });
+    await cp(join(ROOT, "wrangler.toml"), join(BUILD, "wrangler.toml"));
+
+    if (await present(join(ROOT, "migrations"))) {
+      await cp(join(ROOT, "migrations"), join(BUILD, "migrations"), { recursive: true });
+    }
   }
 
   const totals = { was: 0, now: 0 };
@@ -208,7 +217,7 @@ async function build() {
   for (const source of [join(ROOT, "templates"), join(ROOT, "public")]) {
     for await (const path of filesUnder(source)) {
       const within = relative(ROOT, path);
-      const target = join(BUILD, within);
+      const target = inPlace ? path : join(BUILD, within);
       const kind = extname(path).toLowerCase();
 
       let saved = null;
@@ -219,7 +228,7 @@ async function build() {
         saved = await minifiedSheet(path, target);
       } else if (kind === ".js") {
         saved = await minifiedScript(path, target);
-      } else {
+      } else if (!inPlace) {
         await mkdir(dirname(target), { recursive: true });
         await cp(path, target);
       }
