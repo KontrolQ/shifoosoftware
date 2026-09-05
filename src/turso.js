@@ -30,7 +30,9 @@ function statement(client, sql, args) {
 let held = null;
 
 export function catalogueOn(environment) {
-  const url = environment.TURSO_DATABASE_URL;
+  // A libsql:// address asks the client for its websocket transport, which a worker
+  // cannot open; over https it talks the same protocol with fetch.
+  const url = (environment.TURSO_DATABASE_URL ?? "").replace(/^libsql:\/\//, "https://");
 
   if (!url) {
     throw new Error("TURSO_DATABASE_URL is not set");
