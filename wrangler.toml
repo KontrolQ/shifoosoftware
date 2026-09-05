@@ -16,8 +16,3 @@ binding = "ASSETS"
 type = "Text"
 globs = ["templates/**/*.html"]
 fallthrough = true
-
-[[d1_databases]]
-binding = "CATALOGUE"
-database_name = "shifoosoftware"
-database_id = "a075cfbd-420e-41af-b34d-b9da0f6470f9"

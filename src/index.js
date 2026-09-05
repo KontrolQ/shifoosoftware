@@ -21,6 +21,7 @@ import {
 } from "./pages.js";
 import { filtersFrom, needsTidying, tidiedQuery } from "./search.js";
 import { filesFor } from "./storage/bucket.js";
+import { catalogueOn } from "./turso.js";
 
 const STATIC_PREFIX = "static";
 
@@ -310,8 +311,12 @@ async function route(request, environment, url) {
 }
 
 export default {
-  async fetch(request, environment) {
+  async fetch(request, asked) {
     const url = new URL(request.url);
+
+    // The catalogue is reached over libSQL rather than through a binding, so it is put
+    // where the rest of the archive already looks for it.
+    const environment = { ...asked, CATALOGUE: catalogueOn(asked) };
 
     const today = new Date().toISOString().slice(0, 10);
     const seenToday = (request.headers.get("cookie") ?? "").includes(`seen=${today}`);
