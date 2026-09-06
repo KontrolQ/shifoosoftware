@@ -5,15 +5,15 @@
 const PER_BATCH = 100;
 
 export function endpoint() {
-  const where = (process.env.TURSO_DATABASE_URL ?? "")
+  const where = (process.env.CATALOGUE_URL ?? "")
     .replace(/^libsql:\/\//, "https://")
     .replace(/\/+$/, "");
 
   if (!where) {
-    throw new Error("TURSO_DATABASE_URL must be set");
+    throw new Error("CATALOGUE_URL must be set");
   }
 
-  const token = process.env.TURSO_AUTH_TOKEN ?? "";
+  const token = process.env.CATALOGUE_TOKEN ?? "";
 
   return {
     where: `${where}/v2/pipeline`,
@@ -22,7 +22,7 @@ export function endpoint() {
     // only one ignores it.
     headers: {
       "content-type": "application/json",
-      "x-namespace": process.env.TURSO_NAMESPACE || "default",
+      "x-namespace": process.env.CATALOGUE_NAMESPACE || "default",
       authorization: /^(Basic|Bearer) /i.test(token) ? token : `Bearer ${token}`,
     },
   };

@@ -13,8 +13,8 @@ can serve the database if you would rather host it yourself.
 ```sh
 npm install
 cp .dev.vars.example .dev.vars   # then fill it in
-node scripts/loadturso.mjs schema.sql
-node scripts/loadturso.mjs seed.sql
+node scripts/loaddump.mjs schema.sql
+node scripts/loaddump.mjs seed.sql
 npm run dev
 ```
 
@@ -27,7 +27,7 @@ uploads the runtime secrets, so the repository needs these set:
 | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | A token with Workers edit rights |
 | `CLOUDFLARE_ACCOUNT_ID` | The account the worker belongs to |
-| `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` | The libSQL server holding the catalogue |
+| `CATALOGUE_URL`, `CATALOGUE_TOKEN` | The libSQL server holding the catalogue |
 | `ADMIN_PATH` | Where the management interface answers |
 | `OIDC_DISCOVERY`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_REDIRECT` | Signing managers in |
 | `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME` | The store files are written to |

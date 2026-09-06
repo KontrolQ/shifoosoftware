@@ -21,7 +21,7 @@ import {
 } from "./pages.js";
 import { filtersFrom, needsTidying, tidiedQuery } from "./search.js";
 import { filesFor } from "./storage/bucket.js";
-import { catalogueOn } from "./turso.js";
+import { catalogueOn } from "./libsql.js";
 
 const STATIC_PREFIX = "static";
 
