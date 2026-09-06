@@ -2,7 +2,7 @@
 # that way — they hold live credentials. The same names are set as repository
 # secrets for the deploy workflow.
 
-# Where the management interface answers, kept off the obvious path
+# The path the management interface answers on
 ADMIN_PATH=
 
 # The identity provider that signs managers in

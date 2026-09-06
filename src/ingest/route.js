@@ -41,7 +41,7 @@ export async function ingestRoute(request, environment, manager) {
   const database = environment.CATALOGUE;
   const report = { made: [], changed: [], source: document.source ?? null };
 
-  // D1 gives no transaction across statements, so a document that fails part way
+  // Nothing here is wrapped in a transaction, so a document that fails part way
   // leaves what it already wrote. The report says what landed rather than pretending.
   try {
     const softwareSlug = await upsertSoftware(database, manager, document.software, report);
