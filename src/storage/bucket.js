@@ -158,7 +158,9 @@ export async function capacityOf(environment) {
     }
 
     const held = await answer.json();
-    const disks = held?.Disks ?? held?.disks;
+    // MinIO answers with the disks at the top; RustFS, which speaks the same admin API,
+    // nests them under `info`. Both are accepted so either store reports its size.
+    const disks = held?.info?.disks ?? held?.Disks ?? held?.disks;
 
     if (!Array.isArray(disks) || disks.length === 0) {
       return null;
@@ -189,7 +191,13 @@ export async function bucketSizes(environment) {
     }
 
     const held = await answer.json();
-    const buckets = held?.bucketsUsageInfo ?? held?.bucketsSizes;
+    // The same reading under either store's spelling: MinIO names these in camel case,
+    // RustFS in snake case, and one gives a record per bucket where the other gives a size.
+    const buckets =
+      held?.bucketsUsageInfo ??
+      held?.buckets_usage ??
+      held?.bucketsSizes ??
+      held?.bucket_sizes;
 
     if (!buckets || typeof buckets !== "object") {
       return null;
